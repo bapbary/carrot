@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 #include "CarrotFantasyMap.h"
-#include <chrono>
+#include "ui/CocosGUI.h"
 using namespace std::chrono;
 #define cellHeight 45
 #define cellWidth 67.5
@@ -41,11 +41,6 @@ void sceneCover::menuCloseCallback(Ref* pSender)
     //_eventDispatcher->dispatchEvent(&customEndEvent);
 
 
-}
-void sceneChoose::menuCloseCallback(Ref* pSender)
-{
-    //Close the cocos2d-x game scene and quit the application
-    Director::getInstance()->end();
 }
 Scene* sceneCover::createScene()
 {
@@ -146,6 +141,7 @@ bool sceneChoose::init()
 }
 void sceneChoose::returnLast(Ref* pSender)
 {
+    CCLOG("return last");
     Director::getInstance()->popScene();//从地图选择的场景，并从栈里将封面场景弹出作为当前运行场景
     return;
 }
@@ -185,17 +181,6 @@ void sceneChoose::enterMapOne(Ref* pSender)
     Director::getInstance()->pushScene(TransitionFade::create(1, map));//进入地图选择场景
 }
 
-mapOne::mapOne()
-{
-    fireBottle = nullptr;
-    //鼠标监听创建
-    mouseListener = cocos2d::EventListenerMouse::create();
-    // 绑定鼠标按下事件的回调函数
-    mouseListener->onMouseDown = CC_CALLBACK_1(mapOne::onMouseDown, this);
-    // 将监听器添加到事件分发器中
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(mouseListener, this);
-
-}
 Scene* mapOne::createScene()
 {
     Scene* startScene = Scene::create();
@@ -232,7 +217,7 @@ bool mapOne::init()//第一张地图的初始化
         "returnSelected.png",
         CC_CALLBACK_1(sceneChoose::returnLast, this));//回到上一场景的按键
     returnItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y + 3 * returnItem->getContentSize().height));
-    auto menu = Menu::create(returnItem, NULL);//创建菜单，将两个按键加入
+    auto menu = Menu::create(returnItem, NULL);//创建菜单，将按键加入
     this->addChild(menu, 2);
 
 
@@ -240,40 +225,68 @@ bool mapOne::init()//第一张地图的初始化
     label->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y+40));
     this->addChild(label,3);
 
+    fireBottle = nullptr;
+    //触摸监听创建
+    touchListener = EventListenerTouchOneByOne::create();
+    // 绑定触摸的的回调函数
+    touchListener->onTouchEnded = CC_CALLBACK_2(mapOne::onTouchEnded, this);
+    touchListener->onTouchBegan = CC_CALLBACK_2(mapOne::onTouchBegan, this);
+    // 将监听器添加到事件分发器中
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
 
     return true;
 }
-void mapOne::onMouseDown(EventMouse* event)
+bool  mapOne::onTouchEnded(Touch* touch, Event* event)
 {
     CCLOG("onMouseDown - Start");
 
     auto visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
     Vec2 origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
     
-    cocos2d::Vec2 mousePos = event->getLocation();
+    cocos2d::Vec2 mousePos = touch->getLocation();
     float mouseLocX = mousePos.x;
     float mouseLocY = mousePos.y;
     label->setString("Mouse Coordinates: " + std::to_string(mouseLocX) + ", " + std::to_string(mouseLocY));
-    
+
     if (fireBottle == nullptr)
     {
-        CCLOG("Creating fireBottle");
-        fireBottle = cocos2d::Sprite::create("fireBottle.png");
-        fireBottle->setPosition(Vec2(static_cast<int>(mouseLocX / cellWidth) * cellWidth, (static_cast<int>((720 - mouseLocY) / cellHeight) + 1) * cellHeight));
-        this->addChild(fireBottle, 3);
+        fireBottle = MenuItemImage::create(
+            "fireBottle.png",
+            "fireBottle.png",
+            CC_CALLBACK_1(mapOne::menuCloseCallback, this));
+        fireBottle->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - cellWidth / 2, static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+        Menu* menu = Menu::create(fireBottle, NULL);
+        this->addChild(menu, 3);
 
     }
     else
     {
-        fireBottle->setVisible(!fireBottle->isVisible());
-
-        // 如果精灵不可见，移除精灵
-        if (!fireBottle->isVisible())
+        if (fireBottle->getBoundingBox().containsPoint(mousePos))
         {
+            // 点击了fireBottle图标，执行回调函数
+            CCLOG("Clicked on the sprite!");
+            menuCloseCallback(fireBottle);
+        }
+        else {
+            // 点击了非fireBottle图标，移除fireBottle图标
             CCLOG("Removing fireBottle");
-            this->removeChild(fireBottle);
+            CCLOG("Clicked outside the sprite!");
+            this->removeChild(fireBottle->getParent());//移除选择图标所在菜单
             fireBottle = nullptr;  // 将精灵置为空，以便下次点击重新创建
         }
+       
     }
     CCLOG("onMouseDown - End");
+    event->stopPropagation();
+    return true;
+}
+bool  mapOne::onTouchBegan(Touch* touch, Event* event)
+{
+    return true;
+}
+void mapOne::menuCloseCallback(Ref* pSender)
+{
+    Director::getInstance()->popScene();//从地图选择的场景，并从栈里将封面场景弹出作为当前运行场景
+    return;
+
 }

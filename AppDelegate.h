@@ -22,50 +22,43 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __CARROTFANTASYMAP_SCENE_H__
-#define __CARROTFANTASYMAP_SCENE_H__
+#ifndef  _APP_DELEGATE_H_
+#define  _APP_DELEGATE_H_
 
 #include "cocos2d.h"
 
+/**
+@brief    The cocos2d Application.
 
-class sceneCover : public cocos2d::Scene
+Private inheritance here hides part of interface from Director.
+*/
+class  AppDelegate : private cocos2d::Application
 {
 public:
-    static cocos2d::Scene* createScene();
-    virtual bool init();
-    void touchStart(cocos2d::Ref* pSender);//进入封面选择
-    void menuCloseCallback(cocos2d::Ref* pSender);//退出程序
-    CREATE_FUNC(sceneCover);
+    AppDelegate();
+    virtual ~AppDelegate();
+
+    virtual void initGLContextAttrs();
+
+    /**
+    @brief    Implement Director and Scene init code here.
+    @return true    Initialize success, app continue.
+    @return false   Initialize failed, app terminate.
+    */
+    virtual bool applicationDidFinishLaunching();
+
+    /**
+    @brief  Called when the application moves to the background
+    @param  the pointer of the application
+    */
+    virtual void applicationDidEnterBackground();
+
+    /**
+    @brief  Called when the application reenters the foreground
+    @param  the pointer of the application
+    */
+    virtual void applicationWillEnterForeground();
 };
 
-class sceneChoose : public cocos2d::Scene
-{
-public:
-    static cocos2d::Scene* createScene();
-    virtual bool init();//第一个地图选择场景初始化
-    void returnLast(cocos2d::Ref* pSender);//回到上一场景
-    void flipToNext(cocos2d::Ref* pSender);//滑动到下一个地图选择场景
-    void flipToLast(cocos2d::Ref* pSender);//滑动到上一个地图选择场景
-    void enterMapOne(cocos2d::Ref* pSender);//进入第一个地图中
-    CREATE_FUNC(sceneChoose);
-
-};
-
-class mapOne : public sceneChoose
-{
-    cocos2d::Label* label;
-    cocos2d::MenuItemImage* fireBottle;
-    cocos2d::EventListenerTouchOneByOne* touchListener;
-public:
-    static cocos2d::Scene* createScene();
-    virtual bool init();//第一个地图场景初始化
-    bool onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);
-    bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
-
-    void menuCloseCallback(cocos2d::Ref* pSender);//退出程序
-
-    CREATE_FUNC(mapOne);
-
-};
-#endif // __CARROTFANTASYMAP_SCENE_H__
+#endif // _APP_DELEGATE_H_
 
