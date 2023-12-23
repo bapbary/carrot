@@ -14,7 +14,7 @@ FireTower::FireTower(const cocos2d::Vec2& touchlocation) {
     tower_sustained_attack_time;
 
     // 使用全局计数器作为唯一ID 以便后续标识炮塔
-    towerName = "FireTower_" + std::to_string(count);
+    towername = "FireTower_" + std::to_string(count);
     count++;
 
     //放置炮塔并显示
