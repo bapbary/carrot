@@ -19,8 +19,6 @@ public:
 
     //判断目标对象消失（攻击致死）
 
-
-
     //炮塔更新索敌对象
     void tower_targetupdate();
 

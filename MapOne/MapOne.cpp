@@ -1,5 +1,5 @@
 #include"MapOne.h"
-
+#include "Monster.h"
 #define cellHeight 60
 #define cellWidth 60
 
@@ -18,7 +18,10 @@ bool mapOne::init()//第一张地图的初始化
     {
         return false;
     }
-
+    if (!Scene::initWithPhysics())
+    {
+       return false;
+    }
     auto visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
     Vec2 origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
 
@@ -69,6 +72,9 @@ bool mapOne::init()//第一张地图的初始化
     touchListener->onTouchBegan = CC_CALLBACK_2(mapOne::onTouchBegan, this);
     // 将监听器添加到事件分发器中
     _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
+
+    Monster* MonsterLayer = Monster::create();
+    route->addChild(MonsterLayer, 1);
 
     return true;
 }
