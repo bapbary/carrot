@@ -40,9 +40,9 @@ bool mapOne::init()//第一张地图的初始化
     outline->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height + origin.y - outline->getContentSize().height / 2));
     this->addChild(outline, 1);
     //金币放置
-    goldCoin = cocos2d::Label::createWithTTF("1000", "fonts/Marker Felt.ttf", 24);
-    goldCoin->setPosition(Vec2(245, 690));
-    this->addChild(goldCoin, 2);
+    auto goldCoinDisplay = cocos2d::Label::createWithTTF(std::to_string(goldCoin), "fonts/Marker Felt.ttf", 24);
+    goldCoinDisplay->setPosition(Vec2(245, 690));
+    this->addChild(goldCoinDisplay, 2);
 
     //障碍物设置
     obstacleDispatch();
@@ -72,6 +72,10 @@ bool mapOne::init()//第一张地图的初始化
 
     return true;
 }
+bool mapOne::isTouchTower()//判断点击到的是否为炮塔
+{
+    return true;
+}
 bool  mapOne::onTouchEnded(Touch* touch, Event* event)
 {
     CCLOG("onTouchEnded - Start");
@@ -83,15 +87,30 @@ bool  mapOne::onTouchEnded(Touch* touch, Event* event)
     float mouseLocX = mousePos.x;
     float mouseLocY = mousePos.y;
     label->setString("Mouse Coordinates: " + std::to_string(mouseLocX) + ", " + std::to_string(mouseLocY));
-
-    if (fireBottle == nullptr)
+    if (towerClass != nullptr)
     {
-        if (mouseLocY < 90 || (mouseLocY > 185 && mouseLocY < 290 && mouseLocX > 245 && mouseLocX < 1010) || (mouseLocY > 360 && mouseLocY < 470 && mouseLocX > 70 && mouseLocX < 825) || (mouseLocY > 570 && mouseLocY < 655 && mouseLocX > 425 && mouseLocX < 1010) && mousePos != obstacleTree->getPosition())//点击位置可以安装炮塔
+        CCLOG("TowerClass exist!");
+    }
+    else
+        CCLOG("Can't find towerClass");
+    if (fireBottle == nullptr && (towerClass == nullptr || !(towerClass->getTowerSprite()->getBoundingBox().containsPoint(mousePos))) && towerMenu == nullptr)//点击空白处
+    {
+        if (mouseLocY < 100 || (mouseLocY > 185 && mouseLocY < 290 && mouseLocX > 245 && mouseLocX < 1010) || (mouseLocY > 360 && mouseLocY < 470 && mouseLocX > 70 && mouseLocX < 825) || (mouseLocY > 570 && mouseLocY < 655 && mouseLocX > 425 && mouseLocX < 1010) || (mouseLocY < 570 && mouseLocY>295 && mouseLocX > 915) || (mouseLocY < 360 && mouseLocY>100 && mouseLocX < 160) && mousePos != obstacleTree->getPosition())//点击位置可以安装炮塔
         {
-            fireBottle = MenuItemImage::create(
-                "fireBottle.png",
-                "fireBottle.png",
-                CC_CALLBACK_1(mapOne::fireBottleGenerate, this));
+            if (goldCoin >= 160)
+            {
+                fireBottle = MenuItemImage::create(
+                    "fireBottleCanBuild.png",
+                    "fireBottleCanBuild.png",
+                    CC_CALLBACK_1(mapOne::fireBottleGenerate, this));
+            }
+            else
+            {
+                fireBottle = MenuItemImage::create(
+                    "fireBottleCannotBuild.png",
+                    "fireBottleCannotBuild.png",
+                    CC_CALLBACK_1(mapOne::fireBottleGenerate, this));
+            }
             Menu* menu = Menu::create(fireBottle, NULL);
             this->addChild(menu, 3);
             //复选框设置
@@ -114,23 +133,58 @@ bool  mapOne::onTouchEnded(Touch* touch, Event* event)
         else
             CCLOG("Click invalid");
     }
-    else
+    else if (fireBottle == nullptr && towerClass != nullptr && towerClass->getTowerSprite() != nullptr)
     {
-        if (fireBottle->getBoundingBox().containsPoint(mousePos))
+        // 点击了fireBottle,选择升级或删除
+        CCLOG("Choose upgrade or delete!");
+        if (towerMenu==nullptr && towerClass->getTowerSprite()->getBoundingBox().containsPoint(mousePos)) 
         {
-            // 点击了fireBottle图标，执行回调函数
-            CCLOG("Clicked on the sprite!");
-            fireBottleGenerate(fireBottle);
+            if (goldCoin >= 320)
+            {
+                auto upgradeItem = MenuItemImage::create(
+                    "CanUpgrade.png",
+                    "CanUpgrade.png",
+                    CC_CALLBACK_1(mapOne::upgradeTower, this)
+                );
+                upgradeItem->setPosition(towerClass->getTowerSprite()->getPosition().x - visibleSize.width / 2, towerClass->getTowerSprite()->getPosition().y + cellHeight - visibleSize.height / 2);
+                auto deleteItem = MenuItemImage::create(
+                    "TowerDelete.png",
+                    "TowerDelete.png",
+                    CC_CALLBACK_1(mapOne::deleteTower, this)
+                );
+                deleteItem->setPosition(towerClass->getTowerSprite()->getPosition().x - visibleSize.width / 2, towerClass->getTowerSprite()->getPosition().y - cellHeight - visibleSize.height / 2);
+                towerMenu = Menu::create(upgradeItem, deleteItem, NULL);
+            }
+            else
+            {
+                auto cannotUpgradeItem = Sprite::create("CannotUpgrade.png");
+                cannotUpgradeItem->setPosition(towerClass->getTowerSprite()->getPosition().x - visibleSize.width / 2, towerClass->getTowerSprite()->getPosition().y + cellHeight - visibleSize.height / 2);
+                auto deleteItem = MenuItemImage::create(
+                    "TowerDelete.png",
+                    "TowerDelete.png",
+                    CC_CALLBACK_1(mapOne::deleteTower, this)
+                );
+                deleteItem->setPosition(towerClass->getTowerSprite()->getPosition().x - visibleSize.width / 2, towerClass->getTowerSprite()->getPosition().y - cellHeight - visibleSize.height / 2);
+                towerMenu = Menu::create(deleteItem, NULL);
+
+            }
+            this->addChild(towerMenu, 2);
         }
         else
         {
-            // 点击了非fireBottle图标，移除fireBottle图标
-            CCLOG("Removing fireBottle");
+            // 点击了非tower图标
             CCLOG("Clicked outside the sprite!");
-            this->removeChild(fireBottle->getParent());//移除选择图标所在菜单
-            fireBottle = nullptr;  // 将精灵置为空，以便下次点击重新创建
+            this->removeChild(towerMenu);//移除选择图标所在菜单
+            towerMenu = nullptr;
         }
+    }
+    else
+    {
+        CCLOG("Remove LOGO");
+        this->removeChild(fireBottle->getParent());//移除选择图标所在菜单
         removeChild(selectedPos);//选择取消或者建造炮塔，复选框均消失
+        fireBottle = nullptr;  // 将精灵置为空，以便下次点击重新创建
+
     }
     CCLOG("onTouchEnded - End");
     event->stopPropagation();
@@ -161,4 +215,13 @@ void mapOne::obstacleDispatch()
 }
 void mapOne::fireBottleGenerate(Ref* pSender)//生成火焰瓶的炮塔类
 {
+    this->removeChild(fireBottle->getParent());//移除选择图标所在菜单
+    fireBottle = nullptr;  // 将精灵置为空，以便下次点击重新创建
+    removeChild(selectedPos);//选择取消或者建造炮塔，复选框均消失
+    towerClass = new FireTower("FireTower_small.png", 1, 1, towerPos);
+    this->addChild(towerClass->getTowerSprite(), 2);
+}
+void mapOne::upgradeTower(Ref* pSender)//生成火焰瓶的炮塔类
+{
+
 }

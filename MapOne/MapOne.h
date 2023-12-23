@@ -13,6 +13,7 @@ class mapOne : public mapChoose
     cocos2d::Sprite* loadingBar;//血条背景
     cocos2d::ProgressTimer* loadingBarBlood;//血条填充
     cocos2d::Sprite* selectedPos;//复选框
+    cocos2d::Menu* towerMenu = nullptr;//炮塔升级菜单
 public:
     static cocos2d::Scene* createScene();
     virtual bool init();//第一个地图场景初始化(UI设计)
@@ -20,8 +21,15 @@ public:
     bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);//点击开始（保证监听正常进行）
     void obstacleDispatch();//障碍物设置
     void fireBottleGenerate(cocos2d::Ref* pSender);//放置炮塔
-    cocos2d::Vec2 passPos();//传递炮塔位置
-    void deleteTower(cocos2d::Ref* pSender);//删除炮塔
+    cocos2d::Vec2 passPos(){
+        return towerPos;
+    }//传递炮塔位置
+    void upgradeTower(cocos2d::Ref* pSender);
+    void deleteTower(cocos2d::Ref* pSender)
+    {
+        delete towerClass;
+    }//删除炮塔
+    bool isTouchTower();
     CREATE_FUNC(mapOne);
 
 };
