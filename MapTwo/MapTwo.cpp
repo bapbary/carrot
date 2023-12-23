@@ -1,19 +1,19 @@
-#include"MapOne.h"
+#include"MapTwo.h"
 #include"TowerManager.h"
 #include"FireTower.h"
-#define cellHeight 60
-#define cellWidth 60
+
+#define cellHeight 75
+#define cellWidth 75
 
 USING_NS_CC;
-
-Scene* mapOne::createScene()
+Scene* mapTwo::createScene()
 {
     Scene* startScene = Scene::create();
-    mapOne* map = mapOne::create();
+    mapTwo* map = mapTwo::create();
     startScene->addChild(map);
     return startScene;
 }
-bool mapOne::init()//第一张地图的初始化
+bool mapTwo::init()//第一张地图的初始化
 {
     if (!Scene::init())
     {
@@ -24,16 +24,16 @@ bool mapOne::init()//第一张地图的初始化
     Vec2 origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
 
     //地图背景图设置
-    auto background = Sprite::create("mapBackground.png");
+    auto background = Sprite::create("mapBackgroundTwo.png");
     background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
     this->addChild(background, 0);
     //怪兽路线图设置
-    route = Sprite::create("route.png");
-    route->setPosition(Vec2(visibleSize.width / 2 + origin.x, route->getContentSize().height / 2));
+    route = Sprite::create("routeTwo.png");
+    route->setPosition(Vec2(visibleSize.width / 2 + origin.x + 25, route->getContentSize().height / 2));
     this->addChild(route, 1);
     //怪兽入口设置
     auto monsterEnter = Sprite::create("monsterEnter.png");
-    monsterEnter->setPosition(Vec2(6 * cellWidth, 9 * cellHeight));
+    monsterEnter->setPosition(Vec2(monsterEnter->getContentSize().width / 2, 7.5 * cellHeight));
     this->addChild(monsterEnter, 2);
 
     //outline框设置
@@ -41,12 +41,11 @@ bool mapOne::init()//第一张地图的初始化
     outline->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height + origin.y - outline->getContentSize().height / 2));
     this->addChild(outline, 1);
     //金币放置
-    goldCoinDisplay = cocos2d::Label::createWithTTF(std::to_string(goldCoin), "fonts/Marker Felt.ttf", 24);
+    auto goldCoinDisplay = cocos2d::Label::createWithTTF(std::to_string(goldCoin), "fonts/Marker Felt.ttf", 24);
     goldCoinDisplay->setPosition(Vec2(245, 690));
     this->addChild(goldCoinDisplay, 2);
 
     //障碍物设置
-    obstacleDispatch();
 
     //回调按钮设置
     auto returnItem = MenuItemImage::create(
@@ -66,23 +65,24 @@ bool mapOne::init()//第一张地图的初始化
     //触摸监听创建
     touchListener = EventListenerTouchOneByOne::create();
     // 绑定触摸的的回调函数
-    touchListener->onTouchEnded = CC_CALLBACK_2(mapOne::onTouchEnded, this);
-    touchListener->onTouchBegan = CC_CALLBACK_2(mapOne::onTouchBegan, this);
+    touchListener->onTouchEnded = CC_CALLBACK_2(mapTwo::onTouchEnded, this);
+    touchListener->onTouchBegan = CC_CALLBACK_2(mapTwo::onTouchBegan, this);
     // 将监听器添加到事件分发器中
     _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
 
     return true;
 }
-bool mapOne::isTouchTower()//判断点击到的是否为炮塔
-{
-    return true;
-}
-bool  mapOne::onTouchEnded(Touch* touch, Event* event)
+bool  mapTwo::onTouchEnded(Touch* touch, Event* event)
 {
     if (fireBottleClicked == true)
     {
+        CCLOG("Clicked!");
         fireBottleClicked = false;
         return true;
+    }
+    else
+    {
+        CCLOG("invaid!");
     }
     CCLOG("onTouchEnded - Start");
 
@@ -93,28 +93,26 @@ bool  mapOne::onTouchEnded(Touch* touch, Event* event)
     float mouseLocX = mousePos.x;
     float mouseLocY = mousePos.y;
     label->setString("Mouse Coordinates: " + std::to_string(mouseLocX) + ", " + std::to_string(mouseLocY));
+    std::string towerName;//若点击位置有炮塔即可接收其名字，若没有则为空串
     towerName = TowerManager::getInstance()->towerSelected(mousePos);
-    if (towerName == "")
-    {
-        CCLOG("towerName is valid");
-    }
+
     if (fireBottle == nullptr && towerName == "" && towerMenu == nullptr)//点击空白处
     {
-        if (mouseLocY < 100 || (mouseLocY > 185 && mouseLocY < 290 && mouseLocX > 245 && mouseLocX < 1010) || (mouseLocY > 360 && mouseLocY < 470 && mouseLocX > 70 && mouseLocX < 825) || (mouseLocY > 570 && mouseLocY < 655 && mouseLocX > 425 && mouseLocX < 1010) || (mouseLocY < 570 && mouseLocY>295 && mouseLocX > 915) || (mouseLocY < 360 && mouseLocY>100 && mouseLocX < 160) && mousePos != obstacleTree->getPosition())//点击位置可以安装炮塔
+        if (1)//点击位置可以安装炮塔
         {
             if (goldCoin >= 160)
             {
                 fireBottle = MenuItemImage::create(
                     "fireBottleCanBuild.png",
                     "fireBottleCanBuild.png",
-                    CC_CALLBACK_1(mapOne::fireBottleGenerate, this));
+                    CC_CALLBACK_1(mapTwo::fireBottleGenerate, this));
             }
             else
             {
                 fireBottle = MenuItemImage::create(
                     "fireBottleCannotBuild.png",
                     "fireBottleCannotBuild.png",
-                    CC_CALLBACK_1(mapOne::fireBottleGenerate, this));
+                    CC_CALLBACK_1(mapTwo::fireBottleGenerate, this));
             }
             Menu* menu = Menu::create(fireBottle, NULL);
             this->addChild(menu, 3);
@@ -138,7 +136,7 @@ bool  mapOne::onTouchEnded(Touch* touch, Event* event)
         else
             CCLOG("Click invalid");
     }
-    else if (fireBottle == nullptr && (towerName != "" || towerMenu != nullptr))
+    else if (fireBottle == nullptr && towerName != "")
     {
         // 点击了fireBottle,选择升级或删除
         CCLOG("Choose upgrade or delete!");
@@ -149,13 +147,13 @@ bool  mapOne::onTouchEnded(Touch* touch, Event* event)
                 auto upgradeItem = MenuItemImage::create(
                     "CanUpgrade.png",
                     "CanUpgrade.png",
-                    CC_CALLBACK_1(mapOne::upgradeTower, this)
+                    CC_CALLBACK_1(mapTwo::upgradeTower, this)
                 );
                 upgradeItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y + cellHeight - visibleSize.height / 2);
                 auto deleteItem = MenuItemImage::create(
                     "TowerDelete.png",
                     "TowerDelete.png",
-                    CC_CALLBACK_1(mapOne::deleteTower, this)
+                    CC_CALLBACK_1(mapTwo::deleteTower, this)
                 );
                 deleteItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y - cellHeight - visibleSize.height / 2);
                 towerMenu = Menu::create(upgradeItem, deleteItem, NULL);
@@ -167,7 +165,7 @@ bool  mapOne::onTouchEnded(Touch* touch, Event* event)
                 auto deleteItem = MenuItemImage::create(
                     "TowerDelete.png",
                     "TowerDelete.png",
-                    CC_CALLBACK_1(mapOne::deleteTower, this)
+                    CC_CALLBACK_1(mapTwo::deleteTower, this)
                 );
                 deleteItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y - cellHeight - visibleSize.height / 2);
                 towerMenu = Menu::create(deleteItem, NULL);
@@ -192,59 +190,33 @@ bool  mapOne::onTouchEnded(Touch* touch, Event* event)
         removeChild(selectedPos);//选择取消或者建造炮塔，复选框均消失
         fireBottle = nullptr;  // 将精灵置为空，以便下次点击重新创建
         fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
+
     }
-    CCLOG("onTouchEnded - End");
+    CCLOG("onMouseDown - End");
     event->stopPropagation();
     return true;
 }
-bool  mapOne::onTouchBegan(Touch* touch, Event* event)//保证监听器正常运行
+void mapTwo::fireBottleGenerate(Ref* pSender)//生成火焰瓶的炮塔类
 {
-    return true;
-}
-void mapOne::obstacleDispatch()
-{
-    CCLOG("onTouchEnded - Start");
-
-    //障碍物图标设置
-    obstacleTree = Sprite::create("obstacleTree.png");//障碍物，树林类型，击落后有少量金钱奖励
-    obstacleTree->setPosition(Vec2(6 * cellWidth + 15, 10 * cellHeight));
-    this->addChild(obstacleTree, 2);
-    //障碍物的进度条设置
-    loadingBar = Sprite::create("loadingBar.png");
-    loadingBar->setPosition(Vec2(obstacleTree->getPositionX() - obstacleTree->getContentSize().width / 2, obstacleTree->getPositionY() + obstacleTree->getContentSize().height / 2));
-    //障碍物血条设置
-    loadingBarBlood = ProgressTimer::create(Sprite::create("loadingBarBlood.png"));
-    loadingBarBlood->setPosition(Vec2(obstacleTree->getPositionX() + loadingBarBlood->getContentSize().width, obstacleTree->getPositionY() + obstacleTree->getContentSize().height / 2));
-    loadingBarBlood->setMidpoint(Vec2(0, obstacleTree->getPositionX()));
-    loadingBar->addChild(loadingBarBlood);
-    loadingBarBlood->setPercentage(66);//设置计时器百分比
-    this->addChild(loadingBar, 2);
-}
-void mapOne::fireBottleGenerate(Ref* pSender)//生成火焰瓶的炮塔类
-{
-    removeChild(selectedPos);//选择取消或者建造炮塔，复选框均消失
     this->removeChild(fireBottle->getParent());//移除选择图标所在菜单
     fireBottle = nullptr;  // 将精灵置为空，以便下次点击重新创建
+    removeChild(selectedPos);//选择取消或者建造炮塔，复选框均消失
+    selectedPos = nullptr;
+    fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
+
     FireTower* towerClass = new FireTower(towerPos);
     //将炮塔名字及其指针加入炮塔管理器
     TowerManager::getInstance()->addTower(towerClass->getTowerName(), towerClass);
     //将炮塔精灵加入场景
     this->addChild(towerClass->getTowerSprite(), 2);
-    fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
+    return;
 }
-void mapOne::upgradeTower(Ref* pSender)//生成火焰瓶的炮塔类
+void mapTwo::upgradeTower(Ref* pSender)//生成火焰瓶的炮塔类
 {
-    TowerManager::getInstance()->getTower(towerName)->towerUpgrade();
-    this->removeChild(towerMenu);//移除选择图标所在菜单
-    towerMenu = nullptr;
 
 }
-void mapOne::deleteTower(Ref* pSender)//生成火焰瓶的炮塔类
+void mapTwo::deleteTower(Ref* pSender)//生成火焰瓶的炮塔类
 {
-    CCLOG("Remove tower");
-    removeChild(TowerManager::getInstance()->getTower(towerName)->getTowerSprite());
     TowerManager::getInstance()->removeTower(towerName);
-    this->removeChild(towerMenu);//移除选择图标所在菜单
-    towerMenu = nullptr;
 
 }

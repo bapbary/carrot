@@ -1,10 +1,10 @@
-#ifndef MAP_ONE_H
-#define MAP_ONE_H
+#ifndef MAP_TWO_H
+#define MAP_TWO_H
 
 #include "cocos2d.h"
 #include"MapChoose.h"
 
-class mapOne : public mapChoose
+class mapTwo : public mapChoose
 {
     cocos2d::Label* label;
     cocos2d::Sprite* route;//路线图
@@ -20,18 +20,18 @@ public:
     static cocos2d::Scene* createScene();
     virtual bool init();//第一个地图场景初始化(UI设计)
     bool onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);//点击结束
-    bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);//点击开始（保证监听正常进行）
-    void obstacleDispatch();//障碍物设置
-    void fireBottleGenerate(cocos2d::Ref* pSender);//放置炮塔
-    cocos2d::Vec2 passPos(){
+    bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) { return true; };//点击开始（保证监听正常进行）
+    void fireBottleGenerate(cocos2d::Ref* pSender) ;//放置炮塔
+    cocos2d::Vec2 passPos() {
         return towerPos;
     }//传递炮塔位置
     void upgradeTower(cocos2d::Ref* pSender);
     void deleteTower(cocos2d::Ref* pSender);//删除炮塔
-    bool isTouchTower();
-    CREATE_FUNC(mapOne);
+    bool isTouchTower() { return 1; };
+    CREATE_FUNC(mapTwo);
 
 };
 
-#endif // MAP_ONE_H
+#endif // MAP_TWO_H
+
 

@@ -1,5 +1,6 @@
 #include"MapChoose.h"
 #include"MapOne.h"
+#include"MapTwo.h"
 USING_NS_CC;
 
 Scene* mapChoose::createScene()//地图选择场景创建
@@ -69,9 +70,14 @@ void mapChoose::flipToNext(Ref* pSender)
         "left.png",
         "leftSelected.png",
         CC_CALLBACK_1(mapChoose::flipToLast, this));//滑动到上一地图选择的按键
+    auto enterItem = MenuItemImage::create(
+        "enter.png",
+        "enterSelected.png",
+        CC_CALLBACK_1(mapChoose::enterMapTwo, this));//进入第二张地图的按键
     returnItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y + 3 * returnItem->getContentSize().height));
     leftItem->setPosition(Vec2(origin.x - visibleSize.width / 2 + 80, origin.y));
-    auto menu = Menu::create(returnItem, leftItem, NULL);//创建菜单，将两个按键加入
+    enterItem->setPosition(Vec2(origin.x, origin.y - 3 * enterItem->getContentSize().height + 40));
+    auto menu = Menu::create(returnItem, leftItem, enterItem, NULL);//创建菜单，将两个按键加入
     mapChoose->addChild(menu, 1);
     auto label = Label::createWithTTF("Choose Map", "fonts/Marker Felt.ttf", 54);
     label->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - 2 * label->getContentSize().height));
@@ -83,8 +89,13 @@ void mapChoose::flipToLast(Ref* pSender)
     Scene* mapChoose = mapChoose::createScene();
     Director::getInstance()->replaceScene(TransitionFade::create(1, mapChoose));//回到上个地图选择场景
 }
-void mapChoose::enterMapOne(Ref* pSender)
+void mapChoose::enterMapOne(Ref* pSender)//进入第一张地图
 {
     Scene* map = mapOne::createScene();
+    Director::getInstance()->pushScene(TransitionFade::create(1, map));//进入地图选择场景
+}
+void mapChoose::enterMapTwo(Ref* pSender)//进入第二张地图
+{
+    Scene* map = mapTwo::createScene();
     Director::getInstance()->pushScene(TransitionFade::create(1, map));//进入地图选择场景
 }
