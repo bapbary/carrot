@@ -35,6 +35,15 @@ bool mapOne::init()//第一张地图的初始化
     monsterEnter->setPosition(Vec2(6 * cellWidth, 9 * cellHeight));
     this->addChild(monsterEnter, 2);
 
+    //outline框设置
+    auto outline = Sprite::create("outline.png");
+    outline->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height + origin.y - outline->getContentSize().height / 2));
+    this->addChild(outline, 1);
+    //金币放置
+    goldCoin = cocos2d::Label::createWithTTF("1000", "fonts/Marker Felt.ttf", 24);
+    goldCoin->setPosition(Vec2(245, 690));
+    this->addChild(goldCoin, 2);
+
     //障碍物设置
     obstacleDispatch();
 
@@ -42,8 +51,8 @@ bool mapOne::init()//第一张地图的初始化
     auto returnItem = MenuItemImage::create(
         "return.png",
         "returnSelected.png",
-        CC_CALLBACK_1(sceneChoose::returnLast, this));//回到上一场景的按键
-    returnItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y + 3 * returnItem->getContentSize().height));
+        CC_CALLBACK_1(mapChoose::returnLast, this));//回到上一场景的按键
+    returnItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y + 4 * returnItem->getContentSize().height));
     auto menu = Menu::create(returnItem, NULL);//创建菜单，将按键加入
     this->addChild(menu, 2);
 
@@ -77,13 +86,12 @@ bool  mapOne::onTouchEnded(Touch* touch, Event* event)
 
     if (fireBottle == nullptr)
     {
-        if (mouseLocY < 90 || (mouseLocY > 185 && mouseLocY < 290) || (mouseLocY > 360 && mouseLocY < 470) || mouseLocY > 570 && mousePos != obstacleTree->getPosition())//点击位置可以安装炮塔
+        if (mouseLocY < 90 || (mouseLocY > 185 && mouseLocY < 290 && mouseLocX > 245 && mouseLocX < 1010) || (mouseLocY > 360 && mouseLocY < 470 && mouseLocX > 70 && mouseLocX < 825) || (mouseLocY > 570 && mouseLocY < 655 && mouseLocX > 425 && mouseLocX < 1010) && mousePos != obstacleTree->getPosition())//点击位置可以安装炮塔
         {
             fireBottle = MenuItemImage::create(
                 "fireBottle.png",
                 "fireBottle.png",
-                CC_CALLBACK_1(mapOne::menuCloseCallback, this));
-            fireBottle->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+                CC_CALLBACK_1(mapOne::fireBottleGenerate, this));
             Menu* menu = Menu::create(fireBottle, NULL);
             this->addChild(menu, 3);
             //复选框设置
@@ -92,11 +100,13 @@ bool  mapOne::onTouchEnded(Touch* touch, Event* event)
             if (mouseLocY >= 570 && mouseLocY < 610)
             {
                 towerPos.y = static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2) + 20;
+                fireBottle->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 20);
                 selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
             }
             else
             {
                 towerPos.y = static_cast<int>(mouseLocY / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2);
+                fireBottle->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
                 selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
             }
             this->addChild(selectedPos, 2);
@@ -110,7 +120,7 @@ bool  mapOne::onTouchEnded(Touch* touch, Event* event)
         {
             // 点击了fireBottle图标，执行回调函数
             CCLOG("Clicked on the sprite!");
-            menuCloseCallback(fireBottle);
+            fireBottleGenerate(fireBottle);
         }
         else
         {
@@ -149,19 +159,6 @@ void mapOne::obstacleDispatch()
     loadingBarBlood->setPercentage(66);//设置计时器百分比
     this->addChild(loadingBar, 2);
 }
-//待删除
-void mapOne::menuCloseCallback(Ref* pSender)
+void mapOne::fireBottleGenerate(Ref* pSender)//生成火焰瓶的炮塔类
 {
-    Director::getInstance()->popScene();//从地图选择的场景，并从栈里将封面场景弹出作为当前运行场景
-    return;
-
-}
-
-void mapOne::towerGenerate(Ref* pSender)
-{
-
-}
-cocos2d::Vec2 mapOne::passPos()//把放置炮塔坐标传递给炮塔类
-{
-    return towerPos;
 }

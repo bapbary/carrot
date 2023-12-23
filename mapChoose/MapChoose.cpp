@@ -2,15 +2,15 @@
 #include"MapOne.h"
 USING_NS_CC;
 
-Scene* sceneChoose::createScene()//地图选择场景创建
+Scene* mapChoose::createScene()//地图选择场景创建
 {
     Scene* startScene = Scene::create();
-    sceneChoose* background = sceneChoose::create();
+    mapChoose* background = mapChoose::create();
     startScene->addChild(background);
     return startScene;
 
 }
-bool sceneChoose::init()
+bool mapChoose::init()
 {
     if (!Scene::init())
     {
@@ -26,15 +26,15 @@ bool sceneChoose::init()
     auto returnItem = MenuItemImage::create(
         "return.png",
         "returnSelected.png",
-        CC_CALLBACK_1(sceneChoose::returnLast, this));//回到封面的按键
+        CC_CALLBACK_1(mapChoose::returnLast, this));//回到封面的按键
     auto rightItem = MenuItemImage::create(
         "right.png",
         "rightSelected.png",
-        CC_CALLBACK_1(sceneChoose::flipToNext, this));//滑动到下一地图选择的按键
+        CC_CALLBACK_1(mapChoose::flipToNext, this));//滑动到下一地图选择的按键
     auto enterItem = MenuItemImage::create(
         "enter.png",
         "enterSelected.png",
-        CC_CALLBACK_1(sceneChoose::enterMapOne, this));
+        CC_CALLBACK_1(mapChoose::enterMapOne, this));
     returnItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y + 3 * returnItem->getContentSize().height));
     rightItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y));
     enterItem->setPosition(Vec2(origin.x, origin.y - 3 * enterItem->getContentSize().height + 40));
@@ -47,15 +47,15 @@ bool sceneChoose::init()
 
     return true;
 }
-void sceneChoose::returnLast(Ref* pSender)
+void mapChoose::returnLast(Ref* pSender)
 {
     CCLOG("return last");
     Director::getInstance()->popScene();//从地图选择的场景，并从栈里将封面场景弹出作为当前运行场景
     return;
 }
-void sceneChoose::flipToNext(Ref* pSender)
+void mapChoose::flipToNext(Ref* pSender)
 {
-    Scene* mapChoose = sceneChoose::createScene();
+    Scene* mapChoose = mapChoose::createScene();
     auto background = Sprite::create("map.png");
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -64,11 +64,11 @@ void sceneChoose::flipToNext(Ref* pSender)
     auto returnItem = MenuItemImage::create(
         "return.png",
         "returnSelected.png",
-        CC_CALLBACK_1(sceneChoose::returnLast, this));//回到封面的按键
+        CC_CALLBACK_1(mapChoose::returnLast, this));//回到封面的按键
     auto leftItem = MenuItemImage::create(
         "left.png",
         "leftSelected.png",
-        CC_CALLBACK_1(sceneChoose::flipToLast, this));//滑动到上一地图选择的按键
+        CC_CALLBACK_1(mapChoose::flipToLast, this));//滑动到上一地图选择的按键
     returnItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y + 3 * returnItem->getContentSize().height));
     leftItem->setPosition(Vec2(origin.x - visibleSize.width / 2 + 80, origin.y));
     auto menu = Menu::create(returnItem, leftItem, NULL);//创建菜单，将两个按键加入
@@ -78,12 +78,12 @@ void sceneChoose::flipToNext(Ref* pSender)
     mapChoose->addChild(label, 1);
     Director::getInstance()->replaceScene(TransitionFade::create(1, mapChoose));
 }
-void sceneChoose::flipToLast(Ref* pSender)
+void mapChoose::flipToLast(Ref* pSender)
 {
-    Scene* mapChoose = sceneChoose::createScene();
+    Scene* mapChoose = mapChoose::createScene();
     Director::getInstance()->replaceScene(TransitionFade::create(1, mapChoose));//回到上个地图选择场景
 }
-void sceneChoose::enterMapOne(Ref* pSender)
+void mapChoose::enterMapOne(Ref* pSender)
 {
     Scene* map = mapOne::createScene();
     Director::getInstance()->pushScene(TransitionFade::create(1, map));//进入地图选择场景
