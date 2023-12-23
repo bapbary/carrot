@@ -14,20 +14,22 @@ public:
     //获取炮塔精灵本身
     cocos2d::Sprite* getTowerSprite();
 
+    //获取炮塔名字
+    std::string getTowerName();
+
+    //获取炮塔位置坐标
+    cocos2d::Vec2 getTowerLocation();
+
     //图标的显示
     void sprite_show(cocos2d::Sprite* sprite);
     //图标的隐藏
     void sprite_hide(cocos2d::Sprite* sprite);
 
-    //判断目标对象消失（攻击致死）
-
-
-
     //炮塔更新索敌对象
     void tower_targetupdate(float dt);
 
     //炮塔最近距离索敌
-    cocos2d::Sprite* findTarget();
+    Monster* findTarget();
 
     //炮塔攻击
     void tower_attack();
@@ -52,14 +54,14 @@ public:
 protected:
     //炮塔本身的精灵表示
     cocos2d::Sprite* tower;
-    //炮塔目前攻击对象
-    cocos2d::Sprite* currenttarget;
+    //炮塔目前攻击对象(自动/怪物)
+    Monster* currenttarget;
     //炮塔位置坐标
     cocos2d::Vec2 towerlocation;
     //当前攻击对象位置坐标
     cocos2d::Vec2 currenttargetlocation;
     //炮塔名字
-    std::string towerName;
+    std::string towername;
     //炮塔种类代号
     int category_code;
     //炮塔等级

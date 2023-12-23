@@ -5,6 +5,15 @@ cocos2d::Sprite* BasicDefensiveTower::getTowerSprite(){
     return tower;
 }
 
+//获取炮塔名字
+std::string BasicDefensiveTower::getTowerName() {
+    return towername;
+}
+
+//获取炮塔位置坐标
+cocos2d::Vec2 BasicDefensiveTower::getTowerLocation() {
+    return towerlocation;
+}
 
 //图标的显示
 void BasicDefensiveTower::sprite_show(cocos2d::Sprite* sprite) {
@@ -24,15 +33,15 @@ void BasicDefensiveTower::tower_targetupdate(float dt) {
     }
     if (currenttarget != nullptr) {
         //目标选择完成之后进行攻击操作
-        tower_spin();
+        tower_spin(currenttarget->getPosition());
         tower_attack();
     }
 }
 
 //炮塔最近距离索敌
-cocos2d::Sprite* BasicDefensiveTower::findTarget() {
+Monster* BasicDefensiveTower::findTarget() {
     // 获取场景中的怪物列表，这里假设怪物是通过 MonsterManager 管理的
-    Vector<Monster*> monsters = MonsterManager::getInstance()->getMonsters();
+    std::vector<Monster*> monsters = MonsterManager::getInstance()->getMonsters();
 
     // 初始化最小距离为一个足够大的值
     float minDistance = std::numeric_limits<float>::max();
@@ -52,8 +61,7 @@ cocos2d::Sprite* BasicDefensiveTower::findTarget() {
             nearestMonster = monster;
         }
     }
-
-    return nullptr;
+    return nearestMonster;
 }
 
 //炮塔攻击
@@ -90,7 +98,7 @@ void BasicDefensiveTower::tower_spin(const cocos2d::Vec2& targetlocation) {
 
 //炮塔产生攻击粒子
 cocos2d::Sprite* BasicDefensiveTower::createBullet() {
-    //虚函数待覆盖
+    return nullptr;
 }
 
 //炮塔发射粒子并产生飞行特效
