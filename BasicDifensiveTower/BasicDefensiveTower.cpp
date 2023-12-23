@@ -1,43 +1,77 @@
-#include "BasicDifensiveTower.h"
+#include "BasicDefensiveTower.h"
 
 //获取炮塔精灵本身
 cocos2d::Sprite* BasicDefensiveTower::getTowerSprite(){
     return tower;
 }
 
+
 //图标的显示
 void BasicDefensiveTower::sprite_show(cocos2d::Sprite* sprite) {
     tower->setVisible(true);
 }
+
 //图标的隐藏
 void BasicDefensiveTower::sprite_hide(cocos2d::Sprite* sprite) {
     tower->setVisible(false);
 }
 
-//判断目标对象消失（攻击致死）
-
-
-
 //炮塔更新索敌对象
-void BasicDefensiveTower::tower_targetupdate() {
+void BasicDefensiveTower::tower_targetupdate(float dt) {
     // 如果当前没有目标或者目标超出索敌范围，重新选择目标
     if (currenttarget == nullptr || (currenttarget->getPosition() - tower->getPosition()).length() > tower_attack_range) {
         currenttarget = findTarget();
     }
-    //目标选择完成之后进行攻击操作
-    tower_attack();
+    if (currenttarget != nullptr) {
+        //目标选择完成之后进行攻击操作
+        tower_spin();
+        tower_attack();
+    }
 }
 
 //炮塔最近距离索敌
 cocos2d::Sprite* BasicDefensiveTower::findTarget() {
-    //在怪物图层中搜索遍历最近的那个
-    //需return一个精灵或者return nullptr
-    return tower;
+    // 获取场景中的怪物列表，这里假设怪物是通过 MonsterManager 管理的
+    Vector<Monster*> monsters = MonsterManager::getInstance()->getMonsters();
+
+    // 初始化最小距离为一个足够大的值
+    float minDistance = std::numeric_limits<float>::max();
+
+    // 用于保存最近的怪物
+    Monster* nearestMonster = nullptr;
+
+    // 遍历怪物列表
+    for (Monster* monster : monsters) {
+        // 计算怪物与炮塔之间的距离
+        float distance = towerlocation.distance(monster->getPosition());
+
+        // 判断怪物是否在炮塔的攻击范围内
+        if (distance <= tower_attack_range && distance < minDistance) {
+            // 更新最小距离和最近的怪物
+            minDistance = distance;
+            nearestMonster = monster;
+        }
+    }
+
+    return nullptr;
 }
 
 //炮塔攻击
 void BasicDefensiveTower::tower_attack() {
-    //本次攻击目标坐标一脉相承至后续三个函数！！！
+    // 检查是否有有效目标
+    if (currenttarget != nullptr) {
+        // 创建攻击粒子
+        cocos2d::Sprite* bullet = createBullet();
+
+        // 发射粒子并产生飞行特效
+        tower_bullet_shoot(bullet, currenttarget->getPosition());
+
+        // 检查目标是否死亡
+        if (1) {//怪物死亡标志
+            // 目标死亡，重置当前目标
+            currenttarget = nullptr;
+        }
+    }
 }
 
 //炮塔转动（参数为当前攻击目标的所处的位置）
@@ -56,12 +90,7 @@ void BasicDefensiveTower::tower_spin(const cocos2d::Vec2& targetlocation) {
 
 //炮塔产生攻击粒子
 cocos2d::Sprite* BasicDefensiveTower::createBullet() {
-    // 根据炮塔类型和等级创建对应大小的子弹
-    cocos2d::Sprite* lightingbullet = cocos2d::Sprite::create("LightingTower_bullet_small.png");
-    //将子弹也放入当前场景中
-    this->addChild(lightingbullet);
-    //返回子弹精灵本身，用于后续子弹飞行特效制作
-    return lightingbullet;
+    //虚函数待覆盖
 }
 
 //炮塔发射粒子并产生飞行特效
@@ -103,18 +132,5 @@ void BasicDefensiveTower::tower_hit_target(const cocos2d::Vec2& targetlocation) 
 
 //炮塔升级
 void BasicDefensiveTower::tower_upgrade() {
-    if (tower_level == 1) {
-        tower_level++;
-        //一系列数值增加
-
-        // 使用新图标替换旧图标
-        tower->setTexture("LightingTower_middle.png");
-    }
-    else if (tower_level == 2) {
-        tower_level++;
-        //一系列数值增加
-
-        // 使用新图标替换旧图标
-        tower->setTexture("LightingTower_big.png");
-    }
+   //虚函数待覆盖
 }

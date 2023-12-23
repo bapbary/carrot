@@ -2,11 +2,13 @@
 #define BASICDEFENSIVETOWER_H
 
 #include "cocos2d.h"
+#include "Monster.h"
+#include "MapChoose.h"
 
 //定义炮塔基类（本身派生于scene）【后续派生时根据选择覆盖某些参数和函数】
 //类成员数据包含每个炮塔的参数和状态，以及一个最重要的精灵本体
 //类成员函数是炮塔相关功能的实现
-class BasicDefensiveTower : public cocos2d::Scene {
+class BasicDefensiveTower : public mapChoose {
 public:
 
     //获取炮塔精灵本身
@@ -22,7 +24,7 @@ public:
 
 
     //炮塔更新索敌对象
-    void tower_targetupdate();
+    void tower_targetupdate(float dt);
 
     //炮塔最近距离索敌
     cocos2d::Sprite* findTarget();
@@ -34,18 +36,19 @@ public:
     void tower_spin(const cocos2d::Vec2& targetlocation);
 
     //炮塔产生攻击粒子
-    cocos2d::Sprite* createBullet();
+    virtual cocos2d::Sprite* createBullet();
 
     //炮塔发射粒子并产生飞行特效
     void tower_bullet_shoot(cocos2d::Sprite* bullet, const cocos2d::Vec2& targetlocation);
-    //炮塔粒子撞击目标产生短暂打击特效
+
+    //炮塔粒virtual子撞击目标产生短暂打击特效
     void tower_hit_target(const cocos2d::Vec2& targetlocation);
 
     //判断炮塔是否可以进行升级并产生
     //（？我不知道pzx这个函数可以做这个不）
 
     //炮塔升级
-    void tower_upgrade();
+     void tower_upgrade();
 protected:
     //炮塔本身的精灵表示
     cocos2d::Sprite* tower;
@@ -55,6 +58,8 @@ protected:
     cocos2d::Vec2 towerlocation;
     //当前攻击对象位置坐标
     cocos2d::Vec2 currenttargetlocation;
+    //炮塔名字
+    std::string towerName;
     //炮塔种类代号
     int category_code;
     //炮塔等级
