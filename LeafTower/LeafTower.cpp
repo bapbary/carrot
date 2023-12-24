@@ -35,7 +35,7 @@ cocos2d::Sprite* LeafTower::createBullet() {
 }
 
 //ÅÚËþÉý¼¶
-void LeafTower::tower_upgrade() {
+void LeafTower::towerUpgrade() {
     if (tower_level == 1) {
         tower_level++;
         tower_attack_range = 2.4;

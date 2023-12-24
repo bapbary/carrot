@@ -24,7 +24,6 @@ LightingTower::LightingTower(const cocos2d::Vec2& touchlocation) {
     //加入情景放在建立类操作之后一句，不在类中进行放入
 }
 
-//炮塔产生攻击粒子
 cocos2d::Sprite* LightingTower::createBullet() {
     // 根据炮塔类型和等级创建对应大小的子弹
     cocos2d::Sprite* FireBullet = cocos2d::Sprite::create("LightingTower_bullet_small.png");
@@ -35,7 +34,7 @@ cocos2d::Sprite* LightingTower::createBullet() {
 }
 
 //炮塔升级
-void LightingTower::tower_upgrade() {
+void LightingTower::towerUpgrade() {
     if (tower_level == 1) {
         tower_level++;
         tower_attack_range = 2.4;

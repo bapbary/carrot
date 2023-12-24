@@ -29,7 +29,7 @@ public:
     void tower_targetupdate(float dt);
 
     //炮塔最近距离索敌
-    Monster* findTarget();
+    GameObject* findTarget();
 
     //炮塔攻击
     void tower_attack();
@@ -50,12 +50,12 @@ public:
     //（？我不知道pzx这个函数可以做这个不）
 
     //炮塔升级
-     void tower_upgrade();
+    virtual void towerUpgrade();
 protected:
     //炮塔本身的精灵表示
     cocos2d::Sprite* tower;
     //炮塔目前攻击对象(自动/怪物)
-    Monster* currenttarget;
+    GameObject* currenttarget;
     //炮塔位置坐标
     cocos2d::Vec2 towerlocation;
     //当前攻击对象位置坐标

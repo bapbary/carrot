@@ -9,28 +9,14 @@ TowerManager* TowerManager::getInstance() {
     return instance;
 }
 
-std::string TowerManager :: towerselected(const cocos2d::Vec2& towerlocation) {
+std::string TowerManager::towerSelected(const cocos2d::Vec2& towerlocation) {
     // 遍历所有存储的炮塔
-    for (const auto& tower : towers) {
-        //表示当前遍历到的该炮塔实例的指针
-        BasicDefensiveTower* currentTower = tower.second;
-
+    for (BasicDefensiveTower* currentTower : towers) {
         // 匹配当前点击炮塔的坐标是否与当前遍历实例炮塔相等
-        if ((currentTower->getTowerLocation()) == towerlocation) {
+        if (currentTower->getTowerSprite()->getBoundingBox().containsPoint(towerlocation)) {
             // 如匹配到符合的炮塔，返回当前炮塔的名称
             return currentTower->getTowerName();
-            //注：这个炮塔名称用于去得到当前所选炮塔实例的指针然后可以对它进行操作，看下面
-            
-            /*
-            // 假设 towerName 是你想获取的炮塔的名字
-            std::string towerName = "desiredTowerName";
-            BasicDefensiveTower* desiredTower = TowerManager::getInstance()->getTower(towerName);
-
-            // 现在你可以使用 desiredTower 操作相关炮塔的实例
-            if (desiredTower != nullptr) {
-                // 进行你的操作
-            }*/
-
+            // 注：这个炮塔名称用于去得到当前所选炮塔实例的指针然后可以对它进行操作
         }
     }
 
@@ -39,18 +25,24 @@ std::string TowerManager :: towerselected(const cocos2d::Vec2& towerlocation) {
 }
 
 void TowerManager::addTower(const std::string& towerName, BasicDefensiveTower* tower) {
-    towers[towerName] = tower;
+    towers.push_back(tower);
 }
 
 void TowerManager::removeTower(const std::string& towerName) {
-    auto it = towers.find(towerName);
-    if (it != towers.end()) {
-        delete it->second;
-        towers.erase(it);
+    for (auto it = towers.begin(); it != towers.end(); ++it) {
+        if ((*it)->getTowerName() == towerName) {
+            delete* it;
+            towers.erase(it);
+            break;
+        }
     }
 }
 
 BasicDefensiveTower* TowerManager::getTower(const std::string& towerName) {
-    auto it = towers.find(towerName);
-    return (it != towers.end()) ? it->second : nullptr;
+    for (BasicDefensiveTower* currentTower : towers) {
+        if (currentTower->getTowerName() == towerName) {
+            return currentTower;
+        }
+    }
+    return nullptr;
 }
