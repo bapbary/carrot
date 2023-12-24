@@ -1,65 +1,62 @@
 #include "Monster.h"
 #define MONSTER 200
 #define CARROT 100
+#include "MonsterManager.h"
 
 USING_NS_CC;
-//背景
-//Scene* basic::createScene()
-//{
-//    return basic::create();
-//}
-//bool basic::init()
-//{
-//    if (!Scene::init())
-//    {
-//        return false;
-//    }
-//    if (!Scene::initWithPhysics())
-//    {
-//        return false;
-//    }
-//    auto visibleSize = Director::getInstance()->getVisibleSize();
-//    Vec2 origin = Director::getInstance()->getVisibleOrigin();
-//    auto listener = EventListenerMouse::create();
-//    listener->onMouseMove = CC_CALLBACK_1(basic::onMouseMove, this);
-//    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
-//
-//    auto background = Sprite::create("mapBackground.png");//地图背景图
-//    background->setScale(visibleSize.width / background->getContentSize().width, visibleSize.height / background->getContentSize().height);
-//    background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
-//    this->addChild(background, 0);
-//    auto route = Sprite::create("route.png");//怪兽路线
-//    route->setScale(visibleSize.width / route->getContentSize().width, visibleSize.height / route->getContentSize().height);
-//    route->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
-//    this->addChild(route, 1);
-//    Monster* MonsterLayer = Monster::create();
-//    this->addChild(MonsterLayer,2);
-//    return true;
-//}
-
-bool Monster::init()
+bool GameObject::init()
 {
     if (!Node::init())
     {
         return false;
     }
     auto listener = EventListenerMouse::create();
-    listener->onMouseMove = CC_CALLBACK_1(Monster::onMouseMove, this);
+    listener->onMouseMove = CC_CALLBACK_1(GameObject::onMouseMove, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
-    Carrot* carrotLayer = Carrot::create();
+    carrotLayer = Carrot::create();
     this->addChild(carrotLayer, 2);
+    //设置接触
+    //auto physicsBody = PhysicsBody::createBox(carrotLayer->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
+    //physicsBody->setDynamic(false);
+    //physicsBody->setCategoryBitmask(0x04);    // 0100
+    //physicsBody->setContactTestBitmask(0x01); // 0001
+    //physicsBody->setCollisionBitmask(0x06);   // 0110
+    //carrotLayer->setTag(CARROT);
+    //carrotLayer->setPhysicsBody(physicsBody);
+
     srand((unsigned int)time(nullptr));
     // 每隔1.5秒生成一个怪物
-    this->schedule(CC_SCHEDULE_SELECTOR(Monster::addMonster), 1.5, 10, 0);
+    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonster), 1.5, 10, 0);
     //接触监听
     //auto contactListener = EventListenerPhysicsContact::create();
-    //contactListener->onContactBegin = CC_CALLBACK_1(Monster::onContactBegin, this);
+    //contactListener->onContactBegin = CC_CALLBACK_1(GameObject::onContactBegin, this);
     //_eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
-
+    //std::vector<Vec2> monsterPositions = MonsterManager::getInstance()->getMonsterPositions();
+    //this->schedule(CC_SCHEDULE_SELECTOR(GameObject::updateMonsterPositions), 1.0f / 60.0f);
     return true;
+}
+cocos2d::Sprite* GameObject::getSprite()
+{
+    return objectSprite;
+}
+//获取炮塔位置坐标
+void GameObject::updateMonsterPositions(float dt) {
+    // 更新怪物位置
+    MonsterManager::getInstance()->updateMonsterPositions();
+
+    // 获取怪物位置
+    const std::vector<Vec2>& monsterPositions = MonsterManager::getInstance()->getMonsterPositions();
+    CCLOG("%d",monsterPositions.size());
+    // 输出怪物位置
+    for (size_t i = 0; i < monsterPositions.size(); ++i) {
+        CCLOG("fff");
+        if (monsterPositions[i].x == 702 && monsterPositions[i].y == 156)
+            carrotLayer->decreaseHealth();
+        CCLOG("Monster %zu Position: %.2f, %.2f", i + 1, monsterPositions[i].x, monsterPositions[i].y);
+    }
 }
 // Print useful error message instead of segfaulting when files are not there.
 static void problemLoading(const char* filename)
@@ -70,7 +67,7 @@ static void problemLoading(const char* filename)
 //萝卜初始化
 bool Carrot::init()
 {
-    if ( !Node::init() )
+    if (!Node::init())
     {
         return false;
     }
@@ -81,18 +78,9 @@ bool Carrot::init()
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("item.plist");
     auto framesCarrot = getAnimation("carrot/%04d.png", 3);
     spriteCarrot = Sprite::createWithSpriteFrame(framesCarrot.front());
-    //设置接触
-    //auto physicsBody = PhysicsBody::createBox(spriteCarrot->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
-    //physicsBody->setDynamic(false);
-    //physicsBody->setCategoryBitmask(0x04);    // 0100
-    //physicsBody->setContactTestBitmask(0x01); // 0001
-    //physicsBody->setCollisionBitmask(0x06);   // 0110
-    //spriteCarrot->setTag(CARROT);
-    //spriteCarrot->setPhysicsBody(physicsBody);
     this->addChild(spriteCarrot, 2);
     spriteCarrot->setPosition(702, 156);
     //镜像翻转
-    carrot = spriteCarrot;
     spriteCarrot->setScaleX(-3.8);
     spriteCarrot->setScaleY(3.8);
 
@@ -101,6 +89,17 @@ bool Carrot::init()
     spriteCarrot->runAction(RepeatForever::create(Animate::create(animationCarrot)));
     return true;
 }
+cocos2d::Vec2 GameObject::getCurrentPosition()
+{
+    objectPosition = this->getPosition();
+    return objectPosition;
+}
+
+void MonsterOne::update(float dt)
+{
+    Vec2 currentPos = this->objectPosition;
+    CCLOG("Monster Position: (%.2f, %.2f)", currentPos.x, currentPos.y);
+}
 //怪物1初始化
 bool MonsterOne::init()
 {
@@ -108,9 +107,12 @@ bool MonsterOne::init()
     {
         return false;
     }
-    float currentHealthValue=InitialHealthValue;
+    float InitialHealthValue = 100.0f;
+    objectHealthValue = InitialHealthValue;
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    // 调用 scheduleUpdate()，使得 update 函数被调用
+    this->scheduleUpdate();
     //怪物1的动画帧
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("item.plist");
     auto framesMonsterOne = getAnimation("monster1/%04d.png", 2);
@@ -122,6 +124,7 @@ bool MonsterOne::init()
     //physicsBody->setCollisionBitmask(0x03);   // 0011
     //spriteMonsterOne->setTag(MONSTER);
     //spriteMonsterOne->setPhysicsBody(physicsBody);
+    monster.pushBack(spriteMonsterOne);
 
     this->addChild(spriteMonsterOne, 2);
     //缩放
@@ -129,7 +132,7 @@ bool MonsterOne::init()
     spriteMonsterOne->setOpacity(0);
     spriteMonsterOne->setPosition(383, 532);
     //设置血条
-    setHealthBar(spriteMonsterOne, currentHealthValue, InitialHealthValue);
+    setHealthBar(spriteMonsterOne, objectHealthValue, InitialHealthValue);
     //帧速率
     auto animationMonsterOne = Animation::createWithSpriteFrames(framesMonsterOne, 1.0f / 3);
     spriteMonsterOne->runAction(RepeatForever::create(Animate::create(animationMonsterOne)));
@@ -138,7 +141,7 @@ bool MonsterOne::init()
     return true;
 }
 //设置血条
-void Monster::setHealthBar(Node* monster,float currentHealthValue,float InitialHealthValue)
+void GameObject::setHealthBar(Node* monster, float currentHealthValue, float InitialHealthValue)
 {
     auto healthBarBG = Sprite::create("loadingBar.png");
     healthBarBG->setScale(0.7);
@@ -161,7 +164,8 @@ bool MonsterTwo::init()
     {
         return false;
     }
-    float currentHealthValue = InitialHealthValue;
+    float InitialHealthValue = 100.0f;
+    objectHealthValue = InitialHealthValue;
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     //怪物2的动画帧
@@ -169,11 +173,12 @@ bool MonsterTwo::init()
     auto framesMonsterTwo = getAnimation("monster2/%04d.png", 3);
     auto spriteMonsterTwo = Sprite::createWithSpriteFrame(framesMonsterTwo.front());
     this->addChild(spriteMonsterTwo, 2);
+    monster.pushBack(spriteMonsterTwo);
     //缩放
     spriteMonsterTwo->setScale(1.9, 1.9);
     spriteMonsterTwo->setOpacity(100);
     spriteMonsterTwo->setPosition(383, 532);
-    setHealthBar(spriteMonsterTwo, currentHealthValue, InitialHealthValue);
+    setHealthBar(spriteMonsterTwo, objectHealthValue, InitialHealthValue);
     //帧速率
     auto animationMonsterTwo = Animation::createWithSpriteFrames(framesMonsterTwo, 1.0f / 3);
     spriteMonsterTwo->runAction(RepeatForever::create(Animate::create(animationMonsterTwo)));
@@ -182,7 +187,7 @@ bool MonsterTwo::init()
     return true;
 }
 
-void Monster::menuCloseCallback(Ref* pSender)
+void GameObject::menuCloseCallback(Ref* pSender)
 {
     //Close the cocos2d-x game scene and quit the application
     Director::getInstance()->end();
@@ -193,7 +198,7 @@ void Monster::menuCloseCallback(Ref* pSender)
     //_eventDispatcher->dispatchEvent(&customEndEvent);
 }
 //生成帧序列
-Vector<SpriteFrame*> Monster::getAnimation(const char* format, int count)
+Vector<SpriteFrame*> GameObject::getAnimation(const char* format, int count)
 {
     auto spritecache = SpriteFrameCache::getInstance();
     Vector<SpriteFrame*> animFrames;
@@ -206,22 +211,22 @@ Vector<SpriteFrame*> Monster::getAnimation(const char* format, int count)
     return animFrames;
 }
 //第一个地图的路径
-Sequence* Monster::MoveWayInMapOne()
+Sequence* GameObject::MoveWayInMapOne()
 {
-    auto fadeIn = FadeIn::create(0.5f);
-    auto moveTo1 = MoveTo::create(2, Vec2(885, 532));
-    auto moveTo2 = MoveTo::create(2, Vec2(885, 335));
-    auto scaleXAction = ScaleBy::create(0.5f, -1.0f, 1.0f);
-    auto moveTo3 = MoveTo::create(2, Vec2(210, 335));
-    auto moveTo4 = MoveTo::create(2, Vec2(210, 153));
-    auto moveTo5 = MoveTo::create(2, Vec2(702, 153));
+    auto fadeIn = FadeIn::create(0.1f);
+    auto moveTo1 = MoveTo::create(0.5, Vec2(885, 532));
+    auto moveTo2 = MoveTo::create(0.5, Vec2(885, 335));
+    auto scaleXAction = ScaleBy::create(0,-1.0f, 1.0f);
+    auto moveTo3 = MoveTo::create(0.5, Vec2(210, 335));
+    auto moveTo4 = MoveTo::create(0.5, Vec2(210, 153));
+    auto moveTo5 = MoveTo::create(0.5, Vec2(702, 153));
     auto fadeOut = FadeOut::create(0.5f);
     auto actionRemove = RemoveSelf::create();
-    auto seq = Sequence::create(fadeIn,moveTo1, moveTo2, scaleXAction, moveTo3,  moveTo4, scaleXAction, moveTo5, fadeOut,actionRemove, nullptr);
+    auto seq = Sequence::create(fadeIn, moveTo1, moveTo2, scaleXAction, moveTo3, moveTo4, scaleXAction, moveTo5, fadeOut, actionRemove, nullptr);
     return seq;
 }
 //鼠标移动显示坐标
-void Monster::onMouseMove(Event* event)
+void GameObject::onMouseMove(Event* event)
 {
     EventMouse* e = dynamic_cast<EventMouse*>(event);
     if (e)
@@ -240,16 +245,16 @@ void Monster::onMouseMove(Event* event)
     }
 }
 //添加怪物
-void Monster::addMonster(float dt)
+void GameObject::addMonster(float dt)
 {
     MonsterOne* MonsterOneLayer = MonsterOne::create();
     this->addChild(MonsterOneLayer, 2);
-    //MonsterManager::getInstance()->addMonster(MonsterOneLayer);
+    MonsterManager::getInstance()->addMonster(MonsterOneLayer);
     auto delayAction = DelayTime::create(2.0f);
     auto addMonsterTwoAction = CallFunc::create([this]() {
         MonsterTwo* MonsterTwoLayer = MonsterTwo::create();
         this->addChild(MonsterTwoLayer, 2);
-        //MonsterManager::getInstance()->addMonster(MonsterTwoLayer);
+        MonsterManager::getInstance()->addMonster(MonsterTwoLayer);
         });
     // 将两个动作组合在一起
     auto sequence = Sequence::create(delayAction, addMonsterTwoAction, nullptr);
@@ -258,11 +263,11 @@ void Monster::addMonster(float dt)
     this->runAction(sequence);
 }
 //生命值
-void Monster::updateHealthBar(ProgressTimer* healthBar,float percentage) {
+void GameObject::updateHealthBar(ProgressTimer* healthBar, float percentage) {
     healthBar->setPercentage(percentage);
 }
 //接触
-bool Monster::onContactBegin(PhysicsContact& contact)
+bool GameObject::onContactBegin(PhysicsContact& contact)
 {
     auto nodeA = contact.getShapeA()->getBody()->getNode();
     auto nodeB = contact.getShapeB()->getBody()->getNode();
@@ -274,17 +279,17 @@ bool Monster::onContactBegin(PhysicsContact& contact)
         if (tagA != tagB)
         {
             // 怪物和萝卜发生碰撞
-            Carrot* carrot ;
-            Monster* monster ;
+            Carrot* carrot;
+            GameObject* monster;
             if (tagA == CARROT)
             {
                 carrot = dynamic_cast<Carrot*>(nodeA);
-                monster = dynamic_cast<Monster*>(nodeB);
+                monster = dynamic_cast<GameObject*>(nodeB);
             }
             else
             {
                 carrot = dynamic_cast<Carrot*>(nodeB);
-                monster = dynamic_cast<Monster*>(nodeA);
+                monster = dynamic_cast<GameObject*>(nodeA);
             }
             // 减少萝卜的生命值
             carrot->decreaseHealth();
@@ -292,22 +297,22 @@ bool Monster::onContactBegin(PhysicsContact& contact)
     }
     return true;
 }
-//Carrot::Carrot() : spriteNum(nullptr), healthValue(10.0f)
-//{
-//    healthValue=10.0f;
-//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("item.plist");
-//    auto framesCarrot = getAnimation("carrot/%04d.png", 3);
-//    spriteCarrot = Sprite::createWithSpriteFrame(framesCarrot.front());
-//    this->addChild(spriteCarrot, 2);
-//
-//}
+Carrot::Carrot() : spriteNum(nullptr)
+{
+    objectHealthValue=10.0f;
+    //SpriteFrameCache::getInstance()->addSpriteFramesWithFile("item.plist");
+    //auto framesCarrot = getAnimation("carrot/%04d.png", 3);
+    //spriteCarrot = Sprite::createWithSpriteFrame(framesCarrot.front());
+    //this->addChild(spriteCarrot, 2);
+
+}
 void Carrot::decreaseHealth()
 {
-    healthValue--;
-    if (healthValue == 9.0f)
+    CCLOG("gaibian");
+    if (objectHealthValue == 9.0f)
     {
         spriteNum = Sprite::create("icon_num(9).png");
-        spriteNum->setPosition(Vec2(spriteCarrot->getContentSize().width , 0));
+        spriteNum->setPosition(Vec2(spriteCarrot->getContentSize().width, 0));
         spriteCarrot->addChild(spriteNum);
         auto framesCarrot = getAnimation("carrot-1%04d.png", 2);
         auto animationCarrot = Animation::createWithSpriteFrames(framesCarrot, 1.0f / 3);
@@ -315,13 +320,13 @@ void Carrot::decreaseHealth()
         spriteCarrot->setSpriteFrame(framesCarrot.front());
         spriteCarrot->runAction(RepeatForever::create(Animate::create(animationCarrot)));
     }
-    else if (healthValue == 8.0f)
+    else if (objectHealthValue == 8.0f)
     {
         spriteNum->setTexture("icon_num(8).png");
         // 可以根据需要调整纹理矩形
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
     }
-    else if (healthValue == 7.0f)
+    else if (objectHealthValue == 7.0f)
     {
         spriteNum->setTexture("icon_num(7).png");
         // 可以根据需要调整纹理矩形
@@ -331,13 +336,13 @@ void Carrot::decreaseHealth()
         // 可以根据需要调整纹理矩形
         spriteCarrot->setTextureRect(Rect(Vec2::ZERO, spriteCarrot->getContentSize()));
     }
-    else if (healthValue == 6.0f)
+    else if (objectHealthValue == 6.0f)
     {
         spriteNum->setTexture("icon_num(6).png");
         // 可以根据需要调整纹理矩形
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
     }
-    else if (healthValue == 5.0f)
+    else if (objectHealthValue == 5.0f)
     {
         spriteNum->setTexture("icon_num(5).png");
         // 可以根据需要调整纹理矩形
@@ -348,7 +353,7 @@ void Carrot::decreaseHealth()
         spriteCarrot->setTextureRect(Rect(Vec2::ZERO, spriteCarrot->getContentSize()));
 
     }
-    else if (healthValue == 4.0f)
+    else if (objectHealthValue == 4.0f)
     {
         spriteNum->setTexture("icon_num(4).png");
         // 可以根据需要调整纹理矩形
@@ -359,13 +364,13 @@ void Carrot::decreaseHealth()
         // 可以根据需要调整纹理矩形
         spriteCarrot->setTextureRect(Rect(Vec2::ZERO, spriteCarrot->getContentSize()));
     }
-    else if (healthValue == 3.0f)
+    else if (objectHealthValue == 3.0f)
     {
         spriteNum->setTexture("icon_num(3).png");
         // 可以根据需要调整纹理矩形
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
     }
-    else if (healthValue == 2.0f)
+    else if (objectHealthValue == 2.0f)
     {
         spriteNum->setTexture("icon_num2).png");
         // 可以根据需要调整纹理矩形
@@ -375,7 +380,7 @@ void Carrot::decreaseHealth()
         // 可以根据需要调整纹理矩形
         spriteCarrot->setTextureRect(Rect(Vec2::ZERO, spriteCarrot->getContentSize()));
     }
-    else if (healthValue == 1.0f)
+    else if (objectHealthValue == 1.0f)
     {
         spriteNum->setTexture("icon_num(1).png");
         // 可以根据需要调整纹理矩形
