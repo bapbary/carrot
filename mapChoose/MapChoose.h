@@ -2,14 +2,15 @@
 #define  MAP_CHOOSE_H
 
 #include "cocos2d.h"
+static int count;//全局计数器
+
 class mapChoose : public cocos2d::Scene
 {
 public:
     cocos2d::Vec2 towerPos;//炮塔位置
     cocos2d::Sprite* obstacleTree;//障碍物
     cocos2d::Label* goldCoinDisplay;
-    int goldCoin = 1000;//金币
-    int count;//全局计数器
+    int goldCoin = 10000;//金币
     static cocos2d::Scene* createScene();
     virtual bool init();//第一个地图选择场景初始化
     void returnLast(cocos2d::Ref* pSender);//回到上一场景
