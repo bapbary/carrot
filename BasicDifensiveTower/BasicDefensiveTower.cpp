@@ -1,7 +1,8 @@
 #include "BasicDefensiveTower.h"
+#include "MonsterManager.h"
 
 //获取炮塔精灵本身
-cocos2d::Sprite* BasicDefensiveTower::getTowerSprite(){
+cocos2d::Sprite* BasicDefensiveTower::getTowerSprite() {
     return tower;
 }
 
@@ -39,18 +40,18 @@ void BasicDefensiveTower::tower_targetupdate(float dt) {
 }
 
 //炮塔最近距离索敌
-Monster* BasicDefensiveTower::findTarget() {
+GameObject* BasicDefensiveTower::findTarget() {
     // 获取场景中的怪物列表，这里假设怪物是通过 MonsterManager 管理的
-    std::vector<Monster*> monsters = MonsterManager::getInstance()->getMonsters();
+    std::vector<GameObject*> monsters = MonsterManager::getInstance()->getMonsters();
 
     // 初始化最小距离为一个足够大的值
     float minDistance = std::numeric_limits<float>::max();
 
     // 用于保存最近的怪物
-    Monster* nearestMonster = nullptr;
+    GameObject* nearestMonster = nullptr;
 
     // 遍历怪物列表
-    for (Monster* monster : monsters) {
+    for (GameObject* monster : monsters) {
         // 计算怪物与炮塔之间的距离
         float distance = towerlocation.distance(monster->getPosition());
 
@@ -139,6 +140,6 @@ void BasicDefensiveTower::tower_hit_target(const cocos2d::Vec2& targetlocation) 
 //（？我不知道pzx这个函数可以做这个不）
 
 //炮塔升级
-void BasicDefensiveTower::tower_upgrade() {
-   //虚函数待覆盖
+void BasicDefensiveTower::towerUpgrade() {
+    //虚函数待覆盖
 }
