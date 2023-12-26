@@ -20,6 +20,9 @@ public:
     //获取炮塔位置坐标
     cocos2d::Vec2 getTowerLocation();
 
+    //获取炮塔位置坐标
+    int BasicDefensiveTower::getTowerLevel();
+
     //图标的显示
     void sprite_show(cocos2d::Sprite* sprite);
     //图标的隐藏
@@ -32,7 +35,7 @@ public:
     GameObject* findTarget();
 
     //炮塔攻击
-    void tower_attack();
+    void tower_attack(const cocos2d::Vec2& targetlocation);
 
     //炮塔转动（参数为当前攻击目标的所处的位置）
     void tower_spin(const cocos2d::Vec2& targetlocation);
