@@ -11,19 +11,21 @@ USING_NS_CC;
 
 Scene* mapOne::createScene()
 {
-    Scene* startScene = Scene::create();
-    mapOne* map = mapOne::create();
-    startScene->addChild(map);
-    return startScene;
+    //Scene* startScene = Scene::create();
+    //mapOne* map = mapOne::create();
+    //startScene->addChild(map);
+    auto scene = Scene::createWithPhysics();
+    auto layer = mapOne::create();
+    scene->addChild(layer);
+    return scene;
 }
 bool mapOne::init()//第一张地图的初始化
 {
-    if (!Scene::init())
+    if (!Layer::init())
     {
         return false;
-    }
+    }  
     schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::tower_targetupdate), 1.0f, CC_REPEAT_FOREVER, 0);
-
     visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
     origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
 

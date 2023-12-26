@@ -15,7 +15,7 @@ Scene* mapTwo::createScene()
 }
 bool mapTwo::init()//第一张地图的初始化
 {
-    if (!Scene::init())
+    if (!Layer::init())
     {
         return false;
     }

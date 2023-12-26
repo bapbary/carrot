@@ -1,5 +1,6 @@
 #include"MapChoose.h"
 #include"TowerManager.h"
+#include "MonsterManager.h"
 #include"FireTower.h"
 #include"LeafTower.h"
 #include"LightingTower.h"
@@ -20,7 +21,7 @@ Scene* mapChoose::createScene()//地图选择场景创建
 }
 bool mapChoose::init()
 {
-    if (!Scene::init())
+    if (!Layer::init())
     {
         return false;
     }
@@ -65,6 +66,7 @@ void mapChoose::returnChoose(Ref* pSender)
 {
     CCLOG("return last");
     TowerManager::getInstance()->clearTowers();//删除上个地图中残留的炮塔管理器
+    MonsterManager::getInstance()->clearMonster();//删除上个地图中残留的怪物管理器
     Director::getInstance()->popScene();//从地图退出，并从栈里将地图选择的场景弹出作为当前运行场景
     return;
 }
@@ -113,12 +115,12 @@ void mapChoose::enterMapTwo(Ref* pSender)//进入第二张地图
     Scene* map = mapTwo::createScene();
     Director::getInstance()->pushScene(TransitionFade::create(1, map));//进入地图选择场景
 }
-bool mapChoose::onTouchEnded(Touch* touch, Event* event)
+void mapChoose::onTouchEnded(Touch* touch, Event* event)
 {
     if (fireBottleClicked == true)
     {
         fireBottleClicked = false;
-        return true;
+        return;
     }
     CCLOG("onTouchEnded - Start");
 
@@ -126,7 +128,7 @@ bool mapChoose::onTouchEnded(Touch* touch, Event* event)
     Vec2 origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
 
     //将网格标准化，不添加数，会使得网格不是从边缘开始分布
-    cocos2d::Vec2 mousePos = touch->getLocation();
+    Vec2 mousePos = touch->getLocation();
     float mouseLocX = mousePos.x;
     float mouseLocY = mousePos.y;
     label->setString("Mouse Coordinates: " + std::to_string(mouseLocX) + ", " + std::to_string(mouseLocY));
@@ -294,7 +296,7 @@ bool mapChoose::onTouchEnded(Touch* touch, Event* event)
     }
     CCLOG("onTouchEnded - End");
     event->stopPropagation();
-    return true;
+    return;
 }
 bool mapChoose::onTouchBegan(Touch* touch, Event* event)//保证监听器正常运行
 {
@@ -311,7 +313,7 @@ void mapChoose::fireBottleGenerate(Ref* pSender)//生成火焰瓶的炮塔类
     //将炮塔精灵加入场景
     this->addChild(towerClass->getTowerSprite(), 2);
     //扣除相应金币
-    this->schedule(CC_SCHEDULE_SELECTOR(FireTower::tower_targetupdate), 1.0f, CC_REPEAT_FOREVER, 0);
+    scheduleUpdate();
     goldCoin -= 160;
     goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
     fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
@@ -327,7 +329,7 @@ void mapChoose::leafTowerGenerate(Ref* pSender)//生成风扇的炮塔类
     //将炮塔精灵加入场景
     this->addChild(towerClass->getTowerSprite(), 2);
     //扣除相应金币
-    this->schedule(CC_SCHEDULE_SELECTOR(LeafTower::tower_targetupdate), 1.0f, CC_REPEAT_FOREVER, 0);
+    scheduleUpdate();
     goldCoin -= 160;
     goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
     fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
@@ -343,7 +345,7 @@ void mapChoose::lightingTowerGenerate(Ref* pSender)//生成绿瓶的炮塔类
     //将炮塔精灵加入场景
     this->addChild(towerClass->getTowerSprite(), 2);
     //扣除相应金币
-    this->schedule(CC_SCHEDULE_SELECTOR(LightingTower::tower_targetupdate), 1.0f, CC_REPEAT_FOREVER, 0);
+    scheduleUpdate();
     goldCoin -= 100;
     goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
     fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数

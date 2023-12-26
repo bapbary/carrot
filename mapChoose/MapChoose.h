@@ -4,7 +4,7 @@
 #include "cocos2d.h"
 static int count;//全局计数器
 
-class mapChoose : public cocos2d::Scene
+class mapChoose : public cocos2d::Layer
 {
 public:
     cocos2d::Size visibleSize;//视图的可见大小
@@ -45,7 +45,7 @@ public:
     void upgradeLightTower(cocos2d::Ref* pSender);
     void deleteTower(cocos2d::Ref* pSender);//删除炮塔
     void deleteLightTower(cocos2d::Ref* pSender);//删除炮塔
-    bool onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);//点击结束
+    virtual void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);//点击结束
     bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);//点击开始（保证监听正常进行）
     cocos2d::Vec2 passPos();//传递炮塔位置
 
