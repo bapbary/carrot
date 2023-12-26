@@ -1,9 +1,9 @@
-//#define MONSTER 200
-//#define CARROT 100
+#define MONSTER 200
+#define CARROT 100
 #include "Monster.h"
 #include "MonsterManager.h"
 USING_NS_CC;
-
+int count = 0;
 bool GameObject::init()
 {
     if (!Node::init())
@@ -20,7 +20,8 @@ bool GameObject::init()
     //添加萝卜
     carrotLayer = Carrot::create();
     this->addChild(carrotLayer, 2);
-
+    count++;
+    CCLOG("%d", count);
     //设置接触
     //auto physicsBody = PhysicsBody::createBox(carrotLayer->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
     //physicsBody->setDynamic(false);
@@ -29,9 +30,8 @@ bool GameObject::init()
     //physicsBody->setCollisionBitmask(0x06);   // 0110
     //carrotLayer->setTag(CARROT);
     //carrotLayer->setPhysicsBody(physicsBody);
-
     // 每隔1.5秒生成一个怪物
-    srand((unsigned int)time(nullptr));
+    //srand((unsigned int)time(nullptr));
     this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonster), 2,10,0);
 
     //接触监听
@@ -82,9 +82,9 @@ void GameObject::addMonster(float dt)
     });
     // 将两个动作组合在一起
     auto sequence = Sequence::create(delayAction, addMonsterTwoAction, nullptr);
-
     // 运行 Sequence
     this->runAction(sequence);
+    //this->unschedule(CC_SCHEDULE_SELECTOR(GameObject::addMonster));
 }
 
 void GameObject::setHealthBar(Sprite* monster, float currentHealthValue, float InitialHealthValue)
@@ -144,13 +144,13 @@ Sequence* GameObject::MoveWayInMapOne(GameObject * monster)
     float time5 = (Vec2(210, 153) - Vec2(702, 153)).getLength() / v;
     auto moveTo5 = MoveTo::create(time5, Vec2(702, 153));
     auto fadeOut = FadeOut::create(0.1f);
-    auto arrive = CallFunc::create([=]() {
-        carrotLayer->decreaseHealth();
-        monster->unscheduleUpdate();
-        });
+    //auto arrive = CallFunc::create([=]() {
+    //    carrotLayer->decreaseHealth();
+    //    monster->unscheduleUpdate();
+    //    });
     auto actionRemove = RemoveSelf::create();
 
-    auto seq = Sequence::create(fadeIn, moveTo1, moveTo2, scaleXAction, moveTo3, moveTo4, scaleXAction, moveTo5, fadeOut,arrive ,actionRemove,nullptr);
+    auto seq = Sequence::create(fadeIn, moveTo1, moveTo2, scaleXAction, moveTo3, moveTo4, scaleXAction, moveTo5, fadeOut,actionRemove,nullptr);
     return seq;
 }
 //鼠标移动显示坐标
@@ -336,10 +336,10 @@ Carrot::Carrot() : spriteNum(nullptr)
 //怪物1初始化
 bool MonsterOne::init(Carrot* _carrotLayer)
 {
-    if (!GameObject::init())
-    {
-        return false;
-    }
+    //if (!GameObject::init())
+    //{
+    //    return false;
+    //}
     carrotLayer = _carrotLayer;
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -352,13 +352,13 @@ bool MonsterOne::init(Carrot* _carrotLayer)
     objectSprite = Sprite::createWithSpriteFrame(framesMonsterOne.front());
     //设置速度
     this->speed = 500.0f;
-    //auto physicsBody = PhysicsBody::createBox(spriteMonsterOne->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
-    //physicsBody->setDynamic(false);
-    //physicsBody->setCategoryBitmask(0x01);    // 0001
-    //physicsBody->setContactTestBitmask(0x04); // 0100
-    //physicsBody->setCollisionBitmask(0x03);   // 0011
-    //spriteMonsterOne->setTag(MONSTER);
-    //spriteMonsterOne->setPhysicsBody(physicsBody);
+    auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
+    physicsBody->setDynamic(false);
+    physicsBody->setCategoryBitmask(0x01);    // 0001
+    physicsBody->setContactTestBitmask(0x04); // 0100
+    physicsBody->setCollisionBitmask(0x03);   // 0011
+    objectSprite->setTag(MONSTER);
+    objectSprite->setPhysicsBody(physicsBody);
 
     this->addChild(objectSprite, 2);
     //缩放
@@ -375,7 +375,7 @@ bool MonsterOne::init(Carrot* _carrotLayer)
     objectSprite->runAction(moveAction);
 
     // 调用 scheduleUpdate()，使得 update 函数被调用,每一帧更新位置
-    scheduleUpdate();
+    //this->scheduleUpdate();
     return true;
 }
 MonsterOne* MonsterOne::create(Carrot* carrotLayer)
@@ -427,7 +427,7 @@ bool MonsterTwo::init(Carrot* _carrotLayer)
      objectSprite = Sprite::createWithSpriteFrame(framesMonsterTwo.front());
     this->addChild(objectSprite, 2);
     //设置速度
-    this->speed = 100.0f;
+    this->speed = 1000.0f;
 
     //缩放
     objectSprite->setScale(1.9, 1.9);
@@ -440,6 +440,6 @@ bool MonsterTwo::init(Carrot* _carrotLayer)
     auto moveAction = MoveWayInMapOne(this); // 将移动动作保存起来
     objectSprite->runAction(moveAction);
     // 调用 scheduleUpdate()，使得 update 函数被调用,每一帧更新位置
-    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::update));
+    //this->schedule(CC_SCHEDULE_SELECTOR(GameObject::update));
     return true;
 }
