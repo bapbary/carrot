@@ -22,9 +22,8 @@ bool mapOne::init()//第一张地图的初始化
     {
         return false;
     }
-
-    auto visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
-    Vec2 origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
+    visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
+    origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
 
     //地图背景图设置
     auto background = Sprite::create("mapBackground.png");
@@ -57,7 +56,7 @@ bool mapOne::init()//第一张地图的初始化
     auto returnItem = MenuItemImage::create(
         "return.png",
         "returnSelected.png",
-        CC_CALLBACK_1(mapChoose::returnLast, this));//回到上一场景的按键
+        CC_CALLBACK_1(mapChoose::returnChoose, this));//回到上一场景的按键
     returnItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y + 4 * returnItem->getContentSize().height));
     auto menu = Menu::create(returnItem, NULL);//创建菜单，将按键加入
     this->addChild(menu, 2);
@@ -71,207 +70,42 @@ bool mapOne::init()//第一张地图的初始化
     //触摸监听创建
     touchListener = EventListenerTouchOneByOne::create();
     // 绑定触摸的的回调函数
-    touchListener->onTouchEnded = CC_CALLBACK_2(mapOne::onTouchEnded, this);
-    touchListener->onTouchBegan = CC_CALLBACK_2(mapOne::onTouchBegan, this);
+    touchListener->onTouchEnded = CC_CALLBACK_2(mapChoose::onTouchEnded, this);
+    touchListener->onTouchBegan = CC_CALLBACK_2(mapChoose::onTouchBegan, this);
     // 将监听器添加到事件分发器中
     _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
 
     return true;
 }
-bool mapOne::isTouchTower()//判断点击到的是否为炮塔
+bool mapOne::ifSafe(cocos2d::Vec2 mousePos)//判断点击到的是否为炮塔位置是否合法
 {
-    return true;
-}
-bool  mapOne::onTouchEnded(Touch* touch, Event* event)
-{
-    if (fireBottleClicked == true)
-    {
-        fireBottleClicked = false;
-        return true;
-    }
-    CCLOG("onTouchEnded - Start");
-
-    auto visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
-    Vec2 origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
-
-    cocos2d::Vec2 mousePos = touch->getLocation();
     float mouseLocX = mousePos.x;
     float mouseLocY = mousePos.y;
-    label->setString("Mouse Coordinates: " + std::to_string(mouseLocX) + ", " + std::to_string(mouseLocY));
-    towerName = TowerManager::getInstance()->towerSelected(mousePos);
-    if (towerName == "")
+    if (mouseLocY < 100 || (mouseLocY > 185 && mouseLocY < 290 && mouseLocX > 245 && mouseLocX < 1010) || (mouseLocY > 360 && mouseLocY < 470 && mouseLocX > 70 && mouseLocX < 825) || (mouseLocY > 570 && mouseLocY < 655 && mouseLocX > 425 && mouseLocX < 1010) || (mouseLocY < 570 && mouseLocY>295 && mouseLocX > 915) || (mouseLocY < 360 && mouseLocY>100 && mouseLocX < 160))
+        return true;
+    else 
+        return false;
+}
+void mapOne::selectedPosSet(float mouseLocX, float mouseLocY)
+{
+    towerPos.x = static_cast<int>((mouseLocX + 10) / cellWidth) * cellWidth + static_cast<int>(selectedPos->getContentSize().width / 2);
+    if (mouseLocY >= 570 && mouseLocY < 610)
     {
-        CCLOG("towerName is valid");
-    }
-    if (fireBottle == nullptr && towerName == "" && towerMenu == nullptr)//点击空白处
-    {
-        if (mouseLocY < 100 || (mouseLocY > 185 && mouseLocY < 290 && mouseLocX > 245 && mouseLocX < 1010) || (mouseLocY > 360 && mouseLocY < 470 && mouseLocX > 70 && mouseLocX < 825) || (mouseLocY > 570 && mouseLocY < 655 && mouseLocX > 425 && mouseLocX < 1010) || (mouseLocY < 570 && mouseLocY>295 && mouseLocX > 915) || (mouseLocY < 360 && mouseLocY>100 && mouseLocX < 160) && mousePos != obstacleTree->getPosition())//点击位置可以安装炮塔
-        {
-            if (goldCoin >= 160)
-            {
-                fireBottle = MenuItemImage::create(
-                    "fireBottleCanBuild.png",
-                    "fireBottleCanBuild.png",
-                    CC_CALLBACK_1(mapOne::fireBottleGenerate, this));
-                leafTower = MenuItemImage::create(
-                    "leafTowerCanBuild.png",
-                    "leafTowerCanBuild.png",
-                    CC_CALLBACK_1(mapOne::leafTowerGenerate, this));
-                lightingTower = MenuItemImage::create(
-                    "lightingTowerCanBuild.png",
-                    "lightingTowerCanBuild.png",
-                    CC_CALLBACK_1(mapOne::lightingTowerGenerate, this));
-            }
-            else
-            {
-                fireBottle = MenuItemImage::create(
-                    "fireBottleCannotBuild.png",
-                    "fireBottleCannotBuild.png",
-                    CC_CALLBACK_1(mapOne::fireBottleCannotGenerate, this));
-                leafTower = MenuItemImage::create(
-                    "leafTowerCannotBuild.png",
-                    "leafTowerCannotBuild.png",
-                    CC_CALLBACK_1(mapOne::leafTowerCannotGenerate, this));
-                lightingTower = MenuItemImage::create(
-                    "lightingTowerCannotBuild.png",
-                    "lightingTowerCannotBuild.png",
-                    CC_CALLBACK_1(mapOne::lightingTowerCannotGenerate, this));
-
-            }
-            Menu* menu = Menu::create(fireBottle, leafTower, lightingTower, NULL);
-            this->addChild(menu, 3);
-            //复选框设置
-            selectedPos = Sprite::create("Choose.png");
-            towerPos.x = static_cast<int>(mouseLocX / cellWidth) * cellWidth + static_cast<int>(selectedPos->getContentSize().width / 2);
-            if (mouseLocY >= 570 && mouseLocY < 610)
-            {
-                towerPos.y = static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2) + 20;
-                fireBottle->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 20);
-                leafTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 20);
-                lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 20);
-                selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
-            }
-            else
-            {
-                towerPos.y = static_cast<int>(mouseLocY / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2);
-                fireBottle->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
-                leafTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
-                lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
-                selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
-            }
-            this->addChild(selectedPos, 2);
-        }
-        else
-            CCLOG("Click invalid");
-    }
-    else if (fireBottle == nullptr && (towerName != "" || towerMenu != nullptr))
-    {
-        // 点击了fireBottle,选择升级或删除
-        CCLOG("Choose upgrade or delete!");
-        if (towerMenu == nullptr && towerName != "")
-        {
-            if (!towerName.compare(0, 9, "FireTower"))
-            {
-                auto deleteItem = MenuItemImage::create(
-                    "FireBottleTowerDelete.png",
-                    "FireBottleTowerDelete.png",
-                    CC_CALLBACK_1(mapOne::deleteTower, this));//删除图标
-                if (goldCoin >= 320)
-                {
-                    auto upgradeItem = MenuItemImage::create(
-                        "CanUpgrade.png",
-                        "CanUpgrade.png",
-                        CC_CALLBACK_1(mapOne::upgradeFireTower, this));//升级图标（钱足够）
-                    deleteItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y - cellHeight - visibleSize.height / 2);
-                    upgradeItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y + cellHeight - visibleSize.height / 2);
-                    deleteItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y - cellHeight - visibleSize.height / 2);
-                    towerMenu = Menu::create(upgradeItem, deleteItem, NULL);
-                }
-                else
-                {
-                    auto cannotUpgradeItem = Sprite::create("CannotUpgrade.png");//升级图标（钱不够）
-                    cannotUpgradeItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y + cellHeight - visibleSize.height / 2);
-                    towerMenu = Menu::create(deleteItem, NULL);
-
-                }
-            }
-            if (!towerName.compare(0, 9, "LeafTower"))
-            {
-                auto deleteItem = MenuItemImage::create(
-                    "FireBottleTowerDelete.png",
-                    "FireBottleTowerDelete.png",
-                    CC_CALLBACK_1(mapOne::deleteTower, this));//删除图标
-                if (goldCoin >= 320)
-                {
-                    auto upgradeItem = MenuItemImage::create(
-                        "CanUpgrade.png",
-                        "CanUpgrade.png",
-                        CC_CALLBACK_1(mapOne::upgradeLeafTower, this));//升级图标（钱足够）
-                    deleteItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y - cellHeight - visibleSize.height / 2);
-                    upgradeItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y + cellHeight - visibleSize.height / 2);
-                    deleteItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y - cellHeight - visibleSize.height / 2);
-                    towerMenu = Menu::create(upgradeItem, deleteItem, NULL);
-                }
-                else
-                {
-                    auto cannotUpgradeItem = Sprite::create("CannotUpgrade.png");//升级图标（钱不够）
-                    cannotUpgradeItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y + cellHeight - visibleSize.height / 2);
-                    towerMenu = Menu::create(deleteItem, NULL);
-
-                }
-            }
-            if (!towerName.compare(0, 13, "LightingTower"))
-            {
-                auto deleteItem = MenuItemImage::create(
-                    "LightingTowerDelete.png",
-                    "LightingTowerDelete.png",
-                    CC_CALLBACK_1(mapOne::deleteTower, this));//删除图标
-                if (goldCoin >= 320)
-                {
-                    auto upgradeItem = MenuItemImage::create(
-                        "LightingTowerUpgrade.png",
-                        "LightingTowerUpgrade.png",
-                        CC_CALLBACK_1(mapOne::upgradeLightTower, this));//升级图标（钱足够）
-                    deleteItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y - cellHeight - visibleSize.height / 2);
-                    upgradeItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y + cellHeight - visibleSize.height / 2);
-                    deleteItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y - cellHeight - visibleSize.height / 2);
-                    towerMenu = Menu::create(upgradeItem, deleteItem, NULL);
-                }
-                else
-                {
-                    auto cannotUpgradeItem = Sprite::create("LightingTowerCannotUpgrade.png");//升级图标（钱不够）
-                    cannotUpgradeItem->setPosition(TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().x - visibleSize.width / 2, TowerManager::getInstance()->getTower(towerName)->getTowerSprite()->getPosition().y + cellHeight - visibleSize.height / 2);
-                    towerMenu = Menu::create(deleteItem, NULL);
-
-                }
-            }
-            this->addChild(towerMenu, 2);
-            fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
-        }
-        else
-        {
-            // 点击了非tower图标
-            CCLOG("Clicked outside the sprite!");
-            this->removeChild(towerMenu);//移除选择图标所在菜单
-            towerMenu = nullptr;
-            fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
-        }
+        towerPos.y = static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2) + 20;
+        fireBottle->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 20);
+        leafTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 20);
+        lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 20);
+        selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
     }
     else
     {
-        CCLOG("Remove LOGO");
-        this->removeChild(fireBottle->getParent());//移除选择图标所在菜单
-        removeChild(selectedPos);//选择取消或者建造炮塔，复选框均消失
-        fireBottle = nullptr;  // 将精灵置为空，以便下次点击重新创建
-        fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
+        towerPos.y = static_cast<int>(mouseLocY / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2);
+        fireBottle->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+        leafTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+        lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+        selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
     }
-    CCLOG("onTouchEnded - End");
-    event->stopPropagation();
-    return true;
-}
-bool  mapOne::onTouchBegan(Touch* touch, Event* event)//保证监听器正常运行
-{
-    return true;
+
 }
 void mapOne::obstacleDispatch()
 {
@@ -289,114 +123,4 @@ void mapOne::obstacleDispatch()
     loadingBar->addChild(loadingBarBlood);
     loadingBarBlood->setPercentage(66);//设置计时器百分比
     this->addChild(loadingBar, 2);
-}
-void mapOne::fireBottleGenerate(Ref* pSender)//生成火焰瓶的炮塔类
-{
-    removeChild(selectedPos);//选择取消或者建造炮塔，复选框均消失
-    this->removeChild(fireBottle->getParent());//移除选择图标所在菜单
-    fireBottle = nullptr;  // 将精灵置为空，以便下次点击重新创建
-    FireTower* towerClass = new FireTower(towerPos);
-    //将炮塔名字及其指针加入炮塔管理器
-    TowerManager::getInstance()->addTower(towerClass->getTowerName(), towerClass);
-    //将炮塔精灵加入场景
-    this->addChild(towerClass->getTowerSprite(), 2);
-    //扣除相应金币
-    goldCoin -= 160;
-    goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
-    fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
-}
-void mapOne::leafTowerGenerate(Ref* pSender)//生成风扇的炮塔类
-{
-    removeChild(selectedPos);//选择取消或者建造炮塔，复选框均消失
-    this->removeChild(leafTower->getParent());//移除选择图标所在菜单
-    fireBottle = nullptr;  // 将精灵置为空，以便下次点击重新创建
-    LeafTower* towerClass = new LeafTower(towerPos);
-    //将炮塔名字及其指针加入炮塔管理器
-    TowerManager::getInstance()->addTower(towerClass->getTowerName(), towerClass);
-    //将炮塔精灵加入场景
-    this->addChild(towerClass->getTowerSprite(), 2);
-    //扣除相应金币
-    goldCoin -= 160;
-    goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
-    fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
-}
-void mapOne::lightingTowerGenerate(Ref* pSender)//生成绿瓶的炮塔类
-{
-    removeChild(selectedPos);//选择取消或者建造炮塔，复选框均消失
-    this->removeChild(leafTower->getParent());//移除选择图标所在菜单
-    fireBottle = nullptr;  // 将精灵置为空，以便下次点击重新创建
-    LightingTower* towerClass = new LightingTower(towerPos);
-    //将炮塔名字及其指针加入炮塔管理器
-    TowerManager::getInstance()->addTower(towerClass->getTowerName(), towerClass);
-    //将炮塔精灵加入场景
-    this->addChild(towerClass->getTowerSprite(), 2);
-    //扣除相应金币
-    goldCoin -= 100;
-    goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
-    fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
-}
-void mapOne::fireBottleCannotGenerate(Ref* pSender)//放置火焰瓶炮塔
-{
-
-}
-void mapOne::leafTowerCannotGenerate(Ref* pSender)//放置火焰瓶炮塔
-{
-
-}
-void mapOne::lightingTowerCannotGenerate(Ref* pSender)//放置火焰瓶炮塔
-{
-
-}
-void mapOne::upgradeFireTower(Ref* pSender)//升级火焰瓶的炮塔类
-{
-    TowerManager::getInstance()->getTower(towerName)->towerUpgrade();
-    this->removeChild(towerMenu);//移除选择图标所在菜单
-    goldCoin -= 320;//金币扣除
-    goldCoinDisplay->setString(std::to_string(goldCoin));//金币label待修改
-    towerMenu = nullptr;
-
-}
-void mapOne::upgradeLeafTower(Ref* pSender)//升级火焰瓶的炮塔类
-{
-    TowerManager::getInstance()->getTower(towerName)->towerUpgrade();
-    this->removeChild(towerMenu);//移除选择图标所在菜单
-    goldCoin -= 320;//金币扣除
-    goldCoinDisplay->setString(std::to_string(goldCoin));//金币label待修改
-    towerMenu = nullptr;
-
-}
-
-void mapOne::upgradeLightTower(Ref* pSender)//升级火焰瓶的炮塔类
-{
-    TowerManager::getInstance()->getTower(towerName)->towerUpgrade();
-    this->removeChild(towerMenu);//移除选择图标所在菜单
-    goldCoin -= 260;//金币扣除
-    goldCoinDisplay->setString(std::to_string(goldCoin));//金币label待修改
-    towerMenu = nullptr;
-
-}
-
-void mapOne::deleteTower(Ref* pSender)//生成火焰瓶的炮塔类
-{
-    CCLOG("Remove tower");
-    removeChild(TowerManager::getInstance()->getTower(towerName)->getTowerSprite());
-    TowerManager::getInstance()->removeTower(towerName);
-    this->removeChild(towerMenu);//移除选择图标所在菜单
-    //返还相应金币
-    goldCoin += 80;
-    goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
-
-    towerMenu = nullptr;
-}
-void mapOne::deleteLightTower(Ref* pSender)//生成火焰瓶的炮塔类
-{
-    CCLOG("Remove tower");
-    removeChild(TowerManager::getInstance()->getTower(towerName)->getTowerSprite());
-    TowerManager::getInstance()->removeTower(towerName);
-    this->removeChild(towerMenu);//移除选择图标所在菜单
-    //返还相应金币
-    goldCoin += 80;
-    goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
-
-    towerMenu = nullptr;
 }
