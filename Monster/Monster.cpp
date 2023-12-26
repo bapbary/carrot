@@ -32,7 +32,7 @@ bool GameObject::init()
 
     // 每隔1.5秒生成一个怪物
     srand((unsigned int)time(nullptr));
-    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonster), 2, 10, 0);
+    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonster), 2,10,0);
 
     //接触监听
     //auto contactListener = EventListenerPhysicsContact::create();
@@ -62,7 +62,7 @@ cocos2d::Vec2 GameObject::getCurrentPosition()
 void GameObject::update(float dt)
 {
     getCurrentPosition();
-    if (objectPosition.distance(DestinationOne) < 5.0f)  // 假设到达目标位置的距离阈值为0.1f
+    if (objectPosition.distance(DestinationOne) <0.1f)  // 假设到达目标位置的距离阈值为0.1f
     {
         this->unscheduleUpdate();
         MonsterManager::getInstance()->removeMonster(this);
@@ -79,7 +79,7 @@ void GameObject::addMonster(float dt)
         MonsterTwo* MonsterTwoLayer = MonsterTwo::create(carrotLayer);
         this->addChild(MonsterTwoLayer, 2);
         MonsterManager::getInstance()->addMonster(MonsterTwoLayer);
-        });
+    });
     // 将两个动作组合在一起
     auto sequence = Sequence::create(delayAction, addMonsterTwoAction, nullptr);
 
@@ -144,12 +144,13 @@ Sequence* GameObject::MoveWayInMapOne(GameObject * monster)
     float time5 = (Vec2(210, 153) - Vec2(702, 153)).getLength() / v;
     auto moveTo5 = MoveTo::create(time5, Vec2(702, 153));
     auto fadeOut = FadeOut::create(0.1f);
-    auto actionRemove = RemoveSelf::create();
-    auto arrive = CallFunc::create([this]() {
+    auto arrive = CallFunc::create([=]() {
         carrotLayer->decreaseHealth();
+        monster->unscheduleUpdate();
         });
+    auto actionRemove = RemoveSelf::create();
 
-    auto seq = Sequence::create(fadeIn, moveTo1, moveTo2, scaleXAction, moveTo3, moveTo4, scaleXAction, moveTo5, fadeOut, actionRemove, arrive,nullptr);
+    auto seq = Sequence::create(fadeIn, moveTo1, moveTo2, scaleXAction, moveTo3, moveTo4, scaleXAction, moveTo5, fadeOut,arrive ,actionRemove,nullptr);
     return seq;
 }
 //鼠标移动显示坐标
@@ -227,11 +228,6 @@ bool Carrot::init()
     //镜像翻转
     spriteCarrot->setScaleX(-3.8);
     spriteCarrot->setScaleY(3.8);
-    //生命数字
-    spriteNum = Sprite::create("icon_num(9).png");
-    this->addChild(spriteNum, 2);
-    spriteNum->setScale(2);
-    spriteNum->setPosition(702,255);
 
     //帧速率
     auto animationCarrot = Animation::createWithSpriteFrames(framesCarrot, 1.0f / 3);
@@ -247,7 +243,11 @@ void Carrot::decreaseHealth()
     CCLOG("%.1f", carrotLayer->objectHealthValue);
     if (carrotLayer->objectHealthValue == 9.0f)
     {
-        spriteNum->setTexture("icon_num(8).png");
+        //生命数字
+        spriteNum = Sprite::create("icon_num(9).png");
+        this->addChild(spriteNum, 2);
+        spriteNum->setScale(2);
+        spriteNum->setPosition(702, 255);
         //auto framesCarrot = getAnimation("carrot2%04d.png", 2);
         //auto animationCarrot = Animation::createWithSpriteFrames(framesCarrot, 1.0f / 3);
         //spriteCarrot->stopAllActions();
@@ -263,10 +263,12 @@ void Carrot::decreaseHealth()
     {
         spriteNum->setTexture("icon_num(7).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
-        //spriteCarrot->stopAllActions();
-        //spriteCarrot->setTexture("carrot7.png");
-        //// 可以根据需要调整纹理矩形
-        //spriteCarrot->setTextureRect(Rect(Vec2::ZERO, spriteCarrot->getContentSize()));
+        auto remove = RemoveSelf::create();
+        spriteCarrot->runAction(remove);
+        spriteCarrot = Sprite::create("carrot7.png");
+        this->addChild(spriteCarrot, 2);
+        spriteCarrot->setPosition(702, 156);
+        // 可以根据需要调整纹理矩形
     }
     else if (carrotLayer->objectHealthValue == 6.0f)
     {
@@ -279,11 +281,7 @@ void Carrot::decreaseHealth()
         spriteNum->setTexture("icon_num(5).png");
         // 可以根据需要调整纹理矩形
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
-        spriteCarrot->stopAllActions();
         spriteCarrot->setTexture("carrot5.png");
-        // 可以根据需要调整纹理矩形
-        spriteCarrot->setTextureRect(Rect(Vec2::ZERO, spriteCarrot->getContentSize()));
-
     }
     else if (carrotLayer->objectHealthValue == 4.0f)
     {
@@ -304,7 +302,7 @@ void Carrot::decreaseHealth()
     }
     else if (carrotLayer->objectHealthValue == 2.0f)
     {
-        spriteNum->setTexture("icon_num2).png");
+        spriteNum->setTexture("icon_num(2).png");
         // 可以根据需要调整纹理矩形
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
         spriteCarrot->stopAllActions();
@@ -377,7 +375,7 @@ bool MonsterOne::init(Carrot* _carrotLayer)
     objectSprite->runAction(moveAction);
 
     // 调用 scheduleUpdate()，使得 update 函数被调用,每一帧更新位置
-    this->scheduleUpdate();
+    scheduleUpdate();
     return true;
 }
 MonsterOne* MonsterOne::create(Carrot* carrotLayer)
@@ -442,6 +440,6 @@ bool MonsterTwo::init(Carrot* _carrotLayer)
     auto moveAction = MoveWayInMapOne(this); // 将移动动作保存起来
     objectSprite->runAction(moveAction);
     // 调用 scheduleUpdate()，使得 update 函数被调用,每一帧更新位置
-    this->scheduleUpdate();
+    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::update));
     return true;
 }
