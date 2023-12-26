@@ -8,9 +8,9 @@ FireTower::FireTower(const cocos2d::Vec2& touchlocation) {
     tower_level = 1;
     //初始化炮塔的其他数值
     tower_attack_number = 1;
-    tower_attack_range = 2;
+    tower_attack_range = 5000;
     tower_attack_power = 50;
-    tower_attack_speed = 0.1;
+    tower_attack_speed = 1;
     tower_sustained_attack_time;
 
     // 使用全局计数器作为唯一ID 以便后续标识炮塔
@@ -24,8 +24,7 @@ FireTower::FireTower(const cocos2d::Vec2& touchlocation) {
     sprite_show(tower);
     //加入情景放在建立类操作之后一句，不在类中进行放入
 
-    // 每隔一个攻击间隔执行一次索敌函数
-    this->schedule(CC_SCHEDULE_SELECTOR(FireTower::tower_targetupdate), tower_attack_speed, CC_REPEAT_FOREVER, 0);
+
 }
 
 //炮塔产生攻击粒子
@@ -39,7 +38,7 @@ cocos2d::Sprite* FireTower::createBullet() {
 }
 
 //炮塔升级
-void FireTower::towerUpgrade() {
+void FireTower::towerUpgrade(){
     if (tower_level == 1) {
         tower_level++;
         tower_attack_range = 2.4;
@@ -58,6 +57,6 @@ void FireTower::towerUpgrade() {
         // 使用新图标替换旧图标
         tower->setTexture("FireTower_big.png");
     }
-    goldCoin -= 320;//金币扣除
-    goldCoinDisplay->setString(std::to_string(goldCoin));//金币label待修改
+    //goldCoin -= 320;//金币扣除
+    //goldCoinDisplay->setString(std::to_string(goldCoin));//金币label待修改
 }

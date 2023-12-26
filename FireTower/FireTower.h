@@ -13,7 +13,7 @@ public:
     cocos2d::Sprite* createBullet();
 
     //ÅÚËşÉı¼¶
-    virtual void towerUpgrade();
+    void towerUpgrade();
 };
 
 
