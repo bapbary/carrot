@@ -13,11 +13,11 @@ public:
     void addTower(const std::string& towerName, BasicDefensiveTower* tower);
     void removeTower(const std::string& towerName);
     BasicDefensiveTower* getTower(const std::string& towerName);
-
+    void clearTowers();
+    std::vector<BasicDefensiveTower*> towers;
 private:
     TowerManager() {}
     static TowerManager* instance;
-    std::vector<BasicDefensiveTower*> towers;
 };
 
 #endif // TOWERMANAGER_H

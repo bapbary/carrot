@@ -13,7 +13,7 @@ std::string TowerManager::towerSelected(const cocos2d::Vec2& towerlocation) {
     // 遍历所有存储的炮塔
     for (BasicDefensiveTower* currentTower : towers) {
         // 匹配当前点击炮塔的坐标是否与当前遍历实例炮塔相等
-        if (currentTower->getTowerSprite()->getBoundingBox().containsPoint(towerlocation)) {
+        if (towerlocation.x <= currentTower->getTowerSprite()->getPosition().x + 30 && towerlocation.x >= currentTower->getTowerSprite()->getPosition().x - 30 && towerlocation.y <= currentTower->getTowerSprite()->getPosition().y + 30 && towerlocation.y >= currentTower->getTowerSprite()->getPosition().y - 30) {
             // 如匹配到符合的炮塔，返回当前炮塔的名称
             return currentTower->getTowerName();
             // 注：这个炮塔名称用于去得到当前所选炮塔实例的指针然后可以对它进行操作
@@ -46,3 +46,11 @@ BasicDefensiveTower* TowerManager::getTower(const std::string& towerName) {
     }
     return nullptr;
 }
+
+void TowerManager::clearTowers()
+{
+    delete instance;
+    instance = nullptr;
+}
+
+

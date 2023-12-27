@@ -8,9 +8,9 @@
 //定义炮塔基类（本身派生于scene）【后续派生时根据选择覆盖某些参数和函数】
 //类成员数据包含每个炮塔的参数和状态，以及一个最重要的精灵本体
 //类成员函数是炮塔相关功能的实现
-class BasicDefensiveTower : public mapChoose {
+class BasicDefensiveTower : public cocos2d::Scene {
 public:
-
+    virtual bool init();
     //获取炮塔精灵本身
     cocos2d::Sprite* getTowerSprite();
 
@@ -19,9 +19,6 @@ public:
 
     //获取炮塔位置坐标
     cocos2d::Vec2 getTowerLocation();
-
-    //获取炮塔位置坐标
-    int BasicDefensiveTower::getTowerLevel();
 
     //图标的显示
     void sprite_show(cocos2d::Sprite* sprite);
@@ -58,7 +55,7 @@ protected:
     //炮塔本身的精灵表示
     cocos2d::Sprite* tower;
     //炮塔目前攻击对象(自动/怪物)
-    GameObject* currenttarget;
+    GameObject* currenttarget = nullptr;
     //炮塔位置坐标
     cocos2d::Vec2 towerlocation;
     //当前攻击对象位置坐标
@@ -76,7 +73,7 @@ protected:
     //炮塔攻击伤害
     int tower_attack_power;
     //炮塔攻击速度
-    int tower_attack_speed;
+    float tower_attack_speed;
     //炮塔持续攻击时间（针对火焰瓶是否加攻）
     int tower_sustained_attack_time;
 
