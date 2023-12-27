@@ -41,6 +41,13 @@ bool Carrot::init(int mapCatalog)
     //¾µÏñ·­×ª
     spriteCarrot->setPosition(objectPosition);
     spriteCarrot->setScaleY(3.8);
+    //ÉèÖÃ½Ó´¥
+    auto physicsBody = PhysicsBody::createBox(spriteCarrot->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// ÃÜ¶È£¬ÐÞ¸´£¬Ä¦²Á
+    physicsBody->setDynamic(false);
+    physicsBody->setCategoryBitmask(0x04);    // 0100
+    physicsBody->setContactTestBitmask(0x01); // 0001
+    spriteCarrot->setTag(CARROT);
+    spriteCarrot->setPhysicsBody(physicsBody);
 
     //Ö¡ËÙÂÊ
     auto animationCarrot = Animation::createWithSpriteFrames(framesCarrot, 1.0f / 3);
@@ -52,9 +59,8 @@ bool Carrot::init(int mapCatalog)
 //ÂÜ²·¼õÉÙÑªÁ¿
 void Carrot::decreaseHealth()
 {
-    carrotLayer->objectHealthValue -= 1;
-    CCLOG("%.1f", carrotLayer->objectHealthValue);
-    if (carrotLayer->objectHealthValue == 9.0f)
+    carrotLayer->currentHealthValue -= 1;
+    if (carrotLayer->currentHealthValue == 9.0f)
     {
         //ÉúÃüÊý×Ö
         spriteNum = Sprite::create("icon_num(9).png");
@@ -68,12 +74,12 @@ void Carrot::decreaseHealth()
         spriteCarrot->setSpriteFrame(framesCarrot.front());
         spriteCarrot->runAction(RepeatForever::create(Animate::create(animationCarrot)));
     }
-    else if (carrotLayer->objectHealthValue == 8.0f)
+    else if (carrotLayer->currentHealthValue == 8.0f)
     {
         spriteNum->setTexture("icon_num(8).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
     }
-    else if (carrotLayer->objectHealthValue == 7.0f)
+    else if (carrotLayer->currentHealthValue == 7.0f)
     {
         spriteNum->setTexture("icon_num(7).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
@@ -86,36 +92,36 @@ void Carrot::decreaseHealth()
         spriteCarrot->stopAllActions();
         spriteCarrot->setSpriteFrame("carrot3/carrot7.png");
     }
-    else if (carrotLayer->objectHealthValue == 6.0f)
+    else if (carrotLayer->currentHealthValue == 6.0f)
     {
         spriteNum->setTexture("icon_num(6).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
     }
-    else if (carrotLayer->objectHealthValue == 5.0f)
+    else if (carrotLayer->currentHealthValue == 5.0f)
     {
         spriteNum->setTexture("icon_num(5).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
         spriteCarrot->setSpriteFrame("carrot3/carrot5.png");
     }
-    else if (carrotLayer->objectHealthValue == 4.0f)
+    else if (carrotLayer->currentHealthValue == 4.0f)
     {
         spriteNum->setTexture("icon_num(4).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
 
         spriteCarrot->setSpriteFrame("carrot3/carrot4.png");
     }
-    else if (carrotLayer->objectHealthValue == 3.0f)
+    else if (carrotLayer->currentHealthValue == 3.0f)
     {
         spriteNum->setTexture("icon_num(3).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
     }
-    else if (carrotLayer->objectHealthValue == 2.0f)
+    else if (carrotLayer->currentHealthValue == 2.0f)
     {
         spriteNum->setTexture("icon_num(2).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
         spriteCarrot->setSpriteFrame("carrot3/carrot2.png");
     }
-    else if (carrotLayer->objectHealthValue == 1.0f)
+    else if (carrotLayer->currentHealthValue == 1.0f)
     {
         spriteNum->setTexture("icon_num(1).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
@@ -127,7 +133,7 @@ void Carrot::decreaseHealth()
 
 Carrot::Carrot() : spriteNum(nullptr)
 {
-    objectHealthValue = 10.0f;
+    currentHealthValue = 10.0f;
     //SpriteFrameCache::getInstance()->addSpriteFramesWithFile("item.plist");
     //auto framesCarrot = getAnimation("carrot/%04d.png", 3);
     //spriteCarrot = Sprite::createWithSpriteFrame(framesCarrot.front());

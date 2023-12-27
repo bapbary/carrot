@@ -20,7 +20,6 @@ GameObject* GameObject::create(int mapCatalog)
         return nullptr;
     }
 }
-
 bool GameObject::init(int mapCatalog)
 {
     if (!Node::init())
@@ -38,19 +37,11 @@ bool GameObject::init(int mapCatalog)
     //添加萝卜
     carrotLayer = Carrot::create(mapChoose);
     this->addChild(carrotLayer, 2);
-    //设置接触
-    //auto physicsBody = PhysicsBody::createBox(carrotLayer->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
-    //physicsBody->setDynamic(false);
-    //physicsBody->setCategoryBitmask(0x04);    // 0100
-    //physicsBody->setContactTestBitmask(0x01); // 0001
-    //physicsBody->setCollisionBitmask(0x06);   // 0110
-    //carrotLayer->setTag(CARROT);
-    //carrotLayer->setPhysicsBody(physicsBody);
-    //第一波
     //接触监听
-    //auto contactListener = EventListenerPhysicsContact::create();
-    //contactListener->onContactBegin = CC_CALLBACK_1(GameObject::onContactBegin, this);
-    //_eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
+    auto contactListener = EventListenerPhysicsContact::create();
+    contactListener->onContactBegin = CC_CALLBACK_1(GameObject::onContactBegin, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
+    //添加怪物
     if (mapChoose == 1)
         addMonsterInMapOne();
     else
@@ -74,15 +65,11 @@ cocos2d::Vec2 GameObject::getCurrentPosition()
     objectPosition = objectSprite->getPosition();
     return objectPosition;
 }
-//更新位置
+//每帧更新位置、血量
 void GameObject::update(float dt)
 {
     getCurrentPosition();
-    if (objectPosition.distance(Destination[mapChoose-1]) < 0.1f)  // 假设到达目标位置的距离阈值为0.1f
-    {
-        this->unscheduleUpdate();
-        MonsterManager::getInstance()->removeMonster(this);
-    }
+    updateHealthBar(healthBar, initialHealthValue, currentHealthValue);
 }
 //添加怪物
 //地图一轮次三
@@ -230,21 +217,23 @@ void GameObject::addMonsterThree(float dt)
     this->addChild(MonsterThreeLayer, 2);
     MonsterManager::getInstance()->addMonster(MonsterThreeLayer);
 }
-void GameObject::setHealthBar(Sprite* monster, float currentHealthValue, float InitialHealthValue)
+void GameObject::setHealthBar(Sprite* monster)
 {
-    auto healthBarBG = Sprite::create("loadingBar.png");
+    healthBarBG = Sprite::create("loadingBar.png");
     healthBarBG->setScale(0.7);
     healthBarBG->setPosition(Vec2(monster->getContentSize().width / 2, monster->getContentSize().height));  // 设置血条底座的位置
     monster->addChild(healthBarBG, 1);
-    auto healthBar = ProgressTimer::create(Sprite::create("loadingBarBlood.png"));
+    healthBarBG->setVisible(false);
+    healthBar = ProgressTimer::create(Sprite::create("loadingBarBlood.png"));
     healthBar->setType(ProgressTimer::Type::BAR);
     healthBar->setScale(0.7);
     healthBar->setMidpoint(Vec2(0, 0.5));
     healthBar->setBarChangeRate(Vec2(1, 0));
+    healthBar->setVisible(false);
     healthBar->setPosition(Vec2(monster->getContentSize().width / 2, monster->getContentSize().height));  // 设置血条的位置
     monster->addChild(healthBar, 2);
-    float healthPercentage = (currentHealthValue / InitialHealthValue) * 100.0f;
-    updateHealthBar(healthBar, healthPercentage);
+    float healthPercentage = (currentHealthValue / initialHealthValue) * 100.0f;
+    updateHealthBar(healthBar, initialHealthValue, currentHealthValue);
 }
 
 void GameObject::menuCloseCallback(Ref* pSender)
@@ -288,12 +277,10 @@ Sequence* GameObject::MoveWayInMapOne(GameObject* monster)
     auto moveTo5 = MoveTo::create(time5, Vec2(702, 153));
     auto fadeOut = FadeOut::create(0.1f);
     auto arrive = CallFunc::create([=]() {
-        carrotLayer->decreaseHealth();
         monster->unscheduleUpdate();
         });
     auto actionRemove = RemoveSelf::create();
-
-    auto seq = Sequence::create(fadeIn, moveTo1, moveTo2, scaleXAction, moveTo3, moveTo4, scaleXAction, moveTo5, fadeOut, arrive, actionRemove, nullptr);
+    auto seq = Sequence::create(fadeIn, moveTo1, moveTo2, scaleXAction, moveTo3, moveTo4, scaleXAction, moveTo5, fadeOut, nullptr);
     return seq;
 }
 Sequence* GameObject::MoveWayInMapTwo(GameObject* monster)
@@ -347,37 +334,83 @@ void GameObject::onMouseMove(Event* event)
     }
 }
 //生命值
-void GameObject::updateHealthBar(ProgressTimer* healthBar, float percentage)
+void GameObject::updateHealthBar(ProgressTimer* healthBar, float initialHealthValue, float currentHealthValue)
 {
-    healthBar->setPercentage(percentage);
+    if (currentHealthValue < initialHealthValue)
+    {
+        healthBar->setVisible(true);
+        healthBar->setVisible(true);
+    }
+    float healthPercentage = (currentHealthValue / initialHealthValue) * 100.0f;
+    healthBar->setPercentage(healthPercentage);
 }
 //接触
 bool GameObject::onContactBegin(PhysicsContact& contact)
 {
     auto nodeA = contact.getShapeA()->getBody()->getNode();
     auto nodeB = contact.getShapeB()->getBody()->getNode();
-
     if (nodeA && nodeB)
     {
         int tagA = nodeA->getTag();
         int tagB = nodeB->getTag();
         if (tagA != tagB)
         {
-            // 怪物和萝卜发生碰撞
-            Carrot* carrot;
-            GameObject* monster;
-            if (tagA == CARROT)
+            // 怪物和萝卜接触
+            if (tagA == CARROT && tagB == MONSTER || tagA == MONSTER && tagB == CARROT)
             {
-                carrot = dynamic_cast<Carrot*>(nodeA);
-                monster = dynamic_cast<GameObject*>(nodeB);
+                if (tagA == MONSTER)
+                {
+                    Sprite* sprite = dynamic_cast<Sprite*>(nodeA);
+                    GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
+                    carrotLayer->decreaseHealth();
+                    monster->unscheduleUpdate();
+                    MonsterManager::getInstance()->removeMonster(monster);
+                    monster->runAction(RemoveSelf::create());
+                }
+                else
+                {
+                    Sprite* sprite = dynamic_cast<Sprite*>(nodeB);
+                    GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
+                    carrotLayer->decreaseHealth();
+                    monster->unscheduleUpdate();
+                    MonsterManager::getInstance()->removeMonster(monster);
+                    monster->runAction(RemoveSelf::create());
+                }
             }
-            else
+            //怪物和子弹接触
+            if (tagA == MONSTER && tagB == LIGHTINGBULLET || tagA == LIGHTINGBULLET && tagB == MONSTER)
             {
-                carrot = dynamic_cast<Carrot*>(nodeB);
-                monster = dynamic_cast<GameObject*>(nodeA);
+                if (tagA == MONSTER)
+                {
+                    Sprite* sprite = dynamic_cast<Sprite*>(nodeA);
+                    GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
+                    monster->currentHealthValue -= float(LIGHTINGBULLET);
+                    auto hit = Sprite::create("Lighting_Hit.png");
+                    sprite->addChild(hit, 2);
+                    hit->setPosition(Vec2(sprite->getContentSize().width / 2, sprite->getContentSize().height / 2));
+                    hit->runAction(Sequence::create(DelayTime::create(0.5f), RemoveSelf::create(),nullptr));
+                    if(monster->currentHealthValue<=0)
+                    {
+                        monster->unscheduleUpdate();
+                        monster->runAction(RemoveSelf::create());
+                    }
+                }
+                else
+                {
+                    Sprite* sprite = dynamic_cast<Sprite*>(nodeB);
+                    GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
+                    monster->currentHealthValue -= float(LIGHTINGBULLET);
+                    auto hit = Sprite::create("Lighting_Hit.png");
+                    sprite->addChild(hit, 2);
+                    hit->setPosition(Vec2(sprite->getContentSize().width / 2, sprite->getContentSize().height / 2));
+                    hit->runAction(Sequence::create(DelayTime::create(0.5f), RemoveSelf::create(), nullptr));
+                    if (monster->currentHealthValue <= 0)
+                    {
+                        monster->unscheduleUpdate();
+                        monster->runAction(RemoveSelf::create());
+                    }
+                }
             }
-            // 减少萝卜的生命值
-            carrot->decreaseHealth();
         }
     }
     return true;
