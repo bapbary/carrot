@@ -117,11 +117,11 @@ void mapChoose::enterMapTwo(Ref* pSender)//进入第二张地图
 }
 void mapChoose::onTouchEnded(Touch* touch, Event* event)
 {
-    if (fireBottleClicked == true)
+   /* if (fireBottleClicked == true)
     {
         fireBottleClicked = false;
         return;
-    }
+    }*/
     CCLOG("onTouchEnded - Start");
 
     auto visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小

@@ -25,9 +25,11 @@ bool mapOne::init()//第一张地图的初始化
     {
         return false;
     }  
-    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::tower_targetupdate), 1.0f, CC_REPEAT_FOREVER, 0);
+
     visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
     origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
+
+    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::tower_targetupdate), 0.2, CC_REPEAT_FOREVER, 0);
 
     //地图背景图设置
     auto background = Sprite::create("mapBackground.png");
