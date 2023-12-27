@@ -1,6 +1,6 @@
 #include "MonsterThree.h"
 USING_NS_CC;
-//怪物1初始化
+//怪物3初始化
 bool MonsterThree::init(Carrot* _carrotLayer, int mapCatalog)
 {
     if (!Node::init())
@@ -11,8 +11,8 @@ bool MonsterThree::init(Carrot* _carrotLayer, int mapCatalog)
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     //初始生命值
-    float InitialHealthValue = 500.0f;
-    objectHealthValue = InitialHealthValue;
+    initialHealthValue = 500.0f;
+    currentHealthValue = initialHealthValue;
     //怪物的动画帧
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("item.plist");
     auto framesMonsterOne = getAnimation("monster3/%04d.png", 2);
@@ -33,9 +33,15 @@ bool MonsterThree::init(Carrot* _carrotLayer, int mapCatalog)
     objectSprite->setOpacity(0);
     objectPosition = Origin[mapCatalog - 1];
     objectSprite->setPosition(objectPosition);
+    auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
+    physicsBody->setDynamic(false);
+    physicsBody->setCategoryBitmask(0x01);    // 0001
+    physicsBody->setContactTestBitmask(0x04); // 0100
+    objectSprite->setTag(MONSTER);
+    objectSprite->setPhysicsBody(physicsBody);
 
     //设置血条
-    setHealthBar(objectSprite, objectHealthValue, InitialHealthValue);
+    setHealthBar(objectSprite);
     //帧速率
     auto animationMonsterOne = Animation::createWithSpriteFrames(framesMonsterOne, 1.0f / 3);
     objectSprite->runAction(RepeatForever::create(Animate::create(animationMonsterOne)));

@@ -25,15 +25,15 @@ bool MonsterTwo::init(Carrot* _carrotLayer, int mapCatalog)
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     //初始生命值
-    float InitialHealthValue = 200.0f;
-    objectHealthValue = InitialHealthValue;
+    initialHealthValue = 200.0f;
+    currentHealthValue = initialHealthValue;
     //怪物2的动画帧
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("item.plist");
     auto framesMonsterTwo = getAnimation("monster2/%04d.png", 3);
     objectSprite = Sprite::createWithSpriteFrame(framesMonsterTwo.front());
     this->addChild(objectSprite, 2);
     //设置速度
-    this->speed = 600.0f;
+    this->speed = 400.0f;
 
     //缩放
     objectSprite->setScale(1.9, 1.9);
@@ -41,7 +41,14 @@ bool MonsterTwo::init(Carrot* _carrotLayer, int mapCatalog)
     objectPosition = Origin[mapCatalog - 1];
     objectSprite->setPosition(objectPosition);
 
-    setHealthBar(objectSprite, objectHealthValue, InitialHealthValue);
+    auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
+    physicsBody->setDynamic(false);
+    physicsBody->setCategoryBitmask(0x01);    // 0001
+    physicsBody->setContactTestBitmask(0x04); // 0100
+    objectSprite->setTag(MONSTER);
+    objectSprite->setPhysicsBody(physicsBody);
+
+    setHealthBar(objectSprite);
     //帧速率
     auto animationMonsterTwo = Animation::createWithSpriteFrames(framesMonsterTwo, 1.0f / 3);
     objectSprite->runAction(RepeatForever::create(Animate::create(animationMonsterTwo)));
