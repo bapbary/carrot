@@ -8,10 +8,14 @@
 USING_NS_CC;
 Scene* mapTwo::createScene()
 {
-    Scene* startScene = Scene::create();
-    mapTwo* map = mapTwo::create();
-    startScene->addChild(map);
-    return startScene;
+    //Scene* startScene = Scene::create();
+    //mapTwo* map = mapTwo::create();
+    //startScene->addChild(map);
+    //return startScene;
+    auto scene = Scene::createWithPhysics();
+    auto layer = mapOne::create();
+    scene->addChild(layer);
+    return scene;
 }
 bool mapTwo::init()//第一张地图的初始化
 {
