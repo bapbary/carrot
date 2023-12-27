@@ -35,7 +35,7 @@ bool mapTwo::init()//第一张地图的初始化
     monsterEnter->setPosition(Vec2(995, 525));
     this->addChild(monsterEnter, 2);
     //怪物加入
-    GameObject* monster = GameObject::create();
+    GameObject* monster = GameObject::create(2);
     this->addChild(monster, 2);
     //outline框设置
     auto outline = Sprite::create("outline.png");

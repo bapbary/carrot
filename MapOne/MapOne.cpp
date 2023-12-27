@@ -44,7 +44,7 @@ bool mapOne::init()//第一张地图的初始化
     monsterEnter->setPosition(Vec2(6 * cellWidth, 9 * cellHeight));
     this->addChild(monsterEnter, 2);
     //怪物加入
-    GameObject* monster = GameObject::create();
+    GameObject* monster = GameObject::create(1);
     this->addChild(monster, 2);
     //outline框设置
     auto outline = Sprite::create("outline.png");
