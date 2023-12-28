@@ -2,12 +2,27 @@
 #define __GAME_OBJECT_H__
 #include "cocos2d.h"
 #include<vector>
-//第一个地图终点
-const cocos2d::Vec2 Destination[2] = { cocos2d::Vec2(685, 180),cocos2d::Vec2(80, 416) };
-const cocos2d::Vec2 Origin[2] = { cocos2d::Vec2(383, 532),cocos2d::Vec2(928, 473) };
+//地图终点、起点
+const cocos2d::Vec2 Destination[2] = { cocos2d::Vec2(736, 180),cocos2d::Vec2(890,269) };
+const cocos2d::Vec2 Origin[2] = { cocos2d::Vec2(383, 532),cocos2d::Vec2(994,531) };
 #define MONSTER 200
 #define CARROT 100
-#define LIGHTINGBULLET 30
+#define LIGHTINGBULLET1 30
+#define LIGHTINGBULLET2 35
+#define LIGHTINGBULLET3 40
+#define FIREBULLET1 41
+#define FIREBULLET2 52
+#define FIREBULLET3 63
+#define LEAF1 20
+#define LEAF2 25
+#define LEAF3 45
+#define OBSTACLE 300
+const float MonsterOneHealth = 100.f;
+const float MonsterTwoHealth = 200.f;
+const float MonsterThreeHealth = 500.0f;
+const float MonsterOneValue = 100.0f;
+const float MonsterTwoValue = 200.0f;
+const float MonsterThreeValue = 500.0f;
 class Carrot;
 class MonsterManager;
 class GameObject : public cocos2d::Node
@@ -32,7 +47,9 @@ public:
     void addMonsterOne(float dt);
     void addMonsterTwo(float dt);
     void addMonsterThree(float dt);
-
+    //添加障碍物
+    void addObstaclesInMapOne();
+    void addObstaclesInMapTwo();
     //更新血量
     void updateHealthBar(cocos2d::ProgressTimer* healthBar,float initial,float current);
     //接触
@@ -40,8 +57,10 @@ public:
     //object位置
     cocos2d::Vec2 objectPosition;
     //生命值
-    float currentHealthValue;//当前
-    float initialHealthValue;//原始
+    float currentHealth;//当前
+    float initialHealth;//原始
+    //金币值
+    float coinValue;
     //血条
     cocos2d::ProgressTimer* healthBar;
     cocos2d::Sprite* healthBarBG;
@@ -52,6 +71,8 @@ public:
     void update(float dt);
     float speed;
     MonsterManager* monstermanager;
+    void hitMonster(cocos2d::Node* node, float num, float scale, char* filename);
+    void hitObstacle(cocos2d::Node* node, float num, float scale, char* filename);
 protected:
     Carrot* carrotLayer;
     //物体节点
