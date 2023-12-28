@@ -25,8 +25,9 @@ bool MonsterTwo::init(Carrot* _carrotLayer, int mapCatalog)
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     //初始生命值
-    initialHealthValue = 200.0f;
-    currentHealthValue = initialHealthValue;
+    initialHealth= MonsterTwoHealth;
+    currentHealth = initialHealth;
+    coinValue = MonsterTwoValue;
     //怪物2的动画帧
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("item.plist");
     auto framesMonsterTwo = getAnimation("monster2/%04d.png", 3);

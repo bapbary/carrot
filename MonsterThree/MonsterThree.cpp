@@ -11,21 +11,22 @@ bool MonsterThree::init(Carrot* _carrotLayer, int mapCatalog)
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     //初始生命值
-    initialHealthValue = 500.0f;
-    currentHealthValue = initialHealthValue;
+    initialHealth = MonsterThreeHealth;
+    currentHealth = initialHealth;
+    coinValue = MonsterThreeValue;
     //怪物的动画帧
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("item.plist");
     auto framesMonsterOne = getAnimation("monster3/%04d.png", 2);
     objectSprite = Sprite::createWithSpriteFrame(framesMonsterOne.front());
     //设置速度
     this->speed = 200.0f;
-    //auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
-    //physicsBody->setDynamic(false);
-    //physicsBody->setCategoryBitmask(0x01);    // 0001
-    //physicsBody->setContactTestBitmask(0x04); // 0100
-    //physicsBody->setCollisionBitmask(0x03);   // 0011
-    //objectSprite->setTag(MONSTER);
-    //objectSprite->setPhysicsBody(physicsBody);
+    auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
+    physicsBody->setDynamic(false);
+    physicsBody->setCategoryBitmask(0x01);    // 0001
+    physicsBody->setContactTestBitmask(0x04); // 0100
+    physicsBody->setCollisionBitmask(0x03);   // 0011
+    objectSprite->setTag(MONSTER);
+    objectSprite->setPhysicsBody(physicsBody);
 
     this->addChild(objectSprite, 2);
     //缩放
@@ -33,12 +34,6 @@ bool MonsterThree::init(Carrot* _carrotLayer, int mapCatalog)
     objectSprite->setOpacity(0);
     objectPosition = Origin[mapCatalog - 1];
     objectSprite->setPosition(objectPosition);
-    auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
-    physicsBody->setDynamic(false);
-    physicsBody->setCategoryBitmask(0x01);    // 0001
-    physicsBody->setContactTestBitmask(0x04); // 0100
-    objectSprite->setTag(MONSTER);
-    objectSprite->setPhysicsBody(physicsBody);
 
     //设置血条
     setHealthBar(objectSprite);

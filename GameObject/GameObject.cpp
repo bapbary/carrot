@@ -4,6 +4,7 @@
 #include"MonsterTwo.h"
 #include"MonsterManager.h"
 #include"MonsterThree.h"
+#include"Obstacles.h"
 USING_NS_CC;
 int count = 0;
 GameObject* GameObject::create(int mapCatalog)
@@ -43,9 +44,15 @@ bool GameObject::init(int mapCatalog)
     _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
     //添加怪物
     if (mapChoose == 1)
+    {
         addMonsterInMapOne();
+        addObstaclesInMapOne();
+    }
     else
+    {
         addMonsterInMapTwo();
+        addObstaclesInMapTwo();
+    }
     return true;
 }
 //获取精灵
@@ -69,7 +76,7 @@ cocos2d::Vec2 GameObject::getCurrentPosition()
 void GameObject::update(float dt)
 {
     getCurrentPosition();
-    updateHealthBar(healthBar, initialHealthValue, currentHealthValue);
+    updateHealthBar(healthBar, initialHealth, currentHealth);
 }
 //添加怪物
 //地图一轮次三
@@ -232,8 +239,8 @@ void GameObject::setHealthBar(Sprite* monster)
     healthBar->setVisible(false);
     healthBar->setPosition(Vec2(monster->getContentSize().width / 2, monster->getContentSize().height));  // 设置血条的位置
     monster->addChild(healthBar, 2);
-    float healthPercentage = (currentHealthValue / initialHealthValue) * 100.0f;
-    updateHealthBar(healthBar, initialHealthValue, currentHealthValue);
+    float healthPercentage = (currentHealth / initialHealth) * 100.0f;
+    updateHealthBar(healthBar, initialHealth, currentHealth);
 }
 
 void GameObject::menuCloseCallback(Ref* pSender)
@@ -267,19 +274,19 @@ Sequence* GameObject::MoveWayInMapOne(GameObject* monster)
     float time1 = (Vec2(885, 532) - monster->objectPosition).getLength() / v;
     auto moveTo1 = MoveTo::create(time1, Vec2(885, 532));
     float time2 = (Vec2(885, 532) - Vec2(885, 335)).getLength() / v;
-    auto moveTo2 = MoveTo::create(time2, Vec2(885, 335));
+    auto moveTo2 = MoveTo::create(time2, Vec2(885, 345));
     auto scaleXAction = ScaleBy::create(0, -1.0f, 1.0f);
-    float time3 = (Vec2(885, 335) - Vec2(210, 335)).getLength() / v;
-    auto moveTo3 = MoveTo::create(time3, Vec2(210, 335));
-    float time4 = (Vec2(210, 335) - Vec2(210, 153)).getLength() / v;
+    float time3 = (Vec2(885, 345) - Vec2(210, 345)).getLength() / v;
+    auto moveTo3 = MoveTo::create(time3, Vec2(210, 345));
+    float time4 = (Vec2(210, 345) - Vec2(210, 153)).getLength() / v;
     auto moveTo4 = MoveTo::create(time4, Vec2(210, 153));
     float time5 = (Vec2(210, 153) - Vec2(702, 153)).getLength() / v;
     auto moveTo5 = MoveTo::create(time5, Vec2(702, 153));
     auto fadeOut = FadeOut::create(0.1f);
-    auto arrive = CallFunc::create([=]() {
-        monster->unscheduleUpdate();
-        });
-    auto actionRemove = RemoveSelf::create();
+    //auto arrive = CallFunc::create([=]() {
+    //    monster->unscheduleUpdate();
+    //    });
+    //auto actionRemove = RemoveSelf::create();
     auto seq = Sequence::create(fadeIn, moveTo1, moveTo2, scaleXAction, moveTo3, moveTo4, scaleXAction, moveTo5, fadeOut, nullptr);
     return seq;
 }
@@ -287,30 +294,34 @@ Sequence* GameObject::MoveWayInMapTwo(GameObject* monster)
 {
     float v = monster->speed;
     auto fadeIn = FadeIn::create(0.1f);
-    float time1 = (Vec2(928, 131) - monster->objectPosition).getLength() / v;
-    auto moveTo1 = MoveTo::create(time1, Vec2(928, 131));
-    float time2 = (Vec2(674, 131) - Vec2(928, 131)).getLength() / v;
-    auto moveTo2 = MoveTo::create(time2, Vec2(674, 131));
+    float time1 = (Vec2(116,531) - monster->objectPosition).getLength() / v;
+    auto moveTo1 = MoveTo::create(time1, Vec2(116, 531));
     auto scaleXAction = ScaleBy::create(0, -1.0f, 1.0f);
-    float time3 = (Vec2(674, 307) - Vec2(664, 131)).getLength() / v;
-    auto moveTo3 = MoveTo::create(time3, Vec2(674, 307));
-    float time4 = (Vec2(414, 307) - Vec2(674, 307)).getLength() / v;
-    auto moveTo4 = MoveTo::create(time4, Vec2(414, 307));
-    float time5 = (Vec2(414, 307) - Vec2(414,140)).getLength() / v;
-    auto moveTo5 = MoveTo::create(time5, Vec2(414, 140));
-    float time6 = (Vec2(246, 140) - Vec2(414, 140)).getLength() / v;
-    auto moveTo6 = MoveTo::create(time6, Vec2(246, 140));
-    float time7 = (Vec2(246, 393) - Vec2(246, 140)).getLength() / v;
-    auto moveTo7 = MoveTo::create(time7, Vec2(246, 393));
-    float time8 = (Vec2(90, 393) - Vec2(246, 140)).getLength() / v;
-    auto moveTo8 = MoveTo::create(time8, Vec2(90, 393));
+    float time2 = (Vec2(116,339) - Vec2(116, 531)).getLength() / v;
+    auto moveTo2 = MoveTo::create(time2, Vec2(116,339));
+    float time3 = (Vec2(489,339) - Vec2(116,339)).getLength() / v;
+    auto moveTo3 = MoveTo::create(time3, Vec2(489,339));
+    float time4 = (Vec2(489,339) - Vec2(489,239)).getLength() / v;
+    auto moveTo4 = MoveTo::create(time4, Vec2(489,239));
+    float time5 = (Vec2(118,239) - Vec2(489,239)).getLength() / v;
+    auto moveTo5 = MoveTo::create(time5, Vec2(118,239));
+    float time6 = (Vec2(118,148) - Vec2(118,239)).getLength() / v;
+    auto moveTo6 = MoveTo::create(time6, Vec2(118,148));
+    float time7 = (Vec2(760,148) - Vec2(118,148)).getLength() / v;
+    auto moveTo7 = MoveTo::create(time7, Vec2(760,148));
+    float time8 = (Vec2(760, 437) - Vec2(778, 148)).getLength() / v;
+    auto moveTo8 = MoveTo::create(time8, Vec2(760,437));
+    float time9 = (Vec2(875, 437) - Vec2(760, 437)).getLength() / v;
+    auto moveTo9 = MoveTo::create(time9, Vec2(875, 437));
+    float time10 = (Vec2(875, 325) - Vec2(875, 437)).getLength() / v;
+    auto moveTo10 = MoveTo::create(time10, Vec2(875, 325));
     auto fadeOut = FadeOut::create(0.1f);
-    auto arrive = CallFunc::create([=]() {
-        carrotLayer->decreaseHealth();
-        monster->unscheduleUpdate();
-        });
-    auto actionRemove = RemoveSelf::create();
-    auto seq = Sequence::create(fadeIn, scaleXAction, moveTo1, moveTo2,  moveTo3, moveTo4, moveTo5, moveTo6,moveTo7,moveTo8,fadeOut, arrive, actionRemove, nullptr);
+    //auto arrive = CallFunc::create([=]() {
+    //    carrotLayer->decreaseHealth();
+    //    monster->unscheduleUpdate();
+    //    });
+    //auto actionRemove = RemoveSelf::create();
+    auto seq = Sequence::create(fadeIn, scaleXAction, moveTo1, scaleXAction, moveTo2,  moveTo3, scaleXAction, moveTo4, moveTo5, scaleXAction, moveTo6,moveTo7,moveTo8, moveTo9, moveTo10, fadeOut, nullptr);
     return seq;
 }
 
@@ -334,15 +345,49 @@ void GameObject::onMouseMove(Event* event)
     }
 }
 //生命值
-void GameObject::updateHealthBar(ProgressTimer* healthBar, float initialHealthValue, float currentHealthValue)
+void GameObject::updateHealthBar(ProgressTimer* healthBar, float initialHealthValue, float currentHealth)
 {
-    if (currentHealthValue < initialHealthValue)
+    if (currentHealth < initialHealthValue)
     {
-        healthBar->setVisible(true);
+        healthBarBG->setVisible(true);
         healthBar->setVisible(true);
     }
-    float healthPercentage = (currentHealthValue / initialHealthValue) * 100.0f;
+    float healthPercentage = (currentHealth / initialHealthValue) * 100.0f;
     healthBar->setPercentage(healthPercentage);
+}
+void  GameObject::hitMonster(Node* node, float num, float scale,char* filename)
+{
+    Sprite* sprite = dynamic_cast<Sprite*>(node);
+    GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
+    monster->currentHealth -= float(num);
+    auto hit = Sprite::create(filename);
+    //击打特效
+    hit->setScale(scale);
+    sprite->addChild(hit, 2);
+    hit->setPosition(Vec2(sprite->getContentSize().width / 2, sprite->getContentSize().height / 2));
+    hit->runAction(Sequence::create(DelayTime::create(0.5f), RemoveSelf::create(), nullptr));
+    if (monster->currentHealth <= 0)
+    {
+        monster->unscheduleUpdate();
+        MonsterManager::getInstance()->removeMonster(monster);
+        monster->runAction(RemoveSelf::create());
+    }
+}
+void GameObject::hitObstacle(Node* node, float num, float scale, char* filename)
+{
+    Sprite* sprite = dynamic_cast<Sprite*>(node);
+    GameObject* obstacle = dynamic_cast<GameObject*>(sprite->getParent());
+    obstacle->currentHealth -= float(num);
+    auto hit = Sprite::create(filename);
+    sprite->addChild(hit, 2);
+    hit->setPosition(Vec2(sprite->getContentSize().width / 2, sprite->getContentSize().height / 2));
+    hit->runAction(Sequence::create(DelayTime::create(0.5f), RemoveSelf::create(), nullptr));
+    if (obstacle->currentHealth <= 0)
+    {
+        obstacle->unscheduleUpdate();
+        obstacle->runAction(RemoveSelf::create());
+    }
+
 }
 //接触
 bool GameObject::onContactBegin(PhysicsContact& contact)
@@ -378,40 +423,177 @@ bool GameObject::onContactBegin(PhysicsContact& contact)
                 }
             }
             //怪物和子弹接触
-            if (tagA == MONSTER && tagB == LIGHTINGBULLET || tagA == LIGHTINGBULLET && tagB == MONSTER)
+            //闪电瓶
+            if (tagA == MONSTER && tagB == LIGHTINGBULLET1 || tagA == LIGHTINGBULLET1 && tagB == MONSTER)
             {
                 if (tagA == MONSTER)
-                {
-                    Sprite* sprite = dynamic_cast<Sprite*>(nodeA);
-                    GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
-                    monster->currentHealthValue -= float(LIGHTINGBULLET);
-                    auto hit = Sprite::create("Lighting_Hit.png");
-                    sprite->addChild(hit, 2);
-                    hit->setPosition(Vec2(sprite->getContentSize().width / 2, sprite->getContentSize().height / 2));
-                    hit->runAction(Sequence::create(DelayTime::create(0.5f), RemoveSelf::create(),nullptr));
-                    if(monster->currentHealthValue<=0)
-                    {
-                        monster->unscheduleUpdate();
-                        monster->runAction(RemoveSelf::create());
-                    }
-                }
+                    hitMonster(nodeA, LIGHTINGBULLET1, 0.5,"Lighting_Hit.png");
                 else
-                {
-                    Sprite* sprite = dynamic_cast<Sprite*>(nodeB);
-                    GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
-                    monster->currentHealthValue -= float(LIGHTINGBULLET);
-                    auto hit = Sprite::create("Lighting_Hit.png");
-                    sprite->addChild(hit, 2);
-                    hit->setPosition(Vec2(sprite->getContentSize().width / 2, sprite->getContentSize().height / 2));
-                    hit->runAction(Sequence::create(DelayTime::create(0.5f), RemoveSelf::create(), nullptr));
-                    if (monster->currentHealthValue <= 0)
-                    {
-                        monster->unscheduleUpdate();
-                        monster->runAction(RemoveSelf::create());
-                    }
-                }
+                    hitMonster(nodeB, LIGHTINGBULLET1, 0.5, "Lighting_Hit.png");
             }
+            if (tagA == MONSTER && tagB == LIGHTINGBULLET2 || tagA == LIGHTINGBULLET2 && tagB == MONSTER)
+            {
+                if (tagA == MONSTER)
+                    hitMonster(nodeA, LIGHTINGBULLET2, 1, "Lighting_Hit.png");
+                else
+                    hitMonster(nodeB, LIGHTINGBULLET2, 1, "Lighting_Hit.png");
+            }
+            if (tagA == MONSTER && tagB == LIGHTINGBULLET3 || tagA == LIGHTINGBULLET3 && tagB == MONSTER)
+            {
+                if (tagA == MONSTER)
+                    hitMonster(nodeA, LIGHTINGBULLET3, 1.5, "Lighting_Hit.png");
+                else
+                    hitMonster(nodeB, LIGHTINGBULLET3, 1.5, "Lighting_Hit.png");
+            }
+            //火瓶
+            if (tagA == MONSTER && tagB == FIREBULLET1 || tagA == FIREBULLET1 && tagB == MONSTER)
+            {
+                if (tagA == MONSTER)
+                    hitMonster(nodeA, FIREBULLET1, 0.5, "Fire_Hit.png");
+                else
+                    hitMonster(nodeB, FIREBULLET1, 0.5, "Fire_Hit.png");
+            }
+            if (tagA == MONSTER && tagB == FIREBULLET2 || tagA == FIREBULLET2 && tagB == MONSTER)
+            {
+                if (tagA == MONSTER)
+                    hitMonster(nodeA, FIREBULLET2, 1, "Fire_Hit.png");
+                else
+                    hitMonster(nodeB, FIREBULLET2, 1, "Fire_Hit.png");
+            }
+            if (tagA == MONSTER && tagB == FIREBULLET3 || tagA == FIREBULLET3 && tagB == MONSTER)
+            {
+                if (tagA == MONSTER)
+                    hitMonster(nodeA, FIREBULLET3, 1.5, "Fire_Hit.png");
+                else
+                    hitMonster(nodeB, FIREBULLET3, 1.5, "Fire_Hit.png");
+            }
+            //风扇
+            if (tagA == MONSTER && tagB == LEAF1 || tagA == LEAF1 && tagB == MONSTER)
+            {
+                if (tagA == MONSTER)
+                    hitMonster(nodeA, LEAF1, 0.5,"Leaf_Hit.png");
+                else
+                    hitMonster(nodeB, LEAF1, 0.5,"Leaf_Hit.png");
+            }
+            if (tagA == MONSTER && tagB == LEAF2 || tagA == LEAF2 && tagB == MONSTER)
+            {
+                if (tagA == MONSTER)
+                    hitMonster(nodeA, LEAF2, 1, "Leaf_Hit.png");
+                else
+                    hitMonster(nodeB, LEAF2, 1, "Leaf_Hit.png");
+            }
+            if (tagA == MONSTER && tagB == LEAF3 || tagA == LEAF3 && tagB == MONSTER)
+            {
+                if (tagA == MONSTER)
+                    hitMonster(nodeA, LEAF3, 1.5, "Leaf_Hit.png");
+                else
+                    hitMonster(nodeB, LEAF3, 1.5, "Leaf_Hit.png");
+            }
+
+            //子弹和障碍物
+            if (tagA == OBSTACLE && tagB == LIGHTINGBULLET1 || tagA == LIGHTINGBULLET1 && tagB == OBSTACLE)
+            {
+                if (tagA == OBSTACLE)
+                    hitObstacle(nodeA, LIGHTINGBULLET1, 0.5, "Lighting_Hit.png");
+                else
+                    hitObstacle(nodeB, LIGHTINGBULLET1, 0.5, "Lighting_Hit.png");
+            }
+            if (tagA == OBSTACLE && tagB == LIGHTINGBULLET2 || tagA == LIGHTINGBULLET2 && tagB == OBSTACLE)
+            {
+                if (tagA == OBSTACLE)
+                    hitObstacle(nodeA, LIGHTINGBULLET2, 1, "Lighting_Hit.png");
+                else
+                    hitObstacle(nodeB, LIGHTINGBULLET2, 1, "Lighting_Hit.png");
+            }
+            if (tagA == OBSTACLE && tagB == LIGHTINGBULLET3 || tagA == LIGHTINGBULLET3 && tagB == OBSTACLE)
+            {
+                if (tagA == OBSTACLE)
+                    hitObstacle(nodeA, LIGHTINGBULLET3, 1.5, "Lighting_Hit.png");
+                else
+                    hitObstacle(nodeB, LIGHTINGBULLET3, 1.5, "Lighting_Hit.png");
+            }
+            //火瓶
+            if (tagA == OBSTACLE && tagB == FIREBULLET1 || tagA == FIREBULLET1 && tagB == OBSTACLE)
+            {
+                if (tagA == OBSTACLE)
+                    hitObstacle(nodeA, FIREBULLET1, 0.5, "Fire_Hit.png");
+                else
+                    hitObstacle(nodeB, FIREBULLET1, 0.5, "Fire_Hit.png");
+            }
+            if (tagA == OBSTACLE && tagB == FIREBULLET2 || tagA == FIREBULLET2 && tagB == OBSTACLE)
+            {
+                if (tagA == OBSTACLE)
+                    hitObstacle(nodeA, FIREBULLET2, 1, "Fire_Hit.png");
+                else
+                    hitObstacle(nodeB, FIREBULLET2, 1, "Fire_Hit.png");
+            }
+            if (tagA == OBSTACLE && tagB == FIREBULLET3 || tagA == FIREBULLET3 && tagB == OBSTACLE)
+            {
+                if (tagA == OBSTACLE)
+                    hitObstacle(nodeA, FIREBULLET3, 1.5, "Fire_Hit.png");
+                else
+                    hitObstacle(nodeB, FIREBULLET3, 1.5, "Fire_Hit.png");
+            }
+            //风扇
+            if (tagA == OBSTACLE && tagB == LEAF1 || tagA == LEAF1 && tagB == OBSTACLE)
+            {
+                if (tagA == OBSTACLE)
+                    hitObstacle(nodeA, LEAF1, 0.5, "Leaf_Hit.png");
+                else
+                    hitObstacle(nodeB, LEAF1, 0.5, "Leaf_Hit.png");
+            }
+            if (tagA == OBSTACLE && tagB == LEAF2 || tagA == LEAF2 && tagB == OBSTACLE)
+            {
+                if (tagA == OBSTACLE)
+                    hitObstacle(nodeA, LEAF2, 1, "Leaf_Hit.png");
+                else
+                    hitObstacle(nodeB, LEAF2, 1, "Leaf_Hit.png");
+            }
+            if (tagA == OBSTACLE && tagB == LEAF3 || tagA == LEAF3 && tagB == OBSTACLE)
+            {
+                if (tagA == OBSTACLE)
+                    hitObstacle(nodeA, LEAF3, 1.5, "Leaf_Hit.png");
+                else
+                    hitObstacle(nodeB, LEAF3, 1.5, "Leaf_Hit.png");
+            }
+
         }
     }
     return true;
+}
+void GameObject::addObstaclesInMapOne()
+{
+    Obstacles* obstacle1 = Obstacles::create(Vec2(560,434),2.0,"obstacle/obstacle1.png",100.0f,200.0f);
+    this->addChild(obstacle1, 2);
+    Obstacles* obstacle2 = Obstacles::create(Vec2(687, 600), 1.5, "obstacle/obstacle2.png", 100.0f, 200.0f);
+    this->addChild(obstacle2, 2);
+    Obstacles* obstacle3 = Obstacles::create(Vec2(739, 434), 2.0, "obstacle/obstacle3.png", 100.0f, 200.0f);
+    this->addChild(obstacle3, 2);
+    Obstacles* obstacle4 = Obstacles::create(Vec2(228,434), 2.0, "obstacle/obstacle4.png", 100.0f, 200.0f);
+    this->addChild(obstacle4, 2);
+    Obstacles* obstacle5 = Obstacles::create(Vec2(525,69), 2.5, "obstacle/obstacle5.png", 100.0f, 200.0f);
+    this->addChild(obstacle5, 2);
+    Obstacles* obstacle6 = Obstacles::create(Vec2(345, 245), 3.0, "obstacle/obstacle6.png", 100.0f, 200.0f);
+    this->addChild(obstacle6, 2);
+    Obstacles* obstacle7 = Obstacles::create(Vec2(840, 236), 3.0, "obstacle/obstacle7.png", 100.0f, 200.0f);
+    this->addChild(obstacle7, 2);
+}
+void GameObject::addObstaclesInMapTwo()
+{
+    Obstacles* obstacle1 = Obstacles::create(Vec2(648,424), 2.0, "obstacle/1.png", 100.0f, 200.0f);
+    this->addChild(obstacle1, 2);
+    Obstacles* obstacle2 = Obstacles::create(Vec2(811,617), 1.5, "obstacle/2.png", 100.0f, 200.0f);
+    this->addChild(obstacle2, 2);
+    Obstacles* obstacle3 = Obstacles::create(Vec2(215,433), 2.0, "obstacle/3.png", 100.0f, 200.0f);
+    this->addChild(obstacle3, 2);
+    Obstacles* obstacle4 = Obstacles::create(Vec2(592,333), 2.0, "obstacle/4.png", 100.0f, 200.0f);
+    this->addChild(obstacle4, 2);
+    Obstacles* obstacle5 = Obstacles::create(Vec2(872,151), 2.5, "obstacle/5.png", 100.0f, 200.0f);
+    this->addChild(obstacle5, 2);
+    Obstacles* obstacle6 = Obstacles::create(Vec2(142,613), 3.0, "obstacle/6.png", 100.0f, 200.0f);
+    this->addChild(obstacle6, 2);
+    Obstacles* obstacle7 = Obstacles::create(Vec2(676,235), 3.0, "obstacle/7.png", 100.0f, 200.0f);
+    this->addChild(obstacle7, 2);
+    Obstacles* obstacle8 = Obstacles::create(Vec2(517,70), 3.0, "obstacle/8.png", 100.0f, 200.0f);
+    this->addChild(obstacle8, 2);
 }

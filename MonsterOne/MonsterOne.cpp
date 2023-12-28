@@ -11,14 +11,16 @@ bool MonsterOne::init(Carrot* _carrotLayer, int mapCatalog)
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     //初始生命值
-    initialHealthValue = 100.0f;
-    currentHealthValue = initialHealthValue;
+    initialHealth = MonsterOneHealth;
+    currentHealth = initialHealth;
+    coinValue = MonsterOneValue;
     //怪物1的动画帧
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("item.plist");
     auto framesMonsterOne = getAnimation("monster1/%04d.png", 2);
     objectSprite = Sprite::createWithSpriteFrame(framesMonsterOne.front());
     //设置速度
     this->speed = 500.0f;
+    //物理引擎
     auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
     physicsBody->setDynamic(false);
     physicsBody->setCategoryBitmask(0x01);    // 0001
@@ -28,7 +30,7 @@ bool MonsterOne::init(Carrot* _carrotLayer, int mapCatalog)
 
     this->addChild(objectSprite, 2);
     //缩放
-    objectSprite->setScale(1.9, 1.9);
+    objectSprite->setScale(1.8, 1.8);
     objectSprite->setOpacity(0);
     objectPosition = Origin[mapCatalog-1];
     objectSprite->setPosition(objectPosition);
