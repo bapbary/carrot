@@ -11,8 +11,7 @@ public:
     virtual bool init();//地图场景初始化(UI设计)
     virtual bool ifSafe(cocos2d::Vec2 mousePos);//判断点击到的是否为炮塔
     virtual void selectedPosSet(float mouseLocX, float mouseLocY);//复选框位置设置（不同位置有细小差别）
-    virtual void obstacleDispatch();//障碍物设置
-
+    virtual void tryAgain(cocos2d::Ref* pSender);
     CREATE_FUNC(mapTwo);
 
 };

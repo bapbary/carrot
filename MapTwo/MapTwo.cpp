@@ -13,9 +13,10 @@ Scene* mapTwo::createScene()
     //startScene->addChild(map);
     //return startScene;
     auto scene = Scene::createWithPhysics();
-    auto layer = mapOne::create();
+    auto layer = mapTwo::create();
     scene->addChild(layer);
     return scene;
+
 }
 bool mapTwo::init()//第一张地图的初始化
 {
@@ -23,6 +24,7 @@ bool mapTwo::init()//第一张地图的初始化
     {
         return false;
     }
+
     visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
     origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
 
@@ -45,13 +47,17 @@ bool mapTwo::init()//第一张地图的初始化
     auto outline = Sprite::create("outline.png");
     outline->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height + origin.y - outline->getContentSize().height / 2));
     this->addChild(outline, 1);
+    //暂停键放置
+    int mapType = 1;
+    auto suspend = MenuItemImage::create(
+        "suspendItem.png",
+        "suspendItem.png",
+        CC_CALLBACK_1(mapChoose::suspend, this));
+
     //金币放置
     goldCoinDisplay = cocos2d::Label::createWithTTF(std::to_string(goldCoin), "fonts/Marker Felt.ttf", 24);
     goldCoinDisplay->setPosition(Vec2(245, 690));
     this->addChild(goldCoinDisplay, 2);
-
-    //障碍物设置
-    obstacleDispatch();
 
     //回调按钮设置
     auto returnItem = MenuItemImage::create(
@@ -59,7 +65,7 @@ bool mapTwo::init()//第一张地图的初始化
         "returnSelected.png",
         CC_CALLBACK_1(mapChoose::returnChoose, this));//回到上一场景的按键
     returnItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y + 4 * returnItem->getContentSize().height));
-    auto menu = Menu::create(returnItem, NULL);//创建菜单，将按键加入
+    auto menu = Menu::create(returnItem, suspend, NULL);//创建菜单，将按键加入
     this->addChild(menu, 2);
 
 
@@ -169,21 +175,10 @@ void mapTwo::selectedPosSet(float mouseLocX, float mouseLocY)
 
     }
 }
-void mapTwo::obstacleDispatch()
+void mapTwo::tryAgain(Ref* pSender)
 {
-    //障碍物图标设置
-    obstacleTree = Sprite::create("obstacleTree.png");//障碍物，树林类型，击落后有少量金钱奖励
-    obstacleTree->setPosition(Vec2(6 * cellWidth + 15, 10 * cellHeight));
-    this->addChild(obstacleTree, 2);
-    //障碍物的进度条设置
-    loadingBar = Sprite::create("loadingBar.png");
-    loadingBar->setPosition(Vec2(obstacleTree->getPositionX() - obstacleTree->getContentSize().width / 2, obstacleTree->getPositionY() + obstacleTree->getContentSize().height / 2));
-    //障碍物血条设置
-    loadingBarBlood = ProgressTimer::create(Sprite::create("loadingBarBlood.png"));
-    loadingBarBlood->setPosition(Vec2(obstacleTree->getPositionX() + loadingBarBlood->getContentSize().width, obstacleTree->getPositionY() + obstacleTree->getContentSize().height / 2));
-    loadingBarBlood->setMidpoint(Vec2(0, obstacleTree->getPositionX()));
-    loadingBar->addChild(loadingBarBlood);
-    loadingBarBlood->setPercentage(66);//设置计时器百分比
-    this->addChild(loadingBar, 2);
+    Director::getInstance()->popScene();//弹出暂停页面
+    Director::getInstance()->popScene();//弹出游戏页面
+    enterMapTwo(this);
 }
 

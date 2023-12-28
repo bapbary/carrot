@@ -5,8 +5,10 @@
 #include"LeafTower.h"
 #include"LightingTower.h"
 #include<string>
+#include<vector>
 #include"MapOne.h"
 #include"MapTwo.h"
+#include"Obstacles.h"
 USING_NS_CC;
 #define cellHeight 60
 #define cellWidth 60
@@ -32,6 +34,10 @@ bool mapChoose::init()
     background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
     this->addChild(background, 0);//加入场景中，并设置为底层
 
+    auto routeOneChoose = Sprite::create("routeOneChoose.png");
+    routeOneChoose->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+    this->addChild(routeOneChoose, 1);//加入场景中
+
     auto returnItem = MenuItemImage::create(
         "return.png",
         "returnSelected.png",
@@ -46,7 +52,7 @@ bool mapChoose::init()
         CC_CALLBACK_1(mapChoose::enterMapOne, this));
     returnItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y + 3 * returnItem->getContentSize().height));
     rightItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y));
-    enterItem->setPosition(Vec2(origin.x, origin.y - 3 * enterItem->getContentSize().height + 40));
+    enterItem->setPosition(Vec2(origin.x, origin.y - 3 * enterItem->getContentSize().height));
     auto menu = Menu::create(returnItem, rightItem, enterItem, NULL);//创建菜单，将三个按键加入
     this->addChild(menu, 1);//将菜单加入场景中
 
@@ -67,7 +73,9 @@ void mapChoose::returnChoose(Ref* pSender)
     CCLOG("return last");
     TowerManager::getInstance()->clearTowers();//删除上个地图中残留的炮塔管理器
     MonsterManager::getInstance()->clearMonster();//删除上个地图中残留的怪物管理器
+    delete GameObject::getInstance();
     Director::getInstance()->popScene();//从地图退出，并从栈里将地图选择的场景弹出作为当前运行场景
+    Director::getInstance()->popScene();
     return;
 }
 void mapChoose::flipToNext(Ref* pSender)
@@ -76,8 +84,14 @@ void mapChoose::flipToNext(Ref* pSender)
     auto background = Sprite::create("map.png");
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
+
     background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
     mapChoose->addChild(background, 0);
+
+    auto routeTwoChoose = Sprite::create("routeTwoChoose.png");
+    routeTwoChoose->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+    mapChoose->addChild(routeTwoChoose, 1);//加入场景中
+
     auto returnItem = MenuItemImage::create(
         "return.png",
         "returnSelected.png",
@@ -92,10 +106,10 @@ void mapChoose::flipToNext(Ref* pSender)
         CC_CALLBACK_1(mapChoose::enterMapTwo, this));//进入第二张地图的按键
     returnItem->setPosition(Vec2(origin.x + visibleSize.width / 2 - 100, origin.y + 3 * returnItem->getContentSize().height));
     leftItem->setPosition(Vec2(origin.x - visibleSize.width / 2 + 80, origin.y));
-    enterItem->setPosition(Vec2(origin.x, origin.y - 3 * enterItem->getContentSize().height + 40));
+    enterItem->setPosition(Vec2(origin.x, origin.y - 3 * enterItem->getContentSize().height));
     auto menu = Menu::create(returnItem, leftItem, enterItem, NULL);//创建菜单，将两个按键加入
     mapChoose->addChild(menu, 1);
-    auto label = Label::createWithTTF("Choose Map", "fonts/Marker Felt.ttf", 54);
+    auto label = Label::createWithTTF("Choose Your Map", "fonts/Marker Felt.ttf", 54);//创建标签
     label->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - 2 * label->getContentSize().height));
     mapChoose->addChild(label, 1);
     Director::getInstance()->replaceScene(TransitionFade::create(1, mapChoose));
@@ -132,14 +146,21 @@ void mapChoose::onTouchEnded(Touch* touch, Event* event)
     float mouseLocX = mousePos.x;
     float mouseLocY = mousePos.y;
     label->setString("Mouse Coordinates: " + std::to_string(mouseLocX) + ", " + std::to_string(mouseLocY));
+    //获取当前点击有无炮塔
     towerName = TowerManager::getInstance()->towerSelected(mousePos);
-    if (towerName == "")
+    //获取现存怪物的信息
+    std::vector<GameObject*> monsters = MonsterManager::getInstance()->getMonsters();
+    //存储障碍物坐标
+    std::vector<Obstacles*> obstacles = GameObject::getInstance()->getObstacles();
+    //遍历判断是否点击到怪物
+    GameObject* attackMonster = ifClickedMonster(monsters, mousePos);
+    //遍历判断是否点击到障碍物
+    Obstacles* attackObstacle = ifClickedObstacle(obstacles, mousePos);
+
+    //判断
+    if (fireBottle == nullptr && towerName == "" && towerMenu == nullptr && attackMonster == nullptr && attackObstacle == nullptr)//点击空白处
     {
-        CCLOG("towerName is valid");
-    }
-    if (fireBottle == nullptr && towerName == "" && towerMenu == nullptr)//点击空白处
-    {
-        if (ifSafe(mousePos) && mousePos != obstacleTree->getPosition())//点击位置可以安装炮塔
+        if (ifSafe(mousePos))//点击位置可以安装炮塔
         {
             if (goldCoin >= 100)//金币足够修建绿瓶子
             {
@@ -187,7 +208,7 @@ void mapChoose::onTouchEnded(Touch* touch, Event* event)
         else
             CCLOG("Click invalid");
     }
-    else if (fireBottle == nullptr && (towerName != "" || towerMenu != nullptr))
+    else if (fireBottle == nullptr && (towerName != "" || towerMenu != nullptr) && attackMonster == nullptr && attackObstacle == nullptr)
     {
         // 点击了fireBottle,选择升级或删除
         CCLOG("Choose upgrade or delete!");
@@ -195,7 +216,7 @@ void mapChoose::onTouchEnded(Touch* touch, Event* event)
         {
             Sprite* towerInstance = TowerManager::getInstance()->getTower(towerName)->getTowerSprite();
             //满级炮塔无法再升级
-            
+             
             if (!towerName.compare(0, 9, "FireTower"))
             {
                 auto deleteItem = MenuItemImage::create(
@@ -280,21 +301,72 @@ void mapChoose::onTouchEnded(Touch* touch, Event* event)
         else
         {
             // 点击了非tower图标
-            CCLOG("Clicked outside the sprite!");
             this->removeChild(towerMenu);//移除选择图标所在菜单
             towerMenu = nullptr;
-            fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
+            //fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
         }
+    }
+    else if (attackMonster != nullptr || attackObstacle != nullptr)
+    {
+        //优先攻击传递
+        if (priorAttackLogo != nullptr)
+        {
+            if (attackMonster != nullptr && attackMonster->getSprite() != lastPrior)
+            {
+                lastPrior->removeChild(priorAttackLogo, true); //从 attackObstacle 的子节点中移除
+                priorAttackLogo = Sprite::create("priorAttackLogo.png");
+                priorAttackLogo->setPosition(Vec2(attackMonster->getSprite()->getContentSize().width / 2, attackMonster->getSprite()->getContentSize().height));
+                attackMonster->getSprite()->addChild(priorAttackLogo,1);
+                lastPrior = attackMonster->getSprite();
+                priorAttackLogo->setScale(0.25);
+            }
+            else if (attackObstacle != nullptr && attackObstacle->getSprite() != lastPrior)
+            {
+                lastPrior->removeChild(priorAttackLogo, true);//从 attackMonster 的子节点中移除
+                priorAttackLogo = Sprite::create("priorAttackLogo.png");
+                priorAttackLogo->setPosition(Vec2(attackObstacle->getSprite()->getContentSize().width / 2, attackObstacle->getSprite()->getContentSize().height));
+                attackObstacle->getSprite()->addChild(priorAttackLogo,1);
+                lastPrior = attackObstacle->getSprite();
+                priorAttackLogo->setScale(0.25);
+            }
+            else if (attackMonster!= nullptr && priorAttackLogo->getParent()== attackMonster->getSprite())
+            {
+                attackMonster->getSprite()->removeChild(priorAttackLogo, true);//从 attackMonster 的子节点中移除
+                priorAttackLogo = nullptr;
+            }
+            else if(attackObstacle != nullptr && priorAttackLogo->getParent() == attackObstacle->getSprite())
+            {
+                attackObstacle->getSprite()->removeChild(priorAttackLogo, true); //从 attackObstacle 的子节点中移除
+                priorAttackLogo = nullptr;
+            }
+        }
+        else
+        {
+            priorAttackLogo = Sprite::create("priorAttackLogo.png");
+            if (attackMonster != nullptr)
+            {
+                lastPrior = attackMonster->getSprite();
+                attackMonster->getSprite()->addChild(priorAttackLogo, 1);
+                priorAttackLogo->setPosition(Vec2(attackMonster->getSprite()->getContentSize().width / 2, attackMonster->getSprite()->getContentSize().height));
+            }
+            else
+            {
+                lastPrior = attackObstacle->getSprite();
+                attackObstacle->getSprite()->addChild(priorAttackLogo, 1);
+                priorAttackLogo->setPosition(Vec2(attackObstacle->getSprite()->getContentSize().width / 2, attackObstacle->getSprite()->getContentSize().height));
+            }
+            priorAttackLogo->setScale(0.25);
+            //传给炮塔
+        }
+
     }
     else
     {
-        CCLOG("Remove LOGO");
         this->removeChild(fireBottle->getParent());//移除选择图标所在菜单
         removeChild(selectedPos);//选择取消或者建造炮塔，复选框均消失
         fireBottle = nullptr;  // 将精灵置为空，以便下次点击重新创建
-        fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
+        //fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
     }
-    CCLOG("onTouchEnded - End");
     event->stopPropagation();
     return;
 }
@@ -316,7 +388,7 @@ void mapChoose::fireBottleGenerate(Ref* pSender)//生成火焰瓶的炮塔类
     scheduleUpdate();
     goldCoin -= 160;
     goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
-    fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
+    //fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
 }
 void mapChoose::leafTowerGenerate(Ref* pSender)//生成风扇的炮塔类
 {
@@ -332,7 +404,7 @@ void mapChoose::leafTowerGenerate(Ref* pSender)//生成风扇的炮塔类
     scheduleUpdate();
     goldCoin -= 160;
     goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
-    fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
+    //fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
 }
 void mapChoose::lightingTowerGenerate(Ref* pSender)//生成绿瓶的炮塔类
 {
@@ -348,7 +420,7 @@ void mapChoose::lightingTowerGenerate(Ref* pSender)//生成绿瓶的炮塔类
     scheduleUpdate();
     goldCoin -= 100;
     goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
-    fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
+    //fireBottleClicked = true;//防止点击fireBottle图标时进入onMouseEnded函数
 }
 void mapChoose::nullCallBack(Ref* pSender)//放置火焰瓶炮塔
 {
@@ -405,8 +477,120 @@ void mapChoose::deleteLightTower(Ref* pSender)//生成火焰瓶的炮塔类
 
     towerMenu = nullptr;
 }
+void mapChoose::suspend(Ref* pSender)//在游戏中暂停
+{
+    //暂停页面场景创建
+    Scene* suspendtScene = Scene::create();
+    auto suspendBackground = Sprite::create("suspendBG.png");
+    suspendBackground->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2 + 100));
+    suspendtScene->addChild(suspendBackground, 1);
+
+    auto background = Sprite::create("map.png");
+    background->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+    suspendtScene->addChild(background, 0);
+
+    //重新开始游戏
+    auto tryAgain = MenuItemImage::create(
+        "tryAgain.png",
+        "tryAgainSelected.png",
+        CC_CALLBACK_1(mapChoose::tryAgain, this));
+    tryAgain->setPosition(Vec2(origin.x, origin.y + 110));
+    //继续游戏
+    auto continueGame = MenuItemImage::create(
+        "continue.png",
+        "continueSelected.png",
+        CC_CALLBACK_1(mapChoose::returnLast, this));
+    continueGame->setPosition(Vec2(origin.x, origin.y - 110));
+    //回到主页面
+    auto home = MenuItemImage::create(
+        "home.png",
+        "homeSelected.png",
+        CC_CALLBACK_1(mapChoose::returnHome, this));
+    home->setPosition(Vec2(origin.x, origin.y));
+    auto menu = Menu::create(tryAgain, continueGame, home, NULL);
+    suspendtScene->addChild(menu, 2);
+    Director::getInstance()->pushScene(suspendtScene);//进入暂停界面
+
+}
+void mapChoose::tryAgain(Ref* pSender)//子类虚函数覆盖
+{
+}
+void mapChoose::returnHome(Ref* pSender)
+{
+    Director::getInstance()->popToRootScene();
+}
 cocos2d::Vec2 mapChoose::passPos()
 {
     return towerPos;
 }//传递炮塔位置
+GameObject* mapChoose::ifClickedMonster(std::vector<GameObject*> monsters, Vec2 mousePos)
+{
+    for (GameObject* currentMonster : monsters)
+    {
+        if (currentMonster->getSprite()->getBoundingBox().containsPoint(mousePos))//点击到了某一怪物
+            return currentMonster;
+    }
+    return nullptr;
+}
+Obstacles* mapChoose::ifClickedObstacle(std::vector<Obstacles*> obstacles, Vec2 mousePos)
+{
+    for (Obstacles* currentObstacle : obstacles)
+    {
+        if (currentObstacle->getSprite()->getBoundingBox().containsPoint(mousePos))//点击到了某一怪物
+            return currentObstacle;
+    }
+    return nullptr;
+}
+void mapChoose::gameOver(Ref* pSender)
+{
+    Scene* gameOverScene = Scene::create();
+    auto gameOverBackground = Sprite::create("gameOverItem.png");
+    gameOverBackground->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+    gameOverScene->addChild(gameOverBackground, 1);
 
+    auto background = Sprite::create("map.png");
+    background->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+    gameOverScene->addChild(background, 0);
+    //重新开始游戏
+    auto retry = MenuItemImage::create(
+        "retry.png",
+        "retrySelected.png",
+        CC_CALLBACK_1(mapChoose::tryAgain, this));
+    retry->setPosition(Vec2(origin.x, origin.y - 50));
+    //返回地图选择
+    auto returnChoose = MenuItemImage::create(
+        "returnChoose.png",
+        "returnChooseSelected.png",
+        CC_CALLBACK_1(mapChoose::returnChoose, this));
+    returnChoose->setPosition(Vec2(origin.x, origin.y - 100));
+    auto menu = Menu::create(retry, returnChoose, NULL);
+    gameOverScene->addChild(menu, 1);
+    Director::getInstance()->pushScene(gameOverScene);//进入获胜界面
+
+}
+void mapChoose::gameWin(Ref* pSender)
+{
+    Scene* winScene = Scene::create();
+    auto gameWinBackground = Sprite::create("winBG.png");
+    gameWinBackground->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+    winScene->addChild(gameWinBackground, 0);
+    //胜利字体
+    auto win = Sprite::create("win.png");
+    win->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2 + 50));
+    winScene->addChild(win, 1);
+    auto winItem = Sprite::create("winItem.png");
+    winItem->setPosition(Vec2(winItem->getContentSize().width, winItem->getContentSize().height));
+    winScene->addChild(winItem, 1);
+
+    //继续游戏
+    auto winContinue = MenuItemImage::create(
+        "winContinue.png",
+        "winContinueSelected.png",
+        CC_CALLBACK_1(mapChoose::returnChoose,this));
+    auto menu = Menu::create(winContinue, NULL);
+    winScene->addChild(menu);
+    winContinue->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2 - 50));
+    winScene->addChild(winContinue, 1);
+    Director::getInstance()->pushScene(winScene);//进入获胜界面
+
+}
