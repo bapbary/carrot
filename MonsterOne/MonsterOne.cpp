@@ -19,7 +19,7 @@ bool MonsterOne::init(Carrot* _carrotLayer, int mapCatalog)
     auto framesMonsterOne = getAnimation("monster1/%04d.png", 2);
     objectSprite = Sprite::createWithSpriteFrame(framesMonsterOne.front());
     //设置速度
-    this->speed = 500.0f;
+    this->speed = 50.0f;
     //物理引擎
     auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
     physicsBody->setDynamic(false);
