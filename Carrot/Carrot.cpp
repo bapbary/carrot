@@ -36,7 +36,8 @@ bool Carrot::init(int mapCatalog)
     spriteCarrot->setScaleX(-3.8);
     spriteCarrot->setScaleY(3.8);
     //ÉèÖÃ½Ó´¥
-    auto physicsBody = PhysicsBody::createBox(spriteCarrot->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// ÃÜ¶È£¬ÐÞ¸´£¬Ä¦²Á
+    cocos2d::Size smallerSize(spriteCarrot->getContentSize().width * 0.1f, spriteCarrot->getContentSize().height * 0.1f);
+    auto physicsBody = PhysicsBody::createBox(smallerSize, PhysicsMaterial(0.1f, 1.0f, 0.0f));// ÃÜ¶È£¬ÐÞ¸´£¬Ä¦²Á
     physicsBody->setDynamic(false);
     physicsBody->setCategoryBitmask(0x04);    // 0100
     physicsBody->setContactTestBitmask(0x01); // 0001

@@ -5,8 +5,8 @@
 #include"MonsterManager.h"
 #include"MonsterThree.h"
 #include"Obstacles.h"
+#include "mapChoose.h"
 USING_NS_CC;
-int count = 0;
 GameObject* GameObject::create(int mapCatalog)
 {
     GameObject* gameobject = new GameObject();
@@ -27,6 +27,7 @@ bool GameObject::init(int mapCatalog)
     {
         return false;
     }
+    instance = this;
     mapChoose = mapCatalog;
     //鼠标监听，最后要删
     auto listener = EventListenerMouse::create();
@@ -355,7 +356,7 @@ void GameObject::updateHealthBar(ProgressTimer* healthBar, float initialHealthVa
     float healthPercentage = (currentHealth / initialHealthValue) * 100.0f;
     healthBar->setPercentage(healthPercentage);
 }
-void  GameObject::hitMonster(Node* node, float num, float scale,char* filename)
+void  GameObject::hitMonster(Node*node, float num, float scale,char* filename)
 {
     Sprite* sprite = dynamic_cast<Sprite*>(node);
     GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
@@ -365,12 +366,13 @@ void  GameObject::hitMonster(Node* node, float num, float scale,char* filename)
     hit->setScale(scale);
     sprite->addChild(hit, 2);
     hit->setPosition(Vec2(sprite->getContentSize().width / 2, sprite->getContentSize().height / 2));
-    hit->runAction(Sequence::create(DelayTime::create(0.5f), RemoveSelf::create(), nullptr));
+    hit->runAction(Sequence::create(DelayTime::create(0.1f), RemoveSelf::create(), nullptr));
     if (monster->currentHealth <= 0)
     {
+        goldCoin += monster->coinValue;
         monster->unscheduleUpdate();
-        MonsterManager::getInstance()->removeMonster(monster);
         monster->runAction(RemoveSelf::create());
+        MonsterManager::getInstance()->removeMonster(monster);
     }
 }
 void GameObject::hitObstacle(Node* node, float num, float scale, char* filename)
@@ -384,6 +386,7 @@ void GameObject::hitObstacle(Node* node, float num, float scale, char* filename)
     hit->runAction(Sequence::create(DelayTime::create(0.5f), RemoveSelf::create(), nullptr));
     if (obstacle->currentHealth <= 0)
     {
+        goldCoin += obstacle->coinValue;
         obstacle->unscheduleUpdate();
         obstacle->runAction(RemoveSelf::create());
     }
@@ -409,8 +412,8 @@ bool GameObject::onContactBegin(PhysicsContact& contact)
                     GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
                     carrotLayer->decreaseHealth();
                     monster->unscheduleUpdate();
-                    MonsterManager::getInstance()->removeMonster(monster);
                     monster->runAction(RemoveSelf::create());
+                    MonsterManager::getInstance()->removeMonster(monster);
                 }
                 else
                 {
@@ -418,8 +421,8 @@ bool GameObject::onContactBegin(PhysicsContact& contact)
                     GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
                     carrotLayer->decreaseHealth();
                     monster->unscheduleUpdate();
-                    MonsterManager::getInstance()->removeMonster(monster);
                     monster->runAction(RemoveSelf::create());
+                    MonsterManager::getInstance()->removeMonster(monster);
                 }
             }
             //怪物和子弹接触
@@ -427,9 +430,9 @@ bool GameObject::onContactBegin(PhysicsContact& contact)
             if (tagA == MONSTER && tagB == LIGHTINGBULLET1 || tagA == LIGHTINGBULLET1 && tagB == MONSTER)
             {
                 if (tagA == MONSTER)
-                    hitMonster(nodeA, LIGHTINGBULLET1, 0.5,"Lighting_Hit.png");
+                    hitMonster(nodeA, LIGHTINGBULLET1, 1.0,"Lighting_Hit.png");
                 else
-                    hitMonster(nodeB, LIGHTINGBULLET1, 0.5, "Lighting_Hit.png");
+                    hitMonster(nodeB, LIGHTINGBULLET1, 1.0, "Lighting_Hit.png");
             }
             if (tagA == MONSTER && tagB == LIGHTINGBULLET2 || tagA == LIGHTINGBULLET2 && tagB == MONSTER)
             {
@@ -563,37 +566,73 @@ bool GameObject::onContactBegin(PhysicsContact& contact)
 }
 void GameObject::addObstaclesInMapOne()
 {
-    Obstacles* obstacle1 = Obstacles::create(Vec2(560,434),2.0,"obstacle/obstacle1.png",100.0f,200.0f);
+    obstacles.clear();
+    Obstacles* obstacle1 = Obstacles::create(Vec2(560, 434), 2.0, "obstacle/obstacle1.png", 100.0f, 200.0f);
     this->addChild(obstacle1, 2);
+    obstacles.push_back(obstacle1);
     Obstacles* obstacle2 = Obstacles::create(Vec2(687, 600), 1.5, "obstacle/obstacle2.png", 100.0f, 200.0f);
     this->addChild(obstacle2, 2);
+    obstacles.push_back(obstacle2);
     Obstacles* obstacle3 = Obstacles::create(Vec2(739, 434), 2.0, "obstacle/obstacle3.png", 100.0f, 200.0f);
     this->addChild(obstacle3, 2);
-    Obstacles* obstacle4 = Obstacles::create(Vec2(228,434), 2.0, "obstacle/obstacle4.png", 100.0f, 200.0f);
+    obstacles.push_back(obstacle3);
+    Obstacles* obstacle4 = Obstacles::create(Vec2(228, 434), 2.0, "obstacle/obstacle4.png", 100.0f, 200.0f);
     this->addChild(obstacle4, 2);
-    Obstacles* obstacle5 = Obstacles::create(Vec2(525,69), 2.5, "obstacle/obstacle5.png", 100.0f, 200.0f);
+    obstacles.push_back(obstacle4);
+    Obstacles* obstacle5 = Obstacles::create(Vec2(525, 69), 2.5, "obstacle/obstacle5.png", 100.0f, 200.0f);
     this->addChild(obstacle5, 2);
+    obstacles.push_back(obstacle5);
     Obstacles* obstacle6 = Obstacles::create(Vec2(345, 245), 3.0, "obstacle/obstacle6.png", 100.0f, 200.0f);
     this->addChild(obstacle6, 2);
+    obstacles.push_back(obstacle6);
     Obstacles* obstacle7 = Obstacles::create(Vec2(840, 236), 3.0, "obstacle/obstacle7.png", 100.0f, 200.0f);
     this->addChild(obstacle7, 2);
+    obstacles.push_back(obstacle7);
 }
 void GameObject::addObstaclesInMapTwo()
 {
-    Obstacles* obstacle1 = Obstacles::create(Vec2(648,424), 2.0, "obstacle/1.png", 100.0f, 200.0f);
+    obstacles.clear();
+    Obstacles* obstacle1 = Obstacles::create(Vec2(648, 424), 2.0, "obstacle/1.png", 100.0f, 200.0f);
     this->addChild(obstacle1, 2);
-    Obstacles* obstacle2 = Obstacles::create(Vec2(811,617), 1.5, "obstacle/2.png", 100.0f, 200.0f);
+    obstacles.push_back(obstacle1);
+    Obstacles* obstacle2 = Obstacles::create(Vec2(811, 617), 1.5, "obstacle/2.png", 100.0f, 200.0f);
     this->addChild(obstacle2, 2);
-    Obstacles* obstacle3 = Obstacles::create(Vec2(215,433), 2.0, "obstacle/3.png", 100.0f, 200.0f);
+    obstacles.push_back(obstacle2);
+    Obstacles* obstacle3 = Obstacles::create(Vec2(215, 433), 2.0, "obstacle/3.png", 100.0f, 200.0f);
     this->addChild(obstacle3, 2);
-    Obstacles* obstacle4 = Obstacles::create(Vec2(592,333), 2.0, "obstacle/4.png", 100.0f, 200.0f);
+    obstacles.push_back(obstacle3);
+    Obstacles* obstacle4 = Obstacles::create(Vec2(592, 333), 2.0, "obstacle/4.png", 100.0f, 200.0f);
     this->addChild(obstacle4, 2);
-    Obstacles* obstacle5 = Obstacles::create(Vec2(872,151), 2.5, "obstacle/5.png", 100.0f, 200.0f);
+    obstacles.push_back(obstacle4);
+    Obstacles* obstacle5 = Obstacles::create(Vec2(872, 151), 2.5, "obstacle/5.png", 100.0f, 200.0f);
     this->addChild(obstacle5, 2);
-    Obstacles* obstacle6 = Obstacles::create(Vec2(142,613), 3.0, "obstacle/6.png", 100.0f, 200.0f);
+    obstacles.push_back(obstacle5);
+    Obstacles* obstacle6 = Obstacles::create(Vec2(142, 613), 3.0, "obstacle/6.png", 100.0f, 200.0f);
     this->addChild(obstacle6, 2);
-    Obstacles* obstacle7 = Obstacles::create(Vec2(676,235), 3.0, "obstacle/7.png", 100.0f, 200.0f);
+    obstacles.push_back(obstacle6);
+    Obstacles* obstacle7 = Obstacles::create(Vec2(676, 235), 3.0, "obstacle/7.png", 100.0f, 200.0f);
     this->addChild(obstacle7, 2);
-    Obstacles* obstacle8 = Obstacles::create(Vec2(517,70), 3.0, "obstacle/8.png", 100.0f, 200.0f);
+    obstacles.push_back(obstacle7);
+    Obstacles* obstacle8 = Obstacles::create(Vec2(517, 70), 3.0, "obstacle/8.png", 100.0f, 200.0f);
     this->addChild(obstacle8, 2);
+    obstacles.push_back(obstacle8);
+}
+
+// 定义静态成员变量
+GameObject* GameObject::instance = nullptr;
+// 获取单例实例的静态成员函数的实现
+GameObject* GameObject::getInstance()
+{
+    if (!instance) {
+        instance = new GameObject();
+    }
+    return instance;
+}
+std::vector<Obstacles*> GameObject::getObstacles()
+{
+    return obstacles;
+}
+void GameObject::clear()
+{
+    delete instance;
 }

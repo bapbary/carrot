@@ -36,12 +36,12 @@ bool Obstacles::init(Vec2 position, float scale, char* filename, float health,fl
     objectSprite->setScale(scale);
     objectPosition = position;
     objectSprite->setPosition(objectPosition);
-
-    auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
+    cocos2d::Size smallerSize(objectSprite->getContentSize().width * 0.1f, objectSprite->getContentSize().height * 0.1f);
+    auto physicsBody = PhysicsBody::createBox(smallerSize, PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
     physicsBody->setDynamic(false);
     physicsBody->setCategoryBitmask(0x01);    // 0001
     physicsBody->setContactTestBitmask(0x04); // 0100
-    objectSprite->setTag(OBSTACLE);//障碍物相当于静止的怪物
+    objectSprite->setTag(OBSTACLE);
     objectSprite->setPhysicsBody(physicsBody);
     setHealthBar(objectSprite);
     // 调用 scheduleUpdate()，使得 update 函数被调用,每一帧更新位置、血量

@@ -7,7 +7,7 @@ const cocos2d::Vec2 Destination[2] = { cocos2d::Vec2(736, 180),cocos2d::Vec2(890
 const cocos2d::Vec2 Origin[2] = { cocos2d::Vec2(383, 532),cocos2d::Vec2(994,531) };
 #define MONSTER 200
 #define CARROT 100
-#define LIGHTINGBULLET1 30
+#define LIGHTINGBULLET1 5
 #define LIGHTINGBULLET2 35
 #define LIGHTINGBULLET3 40
 #define FIREBULLET1 41
@@ -25,6 +25,7 @@ const float MonsterTwoValue = 200.0f;
 const float MonsterThreeValue = 500.0f;
 class Carrot;
 class MonsterManager;
+class Obstacles;
 class GameObject : public cocos2d::Node
 {
 public:
@@ -73,6 +74,11 @@ public:
     MonsterManager* monstermanager;
     void hitMonster(cocos2d::Node* node, float num, float scale, char* filename);
     void hitObstacle(cocos2d::Node* node, float num, float scale, char* filename);
+    static GameObject* instance;
+    static GameObject* getInstance();
+    std::vector<Obstacles*> getObstacles();
+    std::vector<Obstacles*> obstacles;
+    void clear();
 protected:
     Carrot* carrotLayer;
     //物体节点
