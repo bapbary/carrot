@@ -1,6 +1,6 @@
 #include"TowerManager.h"
-
 #include "FireTower.h"
+
 //构造函数：炮塔参数的初始化并显示
 FireTower::FireTower(const cocos2d::Vec2& touchlocation) {
     tower = cocos2d::Sprite::create("FireTower_small.png");
@@ -13,11 +13,9 @@ FireTower::FireTower(const cocos2d::Vec2& touchlocation) {
     tower_attack_power = 50;
     tower_attack_speed = 1;
     tower_sustained_attack_time;
-
     // 使用全局计数器作为唯一ID 以便后续标识炮塔
     towername = "FireTower_" + std::to_string(count);
     count++;
-
     //放置炮塔并显示
     tower->setPosition(touchlocation);
     //设置炮塔大小
@@ -25,6 +23,14 @@ FireTower::FireTower(const cocos2d::Vec2& touchlocation) {
     sprite_show(tower);
     //加入情景放在建立类操作之后一句，不在类中进行放入
 
+    //建立炮塔基座精灵
+    base = cocos2d::Sprite::create("FireTower_Base.png");
+    //放置炮塔基座
+    base->setPosition(touchlocation);
+    //设置炮塔基座
+    base->setScale(1);
+    sprite_show(base);
+    //加入情景放在建立类操作之后一句，不在类中进行放入
 }
 
 //炮塔攻击
@@ -33,21 +39,19 @@ void FireTower::tower_attack(const cocos2d::Vec2& targetlocation) {
     cocos2d::Sprite* Bullet;
     if (tower_level == 1) {
         Bullet = cocos2d::Sprite::create("FireTower_bullet_small.png");
+        //物理引擎
+        setPhysicsBody(Bullet, FIREBULLET1);
     }
     else if (tower_level == 2) {
         Bullet = cocos2d::Sprite::create("FireTower_bullet_middle.png");
+        //物理引擎
+        setPhysicsBody(Bullet, FIREBULLET2);
     }
     else if (tower_level == 3) {
         Bullet = cocos2d::Sprite::create("FireTower_bullet_big.png");
+        //物理引擎
+        setPhysicsBody(Bullet, FIREBULLET3);
     }
-
-    //对子弹添加物理特性
-    auto physicsBody = cocos2d::PhysicsBody::createBox(Bullet->getContentSize(), cocos2d::PhysicsMaterial::PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
-    physicsBody->setDynamic(false);
-    physicsBody->setCategoryBitmask(0x01);    // 0001
-    physicsBody->setContactTestBitmask(0x04); // 0100
-    Bullet->setTag(FIREBULLET);
-    Bullet->setPhysicsBody(physicsBody);
 
     //放置粒子并设置大小
     Bullet->setPosition(towerlocation);

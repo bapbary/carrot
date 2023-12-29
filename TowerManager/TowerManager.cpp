@@ -59,6 +59,16 @@ void TowerManager::clearTowers()
     instance = nullptr;
 }
 
+//确定优先攻击目标
+void TowerManager::SetFirstTarget(GameObject* Target) {
+    FirstTarget = Target;
+}
+
+//取消优先攻击目标
+void TowerManager::CancelFirstTarget() {
+    FirstTarget = nullptr;
+}
+
 //获取优先攻击目标指针
 GameObject* TowerManager::getFirstTarget() {
     return FirstTarget;

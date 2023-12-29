@@ -11,6 +11,11 @@ cocos2d::Sprite* BasicDefensiveTower::getTowerSprite() {
     return tower;
 }
 
+//获取炮塔基座精灵本身
+cocos2d::Sprite* BasicDefensiveTower::getBaseSprite() {
+    return base;
+}
+
 //获取炮塔名字
 std::string BasicDefensiveTower::getTowerName() {
     return towername;
@@ -67,9 +72,6 @@ GameObject* BasicDefensiveTower::findTarget() {
     // 获取场景中的怪物列表，这里假设怪物是通过 MonsterManager 管理的
     std::vector<GameObject*> monsters = MonsterManager::getInstance()->getMonsters();
 
-    // 初始化最小距离为一个足够大的值
-    float minDistance = std::numeric_limits<float>::max();
-
     // 用于保存最近的怪物
     GameObject* nearestMonster = nullptr;
 
@@ -78,11 +80,10 @@ GameObject* BasicDefensiveTower::findTarget() {
         // 计算怪物与炮塔之间的距离
         float distance = towerlocation.distance(monster->getCurrentPosition());
 
-        // 判断怪物是否在炮塔的攻击范围内
-        if (distance <= tower_attack_range && distance < minDistance) {
-            // 更新最小距离和最近的怪物
-            minDistance = distance;
+        // 判断怪物是否在炮塔的攻击范围内【只要找到一个符合要求的怪物就结束遍历】
+        if (distance <= tower_attack_range) {
             nearestMonster = monster;
+            break;
         }
     }
     return nearestMonster;
@@ -116,4 +117,18 @@ void BasicDefensiveTower::tower_bullet_shoot(cocos2d::Sprite* bullet, const coco
 //炮塔升级
 void BasicDefensiveTower::towerUpgrade() {
     //虚函数待覆盖
+}
+
+void BasicDefensiveTower::setPhysicsBody(cocos2d::Sprite* Bullet, float value)
+{
+    //物理引擎
+    cocos2d::Size smallerSize(Bullet->getContentSize().width * 0.5f, Bullet->getContentSize().height * 0.5f);
+    auto physicsBody = cocos2d::PhysicsBody::createBox(smallerSize, cocos2d::PhysicsMaterial(0.1f, 1.0f, 0.0f));
+    physicsBody->setPositionOffset(cocos2d::Vec2(smallerSize.width * 0.5f, smallerSize.height * 0.5f));//偏移量
+    physicsBody->setDynamic(false);
+    physicsBody->setCategoryBitmask(0x05);    // 0101
+    physicsBody->setContactTestBitmask(0x09); // 1001
+    Bullet->setTag(value);
+    Bullet->setPhysicsBody(physicsBody);
+
 }
