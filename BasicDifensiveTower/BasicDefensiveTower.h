@@ -31,8 +31,14 @@ public:
     //图标的隐藏
     void sprite_hide(cocos2d::Sprite* sprite);
 
-    //炮塔更新索敌对象
-    void tower_targetupdate(float dt);
+    //炮塔更新索敌对象（太阳塔）
+    void tower_targetupdate1(float dt);
+
+    //炮塔更新索敌对象（闪电瓶）
+    void tower_targetupdate2(float dt);
+
+    //炮塔更新索敌对象（叶子塔）
+    void tower_targetupdate3(float dt);
 
     //炮塔最近距离索敌
     GameObject* findTarget();

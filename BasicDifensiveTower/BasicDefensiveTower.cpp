@@ -42,26 +42,84 @@ void BasicDefensiveTower::sprite_hide(cocos2d::Sprite* sprite) {
 }
 
 //炮塔更新索敌对象
-void BasicDefensiveTower::tower_targetupdate(float dt) {
+void BasicDefensiveTower::tower_targetupdate1(float dt){
     // 如果当前没有目标或者目标超出索敌范围，重新选择目标
     for (BasicDefensiveTower* currentTower : TowerManager::getInstance()->towers)
     {
-        //判断当前炮塔优先攻击目标是否 不为空且在当前炮塔的攻击范围内
-        if (TowerManager::getInstance()->getFirstTarget() != nullptr && (TowerManager::getInstance()->getFirstTarget()->objectPosition - currentTower->getPosition()).length() <= currentTower->tower_attack_range) {
-            currentTower->tower_spin(TowerManager::getInstance()->getFirstTarget()->objectPosition);
-            currentTower->tower_attack(TowerManager::getInstance()->getFirstTarget()->objectPosition);
+        if (currentTower->towername.compare(0, 14, "SunFlowerTower") == 0){
+            //判断当前炮塔优先攻击目标是否 不为空且在当前炮塔的攻击范围内
+            if (TowerManager::getInstance()->getFirstTarget() != nullptr && (TowerManager::getInstance()->getFirstTarget()->objectPosition - currentTower->getPosition()).length() <= currentTower->tower_attack_range) {
+                currentTower->tower_spin(TowerManager::getInstance()->getFirstTarget()->objectPosition);
+                currentTower->tower_attack(TowerManager::getInstance()->getFirstTarget()->objectPosition);
+            }
+            else {
+                if (currentTower->currenttarget == nullptr || currentTower->currenttarget->currentHealth <= 0) {
+                    currentTower->currenttarget = currentTower->findTarget();
+                }
+                else if ((currentTower->currenttarget->getCurrentPosition() - currentTower->getPosition()).length() > currentTower->tower_attack_range) {
+                    currentTower->currenttarget = currentTower->findTarget();
+                }
+                if (currentTower->currenttarget != nullptr) {
+                    //目标选择完成之后进行攻击操作
+                    currentTower->tower_spin(currentTower->currenttarget->objectPosition);
+                    currentTower->tower_attack(currentTower->currenttarget->objectPosition);
+                }
+            }
         }
-        else{
-            if (currentTower->currenttarget == nullptr) {
-                currentTower->currenttarget = currentTower->findTarget();
+    }
+}
+
+//炮塔更新索敌对象
+void BasicDefensiveTower::tower_targetupdate2(float dt) {
+    // 如果当前没有目标或者目标超出索敌范围，重新选择目标
+    for (BasicDefensiveTower* currentTower : TowerManager::getInstance()->towers)
+    {
+        if(currentTower->towername.compare(0, 13, "LightingTower") == 0){
+            //判断当前炮塔优先攻击目标是否 不为空且在当前炮塔的攻击范围内
+            if (TowerManager::getInstance()->getFirstTarget() != nullptr && (TowerManager::getInstance()->getFirstTarget()->objectPosition - currentTower->getPosition()).length() <= currentTower->tower_attack_range) {
+                currentTower->tower_spin(TowerManager::getInstance()->getFirstTarget()->objectPosition);
+                currentTower->tower_attack(TowerManager::getInstance()->getFirstTarget()->objectPosition);
             }
-            else if ((currentTower->currenttarget->getCurrentPosition() - currentTower->getPosition()).length() > currentTower->tower_attack_range) {
-                currentTower->currenttarget = currentTower->findTarget();
+            else {
+                if (currentTower->currenttarget == nullptr || currentTower->currenttarget->currentHealth <= 0) {
+                    currentTower->currenttarget = currentTower->findTarget();
+                }
+                else if ((currentTower->currenttarget->getCurrentPosition() - currentTower->getPosition()).length() > currentTower->tower_attack_range) {
+                    currentTower->currenttarget = currentTower->findTarget();
+                }
+                if (currentTower->currenttarget != nullptr) {
+                    //目标选择完成之后进行攻击操作
+                    currentTower->tower_spin(currentTower->currenttarget->objectPosition);
+                    currentTower->tower_attack(currentTower->currenttarget->objectPosition);
+                }
             }
-            if (currentTower->currenttarget != nullptr) {
-                //目标选择完成之后进行攻击操作
-                currentTower->tower_spin(currentTower->currenttarget->objectPosition);
-                currentTower->tower_attack(currentTower->currenttarget->objectPosition);
+        }
+    }
+}
+
+//炮塔更新索敌对象
+void BasicDefensiveTower::tower_targetupdate3(float dt) {
+    // 如果当前没有目标或者目标超出索敌范围，重新选择目标
+    for (BasicDefensiveTower* currentTower : TowerManager::getInstance()->towers)
+    {
+        if (currentTower->towername.compare(0, 9, "LeafTower") == 0){
+            //判断当前炮塔优先攻击目标是否 不为空且在当前炮塔的攻击范围内
+            if (TowerManager::getInstance()->getFirstTarget() != nullptr && (TowerManager::getInstance()->getFirstTarget()->objectPosition - currentTower->getPosition()).length() <= currentTower->tower_attack_range) {
+                currentTower->tower_spin(TowerManager::getInstance()->getFirstTarget()->objectPosition);
+                currentTower->tower_attack(TowerManager::getInstance()->getFirstTarget()->objectPosition);
+            }
+            else {
+                if (currentTower->currenttarget == nullptr || currentTower->currenttarget->currentHealth <= 0) {
+                    currentTower->currenttarget = currentTower->findTarget();
+                }
+                else if ((currentTower->currenttarget->getCurrentPosition() - currentTower->getPosition()).length() > currentTower->tower_attack_range) {
+                    currentTower->currenttarget = currentTower->findTarget();
+                }
+                if (currentTower->currenttarget != nullptr) {
+                    //目标选择完成之后进行攻击操作
+                    currentTower->tower_spin(currentTower->currenttarget->objectPosition);
+                    currentTower->tower_attack(currentTower->currenttarget->objectPosition);
+                }
             }
         }
     }
