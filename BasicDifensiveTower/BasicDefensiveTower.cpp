@@ -21,6 +21,11 @@ cocos2d::Vec2 BasicDefensiveTower::getTowerLocation() {
     return towerlocation;
 }
 
+//获取炮塔等级
+int BasicDefensiveTower::getTowerLevel() {
+    return tower_level;
+}
+
 //图标的显示
 void BasicDefensiveTower::sprite_show(cocos2d::Sprite* sprite) {
     tower->setVisible(true);
@@ -36,13 +41,23 @@ void BasicDefensiveTower::tower_targetupdate(float dt) {
     // 如果当前没有目标或者目标超出索敌范围，重新选择目标
     for (BasicDefensiveTower* currentTower : TowerManager::getInstance()->towers)
     {
-        if (currentTower->currenttarget == nullptr || (currentTower->currenttarget->getCurrentPosition() - currentTower->getPosition()).length() > currentTower->tower_attack_range) {
-            currentTower->currenttarget = currentTower->findTarget();
+        //判断当前炮塔优先攻击目标是否 不为空且在当前炮塔的攻击范围内
+        if (TowerManager::getInstance()->getFirstTarget() != nullptr && (TowerManager::getInstance()->getFirstTarget()->objectPosition - currentTower->getPosition()).length() <= currentTower->tower_attack_range) {
+            currentTower->tower_spin(TowerManager::getInstance()->getFirstTarget()->objectPosition);
+            currentTower->tower_attack(TowerManager::getInstance()->getFirstTarget()->objectPosition);
         }
-        if (currentTower->currenttarget != nullptr) {
-            //目标选择完成之后进行攻击操作
-            currentTower->tower_spin(currentTower->currenttarget->objectPosition);
-            currentTower->tower_attack(currentTower->currenttarget->objectPosition);
+        else{
+            if (currentTower->currenttarget == nullptr) {
+                currentTower->currenttarget = currentTower->findTarget();
+            }
+            else if ((currentTower->currenttarget->getCurrentPosition() - currentTower->getPosition()).length() > currentTower->tower_attack_range) {
+                currentTower->currenttarget = currentTower->findTarget();
+            }
+            if (currentTower->currenttarget != nullptr) {
+                //目标选择完成之后进行攻击操作
+                currentTower->tower_spin(currentTower->currenttarget->objectPosition);
+                currentTower->tower_attack(currentTower->currenttarget->objectPosition);
+            }
         }
     }
 }
@@ -75,21 +90,7 @@ GameObject* BasicDefensiveTower::findTarget() {
 
 //炮塔攻击
 void BasicDefensiveTower::tower_attack(const cocos2d::Vec2& targetlocation) {
-
-    // 根据炮塔类型和等级创建对应大小的子弹
-    cocos2d::Sprite* FireBullet = cocos2d::Sprite::create("LightingTower_bullet_small.png");
-    //放置粒子并显示
-    FireBullet->setPosition(towerlocation);
-    FireBullet->setScale(1);
-    //将子弹也放入当前场景中
-    Scene* currentScene = cocos2d::Director::getInstance()->getRunningScene();
-
-    currentScene->addChild(FireBullet, 2);
-
-    const cocos2d::Vec2& vec= FireBullet->getPosition();
-
-    // 发射粒子并产生飞行特效
-    tower_bullet_shoot(FireBullet, targetlocation);
+    //虚函数待覆盖
 }
 
 //炮塔转动（参数为当前攻击目标的所处的位置）
@@ -101,64 +102,16 @@ void BasicDefensiveTower::tower_spin(const cocos2d::Vec2& targetlocation) {
     // 将弧度转换为角度
     float angleInDegrees = CC_RADIANS_TO_DEGREES(angle);
     // 创建旋转动作
-    auto rotateAction = cocos2d::RotateBy::create(0.3, angleInDegrees);
+    //【这里加了一个-号是因为计算得到的是正角度需要逆时针旋转，而cocos负角度才执行逆时针旋转】
+    auto rotateAction = cocos2d::RotateTo::create(0.3, -angleInDegrees);
     // 执行旋转动作
     tower->runAction(rotateAction);
 }
 
-//炮塔产生攻击粒子
-cocos2d::Sprite* BasicDefensiveTower::createBullet() {
-    // 根据炮塔类型和等级创建对应大小的子弹
-    cocos2d::Sprite* FireBullet = cocos2d::Sprite::create("FireTower_bullet_small.png");
-    //将子弹也放入当前场景中
-    this->addChild(FireBullet);
-    //返回子弹精灵本身，用于后续子弹飞行特效制作
-    return FireBullet;
-}
-
 //炮塔发射粒子并产生飞行特效
 void BasicDefensiveTower::tower_bullet_shoot(cocos2d::Sprite* bullet, const cocos2d::Vec2& targetlocation) {
-    //然后建立飞行动作
-    auto moveTo = cocos2d::MoveTo::create(0.4, targetlocation);
-    //进行速度调整
-    auto easeOut = cocos2d::EaseExponentialOut::create(moveTo);
-    // 创建飞行动画序列
-    auto sequence = cocos2d::Sequence::create(
-        easeOut,
-        // 创建一个回调动作，在飞行动作完成后执行
-        cocos2d::CallFunc::create([=]() {
-            //移除精灵
-            bullet->removeFromParent();
-            //到达目标位置后需产生击中特效
-            tower_hit_target(targetlocation);
-            }),
-        nullptr
-    );
-    // 执行飞行动画序列
-    bullet->runAction(sequence);
+    //虚函数待覆盖
 }
-
-//炮塔粒子撞击目标产生短暂打击特效
-void BasicDefensiveTower::tower_hit_target(const cocos2d::Vec2& targetlocation) {
-    // 根据炮塔类型建立相应打击特效
-    cocos2d::Sprite* hit = cocos2d::Sprite::create("Lighting_Hit.png");
-    //将打击特效放入场景中
-    hit->setPosition(targetlocation);
-
-    Scene* currentScene = cocos2d::Director::getInstance()->getRunningScene();
-
-    currentScene->addChild(hit,2);
-    sprite_show(hit);
-    //建立sequence动作序列：先维持半秒后自动销毁
-    auto delay = cocos2d::DelayTime::create(0.1); // 延时1秒
-    auto remove = cocos2d::RemoveSelf::create();
-    auto sequence = cocos2d::Sequence::create(delay, remove, nullptr);
-    //执行sequence动作序列
-    hit->runAction(sequence);
-}
-
-//判断炮塔是否可以进行升级并产生
-//（？我不知道pzx这个函数可以做这个不）
 
 //炮塔升级
 void BasicDefensiveTower::towerUpgrade() {

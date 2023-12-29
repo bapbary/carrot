@@ -9,8 +9,11 @@ public:
     //构造函数：炮塔参数的初始化并显示
     LightingTower(const cocos2d::Vec2& touchlocation);
 
-    //炮塔产生攻击粒子
-    cocos2d::Sprite* createBullet();
+    //炮塔攻击
+    void tower_attack(const cocos2d::Vec2& targetlocation);
+
+    //炮塔发射粒子并产生飞行特效
+    void tower_bullet_shoot(cocos2d::Sprite* bullet, const cocos2d::Vec2& targetlocation);
 
     //炮塔升级
     void towerUpgrade();

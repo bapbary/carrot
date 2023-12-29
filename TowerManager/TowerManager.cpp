@@ -2,6 +2,7 @@
 
 TowerManager* TowerManager::instance = nullptr;
 
+//获取炮塔单例指针函数
 TowerManager* TowerManager::getInstance() {
     if (!instance) {
         instance = new TowerManager();
@@ -9,6 +10,7 @@ TowerManager* TowerManager::getInstance() {
     return instance;
 }
 
+//确定所选择炮塔对象（返回炮塔名字）
 std::string TowerManager::towerSelected(const cocos2d::Vec2& towerlocation) {
     // 遍历所有存储的炮塔
     for (BasicDefensiveTower* currentTower : towers) {
@@ -24,10 +26,12 @@ std::string TowerManager::towerSelected(const cocos2d::Vec2& towerlocation) {
     return "";
 }
 
+//从管理器中添加炮塔
 void TowerManager::addTower(const std::string& towerName, BasicDefensiveTower* tower) {
     towers.push_back(tower);
 }
 
+//从管理器中移除炮塔
 void TowerManager::removeTower(const std::string& towerName) {
     for (auto it = towers.begin(); it != towers.end(); ++it) {
         if ((*it)->getTowerName() == towerName) {
@@ -38,6 +42,7 @@ void TowerManager::removeTower(const std::string& towerName) {
     }
 }
 
+//通过炮塔名字得到指针
 BasicDefensiveTower* TowerManager::getTower(const std::string& towerName) {
     for (BasicDefensiveTower* currentTower : towers) {
         if (currentTower->getTowerName() == towerName) {
@@ -47,10 +52,16 @@ BasicDefensiveTower* TowerManager::getTower(const std::string& towerName) {
     return nullptr;
 }
 
+//删除炮塔时释放内存
 void TowerManager::clearTowers()
 {
     delete instance;
     instance = nullptr;
+}
+
+//获取优先攻击目标指针
+GameObject* TowerManager::getFirstTarget() {
+    return FirstTarget;
 }
 
 
