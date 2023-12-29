@@ -2,7 +2,7 @@
 #define BASICDEFENSIVETOWER_H
 
 #include "cocos2d.h"
-#include "Monster.h"
+#include "GameObject.h"
 #include "MapChoose.h"
 
 //定义炮塔基类（本身派生于scene）【后续派生时根据选择覆盖某些参数和函数】
@@ -20,6 +20,9 @@ public:
     //获取炮塔位置坐标
     cocos2d::Vec2 getTowerLocation();
 
+    //获取炮塔等级
+    int getTowerLevel();
+
     //图标的显示
     void sprite_show(cocos2d::Sprite* sprite);
     //图标的隐藏
@@ -32,22 +35,13 @@ public:
     GameObject* findTarget();
 
     //炮塔攻击
-    void tower_attack(const cocos2d::Vec2& targetlocation);
+    virtual void tower_attack(const cocos2d::Vec2& targetlocation);
 
     //炮塔转动（参数为当前攻击目标的所处的位置）
     void tower_spin(const cocos2d::Vec2& targetlocation);
 
-    //炮塔产生攻击粒子
-    virtual cocos2d::Sprite* createBullet();
-
     //炮塔发射粒子并产生飞行特效
-    void tower_bullet_shoot(cocos2d::Sprite* bullet, const cocos2d::Vec2& targetlocation);
-
-    //炮塔粒virtual子撞击目标产生短暂打击特效
-    void tower_hit_target(const cocos2d::Vec2& targetlocation);
-
-    //判断炮塔是否可以进行升级并产生
-    //（？我不知道pzx这个函数可以做这个不）
+    virtual void tower_bullet_shoot(cocos2d::Sprite* bullet, const cocos2d::Vec2& targetlocation);
 
     //炮塔升级
     virtual void towerUpgrade();
@@ -66,7 +60,7 @@ protected:
     int category_code;
     //炮塔等级
     int tower_level;
-    //炮塔攻击数量  （风扇设定是打1 魔法球会增长）
+    //炮塔攻击数量
     int tower_attack_number;
     //炮塔攻击范围
     int tower_attack_range;
@@ -76,10 +70,6 @@ protected:
     float tower_attack_speed;
     //炮塔持续攻击时间（针对火焰瓶是否加攻）
     int tower_sustained_attack_time;
-
-    //炮塔优先攻击对象
-    //个人感觉这个设置成全局会好一些？
-    //。。。。。。。。。。。。。。。。
 };
 
 #endif // BASICDEFENSIVETOWER_H
