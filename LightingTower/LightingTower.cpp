@@ -22,6 +22,15 @@ LightingTower::LightingTower(const cocos2d::Vec2& touchlocation) {
     tower->setScale(1);
     sprite_show(tower);
     //加入情景放在建立类操作之后一句，不在类中进行放入
+
+    //建立炮塔基座精灵
+    base = cocos2d::Sprite::create("LightingTower_Base.png");
+    //放置炮塔基座
+    base->setPosition(touchlocation);
+    //设置炮塔基座
+    base->setScale(1);
+    sprite_show(base);
+    //加入情景放在建立类操作之后一句，不在类中进行放入
 }
 
 //炮塔攻击
@@ -30,21 +39,19 @@ void LightingTower::tower_attack(const cocos2d::Vec2& targetlocation) {
     cocos2d::Sprite* Bullet;
     if (tower_level == 1) {
         Bullet = cocos2d::Sprite::create("LightingTower_bullet_small.png");
+        //物理引擎
+        setPhysicsBody(Bullet, LIGHTINGBULLET1);
     }
     else if (tower_level == 2) {
         Bullet = cocos2d::Sprite::create("LightingTower_bullet_middle.png");
+        //物理引擎
+        setPhysicsBody(Bullet, LIGHTINGBULLET2);
     }
     else if (tower_level == 3) {
         Bullet = cocos2d::Sprite::create("LightingTower_bullet_big.png");
+        //物理引擎
+        setPhysicsBody(Bullet, LIGHTINGBULLET3);
     }
-
-    //对子弹添加物理特性标志
-    auto physicsBody = cocos2d::PhysicsBody::createBox(Bullet->getContentSize(), cocos2d::PhysicsMaterial::PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
-    physicsBody->setDynamic(false);
-    physicsBody->setCategoryBitmask(0x01);    // 0001
-    physicsBody->setContactTestBitmask(0x04); // 0100
-    Bullet->setTag(LIGHTINGBULLET);
-    Bullet->setPhysicsBody(physicsBody);
 
     //放置粒子并设置大小
     Bullet->setPosition(towerlocation);

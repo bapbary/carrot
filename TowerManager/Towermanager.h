@@ -28,6 +28,12 @@ public:
     //炮塔管理器本身（设为公共是因为有需要...）
     std::vector<BasicDefensiveTower*> towers;
 
+    //确定优先攻击目标
+    void SetFirstTarget(GameObject* Target);
+
+    //取消优先攻击目标
+    void CancelFirstTarget();
+
     //获取优先攻击目标指针
     GameObject *getFirstTarget();
 private:

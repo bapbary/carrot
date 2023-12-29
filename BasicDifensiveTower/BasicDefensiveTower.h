@@ -14,6 +14,9 @@ public:
     //获取炮塔精灵本身
     cocos2d::Sprite* getTowerSprite();
 
+    //获取炮塔基座精灵本身
+    cocos2d::Sprite* getBaseSprite();
+
     //获取炮塔名字
     std::string getTowerName();
 
@@ -45,9 +48,14 @@ public:
 
     //炮塔升级
     virtual void towerUpgrade();
+
+    //设置物体函数
+    void BasicDefensiveTower::setPhysicsBody(cocos2d::Sprite* Bullet, float value);
 protected:
     //炮塔本身的精灵表示
     cocos2d::Sprite* tower;
+    //炮塔基座精灵表示
+    cocos2d::Sprite* base;
     //炮塔目前攻击对象(自动/怪物)
     GameObject* currenttarget = nullptr;
     //炮塔位置坐标
