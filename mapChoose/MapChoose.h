@@ -16,13 +16,13 @@ public:
     cocos2d::Vec2 origin;//视图初始化时的可见大小
     cocos2d::Label* label;
     cocos2d::Sprite* route;//路线图
-    cocos2d::MenuItemImage* fireBottle;//火瓶选择图标
+    cocos2d::MenuItemImage* sunFlower;//火瓶选择图标
     cocos2d::MenuItemImage* leafTower;//风扇选择图标
     cocos2d::MenuItemImage* lightingTower;//闪电瓶选择图标
     cocos2d::EventListenerTouchOneByOne* touchListener;//触摸监听
     cocos2d::Sprite* selectedPos;//复选框
     cocos2d::Menu* towerMenu = nullptr;//炮塔升级菜单
-    bool fireBottleClicked = false;
+    bool sunFlowerClicked = false;
     std::string towerName;//若点击位置有炮塔即可接收其名字，若没有则为空串
     cocos2d::Vec2 towerPos;//炮塔位置
     cocos2d::Label* goldCoinDisplay;
@@ -38,27 +38,24 @@ public:
     void returnChoose(cocos2d::Ref* pSender);//从地图中退出
     void suspend(cocos2d::Ref* pSender);//在游戏中暂停
     virtual void tryAgain(cocos2d::Ref* pSender);//重新开始游戏
-    void returnHome(cocos2d::Ref* pSender);//从游戏中回到封面
     virtual bool ifSafe(cocos2d::Vec2 mousePos) { return 1; };//判断点击到的是否为炮塔
     virtual void selectedPosSet(float mouseLocX, float mouseLocY) { return; };//复选框位置设置（不同位置有细小差别）
     virtual void obstacleDispatch() { return; };
-    void fireBottleGenerate(cocos2d::Ref* pSender);//放置火焰瓶炮塔
+    void sunFlowerGenerate(cocos2d::Ref* pSender);//放置火焰瓶炮塔
     void leafTowerGenerate(cocos2d::Ref* pSender);//放置风扇炮塔
     void lightingTowerGenerate(cocos2d::Ref* pSender);//放置绿瓶炮塔
     void nullCallBack(cocos2d::Ref* pSender);//空回调函数
-    void upgradeFireTower(cocos2d::Ref* pSender);
+    void upgradeSunFlowerTower(cocos2d::Ref* pSender);
     void upgradeLeafTower(cocos2d::Ref* pSender);
     void upgradeLightTower(cocos2d::Ref* pSender);
     void deleteTower(cocos2d::Ref* pSender);//删除炮塔
     void deleteLightTower(cocos2d::Ref* pSender);//删除炮塔
     virtual void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);//点击结束
     bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);//点击开始（保证监听正常进行）
-    cocos2d::Vec2 passPos();//传递炮塔位置
     GameObject* ifClickedMonster(std::vector<GameObject*> monsters, Vec2 mousePos);
     Obstacles* ifClickedObstacle(std::vector<Obstacles*> obstacles, Vec2 mousePos);
     void gameOver(Ref* pSender);
     void gameWin(Ref* pSender);
     CREATE_FUNC(mapChoose);
-
 };
 #endif // MAP_CHOOSE_H

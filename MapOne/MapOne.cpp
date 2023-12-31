@@ -1,5 +1,6 @@
 #include"MapOne.h"
 #include"TowerManager.h"
+#include"MonsterManager.h"
 #include"FireTower.h"
 #include"LeafTower.h"
 #include"LightingTower.h"
@@ -27,9 +28,10 @@ bool mapOne::init()//第一张地图的初始化
     }  
     visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
     origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
-
-    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::tower_targetupdate), 0.2, CC_REPEAT_FOREVER, 0);
-
+    //炮塔攻击更新调度器启用，三种不同炮塔分开调用
+    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::tower_targetupdate1), 1.5, CC_REPEAT_FOREVER, 0);
+    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::tower_targetupdate2), 0.2, CC_REPEAT_FOREVER, 0);
+    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::tower_targetupdate3), 0.8, CC_REPEAT_FOREVER, 0);
     //地图背景图设置
     auto background = Sprite::create("mapBackground.png");
     background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
@@ -68,7 +70,7 @@ bool mapOne::init()//第一张地图的初始化
     label->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y + 40));
     this->addChild(label, 3);
 
-    fireBottle = nullptr;
+    sunFlower = nullptr;
     //触摸监听创建
     touchListener = EventListenerTouchOneByOne::create();
     // 绑定触摸的的回调函数
@@ -83,26 +85,63 @@ bool mapOne::ifSafe(cocos2d::Vec2 mousePos)//判断点击到的是否为炮塔位置是否合法
 {
     float mouseLocX = mousePos.x;
     float mouseLocY = mousePos.y;
-    if (mouseLocY < 100 || (mouseLocY > 185 && mouseLocY < 290 && mouseLocX > 245 && mouseLocX < 1010) || (mouseLocY > 360 && mouseLocY < 470 && mouseLocX > 70 && mouseLocX < 825) || (mouseLocY > 570 && mouseLocY < 655 && mouseLocX > 425 && mouseLocX < 1010) || (mouseLocY < 570 && mouseLocY>295 && mouseLocX > 915) || (mouseLocY < 360 && mouseLocY>100 && mouseLocX < 160 && mouseLocX>40))
+    if ((mouseLocY < 95 && mouseLocY > 40 && mouseLocX > 300 && mouseLocX < 1010) || (mouseLocY > 180 && mouseLocY < 300 && mouseLocX > 245 && mouseLocX < 1010 && !(mouseLocY > 180 && mouseLocY < 240 && mouseLocX > 660 && mouseLocX < 780)) || (mouseLocY > 360 && mouseLocY < 470 && mouseLocX > 70 && mouseLocX < 825) || (mouseLocY > 570 && mouseLocY < 655 && mouseLocX > 300 && mouseLocX < 1010) || (mouseLocY < 570 && mouseLocY>295 && mouseLocX > 915 && mouseLocX < 1018) || (mouseLocY < 360 && mouseLocY>100 && mouseLocX < 160 && mouseLocX>50))
         return true;
     else
         return false;
 }
 void mapOne::selectedPosSet(float mouseLocX, float mouseLocY)
 {
-    towerPos.x = static_cast<int>((mouseLocX + 1) / cellWidth) * cellWidth + static_cast<int>(selectedPos->getContentSize().width / 2) - 1;
     if (mouseLocY >= 570 && mouseLocY < 610)
     {
-        towerPos.y = static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2) + 10;
-        fireBottle->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 10);
-        leafTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 10);
-        lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 10) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 10);
+        towerPos.x = static_cast<int>((mouseLocX + 1) / cellWidth) * cellWidth + static_cast<int>(selectedPos->getContentSize().width / 2) - 1;
+        towerPos.y = static_cast<int>((mouseLocY - 15) / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2) + 15;
+        sunFlower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 15) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 15);
+        leafTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 15) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 15);
+        lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 15) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 15);
+        selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
+    }
+    else if (mouseLocY > 360 && mouseLocY < 470 && mouseLocX > 70 && mouseLocX < 825)
+    {
+        towerPos.x = static_cast<int>((mouseLocX + 1) / cellWidth) * cellWidth + static_cast<int>(selectedPos->getContentSize().width / 2) - 1;
+        towerPos.y = static_cast<int>((mouseLocY - 20) / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2) + 20;
+        sunFlower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 20) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 20);
+        leafTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 20) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 20);
+        lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 20) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 20);
+        selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
+    }
+    else if (mouseLocY < 360 && mouseLocY>100 && mouseLocX < 160 && mouseLocX>50)
+    {
+        towerPos.x = static_cast<int>((mouseLocX + 10) / cellWidth) * cellWidth + static_cast<int>(selectedPos->getContentSize().width / 2) - 10;
+        towerPos.y = static_cast<int>(mouseLocY / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2);
+        sunFlower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+        leafTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+        lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+        selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
+    }
+    else if (mouseLocY < 570 && mouseLocY > 295 && mouseLocX > 915&&mouseLocX<1018)
+    {
+        towerPos.x = static_cast<int>((mouseLocX - 10) / cellWidth) * cellWidth + static_cast<int>(selectedPos->getContentSize().width / 2) + 10;
+        towerPos.y = static_cast<int>(mouseLocY / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2);
+        sunFlower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+        leafTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+        lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+        selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
+    }
+    else if (mouseLocY < 95 && mouseLocY > 35 && mouseLocX > 300 && mouseLocX < 1010)
+    {
+        towerPos.x = static_cast<int>((mouseLocX + 1) / cellWidth) * cellWidth + static_cast<int>(selectedPos->getContentSize().width / 2) - 1;
+        towerPos.y = static_cast<int>((mouseLocY + 25) / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2) - 25;
+        sunFlower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY + 25) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 - 25);
+        leafTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY + 25) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 - 25);
+        lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY + 25) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 - 25);
         selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
     }
     else
     {
+        towerPos.x = static_cast<int>((mouseLocX + 1) / cellWidth) * cellWidth + static_cast<int>(selectedPos->getContentSize().width / 2) - 1;
         towerPos.y = static_cast<int>(mouseLocY / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2);
-        fireBottle->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
+        sunFlower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 - static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
         leafTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
         lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
         selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
@@ -111,6 +150,9 @@ void mapOne::selectedPosSet(float mouseLocX, float mouseLocY)
 }
 void mapOne::tryAgain(Ref* pSender)
 {
+    TowerManager::getInstance()->clearTowers();//删除上个地图中残留的炮塔管理器
+    MonsterManager::getInstance()->clearMonster();//删除上个地图中残留的怪物管理器
+    delete GameObject::getInstance();
     Director::getInstance()->popScene();//弹出暂停页面
     Director::getInstance()->popScene();//弹出游戏页面
     enterMapOne(this);
