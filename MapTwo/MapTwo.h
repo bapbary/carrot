@@ -18,5 +18,3 @@ public:
 };
 
 #endif // MAP_TWO_H
-
-

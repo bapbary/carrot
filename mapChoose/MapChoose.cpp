@@ -199,11 +199,11 @@ void mapChoose::enterMapTwo(Ref* pSender)//进入第二张地图
 }
 void mapChoose::onTouchEnded(Touch* touch, Event* event)
 {
-   /* if (sunFlowerClicked == true)
-    {
-        sunFlowerClicked = false;
-        return;
-    }*/
+    /* if (sunFlowerClicked == true)
+     {
+         sunFlowerClicked = false;
+         return;
+     }*/
     CCLOG("onTouchEnded - Start");
 
     auto visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
@@ -581,7 +581,7 @@ void mapChoose::deleteTower(Ref* pSender)//生成火焰瓶的炮塔类
     auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
     audio->playEffect("button.MP3", false, 1.0f, 1.0f, 1.0f);
     CCLOG("Remove tower");
-    if(TowerManager::getInstance()->getTower(towerName)->getTowerLevel() == 3)
+    if (TowerManager::getInstance()->getTower(towerName)->getTowerLevel() == 3)
         goldCoin += 480;
     else
         goldCoin += 120;
@@ -703,7 +703,7 @@ void mapChoose::gameWinOne()
     auto winContinue = MenuItemImage::create(
         "winContinue.png",
         "winContinueSelected.png",
-        CC_CALLBACK_1(mapChoose::returnChoose,this));
+        CC_CALLBACK_1(mapChoose::returnChoose, this));
     auto menu = Menu::create(winContinue, NULL);
     winScene->addChild(menu, 1);
     winContinue->setPosition(Vec2(origin.x, origin.y - 100));

@@ -24,19 +24,15 @@ bool mapOne::init()//第一张地图的初始化
     if (!Layer::init())
     {
         return false;
-    }  
+    }
 
-    goldCoin = 10000;
+    goldCoin = 1000;
     visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
     origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
     //炮塔攻击更新调度器启用，三种不同炮塔分开调用
     schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::towerTargetUpdate1), 1.5, CC_REPEAT_FOREVER, 0);
     schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::towerTargetUpdate2), 0.2, CC_REPEAT_FOREVER, 0);
     schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::towerTargetUpdate3), 0.8, CC_REPEAT_FOREVER, 0);
-    //金币放置
-    goldCoinDisplay = cocos2d::Label::createWithTTF(std::to_string(goldCoin), "fonts/Marker Felt.ttf", 24);
-    goldCoinDisplay->setPosition(Vec2(245, 690));
-    this->addChild(goldCoinDisplay, 2);
 
     //地图背景图设置
     auto background = Sprite::create("mapBackground.png");
@@ -50,8 +46,12 @@ bool mapOne::init()//第一张地图的初始化
     auto monsterEnter = Sprite::create("monsterEnter.png");
     monsterEnter->setPosition(Vec2(6 * cellWidth, 9 * cellHeight));
     this->addChild(monsterEnter, 2);
+    //金币放置
+    goldCoinDisplay = cocos2d::Label::createWithTTF(std::to_string(goldCoin), "fonts/Marker Felt.ttf", 24);
+    goldCoinDisplay->setPosition(Vec2(245, 690));
+    this->addChild(goldCoinDisplay, 2);
     //怪物加入
-    GameObject* monster = GameObject::create(1,goldCoinDisplay);
+    GameObject* monster = GameObject::create(1, goldCoinDisplay);
     this->addChild(monster, 2);
     //outline框设置
     auto outline = Sprite::create("outline.png");
@@ -87,7 +87,7 @@ bool mapOne::ifSafe(cocos2d::Vec2 mousePos)//判断点击到的是否为炮塔位置是否合法
 {
     float mouseLocX = mousePos.x;
     float mouseLocY = mousePos.y;
-    if ((mouseLocY < 95 && mouseLocY > 40 && mouseLocX > 300 && mouseLocX < 1010) || (mouseLocY > 180 && mouseLocY < 300 && mouseLocX > 245 && mouseLocX < 1010 && !(mouseLocY > 180 && mouseLocY < 240 && mouseLocX > 660 && mouseLocX < 780)) || (mouseLocY > 380 && mouseLocY < 480 && mouseLocX > 70 && mouseLocX < 825) || (mouseLocY > 570 && mouseLocY < 655 && mouseLocX > 300 && mouseLocX < 1010) || (mouseLocY < 570 && mouseLocY>295 && mouseLocX > 915 && mouseLocX < 1018) || (mouseLocY < 360 && mouseLocY>100 && mouseLocX < 160 && mouseLocX>50))
+    if ((mouseLocY < 95 && mouseLocY > 40 && mouseLocX > 300 && mouseLocX < 1010) || (mouseLocY > 180 && mouseLocY < 300 && mouseLocX > 245 && mouseLocX < 1010 && !(mouseLocY > 180 && mouseLocY < 240 && mouseLocX > 660 && mouseLocX < 780)) || (mouseLocY > 360 && mouseLocY < 470 && mouseLocX > 70 && mouseLocX < 825) || (mouseLocY > 570 && mouseLocY < 655 && mouseLocX > 300 && mouseLocX < 1010) || (mouseLocY < 570 && mouseLocY>295 && mouseLocX > 915 && mouseLocX < 1018) || (mouseLocY < 360 && mouseLocY>100 && mouseLocX < 160 && mouseLocX>50))
         return true;
     else
         return false;
@@ -103,7 +103,7 @@ void mapOne::selectedPosSet(float mouseLocX, float mouseLocY)
         lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>((mouseLocY - 15) / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2 + 15);
         selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
     }
-    else if (mouseLocY > 380 && mouseLocY < 480 && mouseLocX > 70 && mouseLocX < 825)
+    else if (mouseLocY > 360 && mouseLocY < 470 && mouseLocX > 70 && mouseLocX < 825)
     {
         towerPos.x = static_cast<int>((mouseLocX + 1) / cellWidth) * cellWidth + static_cast<int>(selectedPos->getContentSize().width / 2) - 1;
         towerPos.y = static_cast<int>((mouseLocY - 20) / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2) + 20;
@@ -121,7 +121,7 @@ void mapOne::selectedPosSet(float mouseLocX, float mouseLocY)
         lightingTower->setPosition(static_cast<int>(mouseLocX / cellWidth) * cellWidth - visibleSize.width / 2 + 3 * static_cast<int>(cellWidth / 2), static_cast<int>(mouseLocY / cellHeight) * cellHeight + cellHeight - visibleSize.height / 2);
         selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
     }
-    else if (mouseLocY < 570 && mouseLocY > 295 && mouseLocX > 915&&mouseLocX<1018)
+    else if (mouseLocY < 570 && mouseLocY > 295 && mouseLocX > 915 && mouseLocX < 1018)
     {
         towerPos.x = static_cast<int>((mouseLocX - 10) / cellWidth) * cellWidth + static_cast<int>(selectedPos->getContentSize().width / 2) + 10;
         towerPos.y = static_cast<int>(mouseLocY / cellHeight) * cellHeight + static_cast<int>(selectedPos->getContentSize().height / 2);
@@ -159,4 +159,3 @@ void mapOne::tryAgain(Ref* pSender)
     Director::getInstance()->popScene();//弹出游戏页面
     enterMapOne(this);
 }
-

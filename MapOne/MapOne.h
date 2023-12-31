@@ -17,4 +17,3 @@ public:
 };
 
 #endif // MAP_ONE_H
-

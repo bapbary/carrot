@@ -24,7 +24,7 @@ bool mapTwo::init()//第一张地图的初始化
     {
         return false;
     }
-    goldCoin = 10000;
+    goldCoin = 1000;
 
     visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
     origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
@@ -40,7 +40,7 @@ bool mapTwo::init()//第一张地图的初始化
     this->addChild(background, 0);
     //怪兽路线图设置
     route = Sprite::create("routeTwo.png");
-    route->setPosition(Vec2(visibleSize.width / 2 + origin.x , route->getContentSize().height / 2 + origin.y));
+    route->setPosition(Vec2(visibleSize.width / 2 + origin.x, route->getContentSize().height / 2 + origin.y));
     this->addChild(route, 1);
     //怪兽入口设置
     auto monsterEnter = Sprite::create("monsterEnter.png");
@@ -51,7 +51,7 @@ bool mapTwo::init()//第一张地图的初始化
     goldCoinDisplay->setPosition(Vec2(245, 690));
     this->addChild(goldCoinDisplay, 2);
     //怪物加入
-    GameObject* monster = GameObject::create(2,goldCoinDisplay);
+    GameObject* monster = GameObject::create(2, goldCoinDisplay);
     this->addChild(monster, 2);
     //outline框设置
     auto outline = Sprite::create("outline.png");
@@ -87,7 +87,7 @@ bool mapTwo::ifSafe(cocos2d::Vec2 mousePos)//判断点击到的是否为炮塔位置是否合法
 {
     float mouseLocX = mousePos.x;
     float mouseLocY = mousePos.y;
-    if ((mouseLocX <= 710 && mouseLocX >= 185 && mouseLocY <= 455 && mouseLocY >= 395) || (mouseLocX <= 710 && mouseLocX >= 540 && mouseLocY <= 365 && mouseLocY >= 215)||(mouseLocX <= 841 && mouseLocX >= 241 && mouseLocY <= 106 && mouseLocY >= 46) || (mouseLocX <= 75 && mouseLocX >= 15 && mouseLocY <= 570 && mouseLocY >= 90)|| (mouseLocX <= 1035 && mouseLocX >= 15 && mouseLocY <= 610 && mouseLocY >= 570)|| (mouseLocX <= 1055 && mouseLocX >= 935 && mouseLocY <= 465 && mouseLocY >= 285)|| (mouseLocX <= 1010 && mouseLocX >= 950 && mouseLocY <= 286 && mouseLocY >= 46))
+    if ((mouseLocX <= 710 && mouseLocX >= 185 && mouseLocY <= 455 && mouseLocY >= 395) || (mouseLocX <= 710 && mouseLocX >= 540 && mouseLocY <= 365 && mouseLocY >= 215) || (mouseLocX <= 841 && mouseLocX >= 241 && mouseLocY <= 106 && mouseLocY >= 46) || (mouseLocX <= 75 && mouseLocX >= 15 && mouseLocY <= 570 && mouseLocY >= 90) || (mouseLocX <= 1035 && mouseLocX >= 15 && mouseLocY <= 610 && mouseLocY >= 570) || (mouseLocX <= 1055 && mouseLocX >= 935 && mouseLocY <= 465 && mouseLocY >= 285) || (mouseLocX <= 1010 && mouseLocX >= 950 && mouseLocY <= 286 && mouseLocY >= 46))
         return true;
     else
         return false;
@@ -133,7 +133,7 @@ void mapTwo::selectedPosSet(float mouseLocX, float mouseLocY)
         selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
         mouseLocY -= 15;
     }
-    else if ((mouseLocX <= 75 && mouseLocX >= 15 && mouseLocY <= 570 && mouseLocY >= 90) || (mouseLocX <= 1035 && mouseLocX >= 15 && mouseLocY <= 630 && mouseLocY >= 570)|| (mouseLocX <= 1035 && mouseLocX >= 15 && mouseLocY <= 630 && mouseLocY >= 570))
+    else if ((mouseLocX <= 75 && mouseLocX >= 15 && mouseLocY <= 570 && mouseLocY >= 90) || (mouseLocX <= 1035 && mouseLocX >= 15 && mouseLocY <= 630 && mouseLocY >= 570) || (mouseLocX <= 1035 && mouseLocX >= 15 && mouseLocY <= 630 && mouseLocY >= 570))
     {
         mouseLocY -= 15;
         mouseLocX -= 15;
@@ -148,7 +148,7 @@ void mapTwo::selectedPosSet(float mouseLocX, float mouseLocY)
         mouseLocY += 15;
         mouseLocX += 15;
     }
-    else if(mouseLocX <= 1055 && mouseLocX >= 935 && mouseLocY <= 465 && mouseLocY >= 285)
+    else if (mouseLocX <= 1055 && mouseLocX >= 935 && mouseLocY <= 465 && mouseLocY >= 285)
     {
         mouseLocX += 15;
         int chooseX = static_cast<int>((mouseLocX + 10) / cellHeight) * cellHeight;//网格横向坐标
@@ -161,7 +161,7 @@ void mapTwo::selectedPosSet(float mouseLocX, float mouseLocY)
         selectedPos->setPosition(towerPos.x, towerPos.y);//设置位置为炮塔所放置位置
         mouseLocX -= 15;
     }
-    else if(mouseLocX <= 1021 && mouseLocX >= 950 && mouseLocY <= 286 && mouseLocY >= 46)
+    else if (mouseLocX <= 1021 && mouseLocX >= 950 && mouseLocY <= 286 && mouseLocY >= 46)
     {
         int chooseX = static_cast<int>((mouseLocX + 10) / cellHeight) * cellHeight;//网格横向坐标
         int chooseY = static_cast<int>(mouseLocY / cellHeight) * cellHeight;//网格纵向坐标
@@ -183,4 +183,3 @@ void mapTwo::tryAgain(Ref* pSender)
     Director::getInstance()->popScene();//弹出游戏页面
     enterMapTwo(this);
 }
-
