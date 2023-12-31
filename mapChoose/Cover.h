@@ -3,6 +3,7 @@
 
 #include "cocos2d.h"
 #include"MapChoose.h"
+#include "SimpleAudioEngine.h"
 
 class sceneCover : public cocos2d::Scene
 {

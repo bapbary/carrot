@@ -2,12 +2,13 @@
 #define  MAP_CHOOSE_H
 
 #include "cocos2d.h"
+#include "SimpleAudioEngine.h"
+
 class GameObject;
 class Obstacles;
 USING_NS_CC;
-
+extern int goldCoin;
 static int count;//全局计数器
-static int goldCoin = 10000;//金币
 
 class mapChoose : public cocos2d::Layer
 {
@@ -35,6 +36,7 @@ public:
     void flipToLast(cocos2d::Ref* pSender);//滑动到上一个地图选择场景
     void enterMapOne(cocos2d::Ref* pSender);//进入第一个地图中
     void enterMapTwo(cocos2d::Ref* pSender);//进入第二个地图中
+    Scene* mapOneChoose();
     void returnChoose(cocos2d::Ref* pSender);//从地图中退出
     void suspend(cocos2d::Ref* pSender);//在游戏中暂停
     virtual void tryAgain(cocos2d::Ref* pSender);//重新开始游戏
@@ -50,12 +52,16 @@ public:
     void upgradeLightTower(cocos2d::Ref* pSender);
     void deleteTower(cocos2d::Ref* pSender);//删除炮塔
     void deleteLightTower(cocos2d::Ref* pSender);//删除炮塔
-    virtual void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);//点击结束
+    void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);//点击结束
     bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);//点击开始（保证监听正常进行）
     GameObject* ifClickedMonster(std::vector<GameObject*> monsters, Vec2 mousePos);
     Obstacles* ifClickedObstacle(std::vector<Obstacles*> obstacles, Vec2 mousePos);
-    void gameOver(Ref* pSender);
-    void gameWin(Ref* pSender);
+    void tryAgainOne(cocos2d::Ref*);
+    void tryAgainTwo(cocos2d::Ref*);
+    void gameOverOne();
+    void gameOverTwo();
+    void gameWinOne();
+    void gameWinTwo();
     CREATE_FUNC(mapChoose);
 };
 #endif // MAP_CHOOSE_H

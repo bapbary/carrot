@@ -31,6 +31,9 @@ bool sceneCover::init()
 
     auto visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
     Vec2 origin = Director::getInstance()->getVisibleOrigin();//视图的初始化时的可见大小
+    //播放音效
+    auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
+    audio->playEffect("background.MP3", false, 1.0f, 1.0f, 1.0f);
 
     auto startItem = MenuItemImage::create(
         "startbutton.png",
@@ -61,6 +64,10 @@ bool sceneCover::init()
 }
 void sceneCover::touchStart(Ref* pSender)//开始游戏键盘事件
 {
+    //播放音效
+    auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
+    audio->playEffect("button.MP3", false, 1.0f, 1.0f, 1.0f);
+
     Scene* mapChoose = mapChoose::createScene();
     Director::getInstance()->pushScene(TransitionFade::create(1, mapChoose));//进入地图选择场景
 

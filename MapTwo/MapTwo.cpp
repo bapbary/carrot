@@ -25,6 +25,7 @@ bool mapTwo::init()//第一张地图的初始化
     {
         return false;
     }
+    goldCoin = 10000;
 
     visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
     origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
@@ -47,7 +48,7 @@ bool mapTwo::init()//第一张地图的初始化
     monsterEnter->setPosition(Vec2(995, 525));
     this->addChild(monsterEnter, 2);
     //怪物加入
-    GameObject* monster = GameObject::create(2);
+    GameObject* monster = GameObject::create(2,goldCoinDisplay);
     this->addChild(monster, 2);
     //outline框设置
     auto outline = Sprite::create("outline.png");
