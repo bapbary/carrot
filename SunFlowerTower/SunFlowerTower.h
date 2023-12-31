@@ -1,13 +1,13 @@
-#ifndef FIRETOWER_H
-#define FIRETOWER_H
+#ifndef SUNFLOWERTOWER_H
+#define SUNFLOWERTOWER_H
 
 #include "cocos2d.h"
 #include "BasicDefensiveTower.h"
 
-class FireTower : public BasicDefensiveTower {
+class SunFlowerTower : public BasicDefensiveTower {
 public:
     //构造函数：炮塔参数的初始化并显示
-    FireTower(const cocos2d::Vec2& touchlocation);
+    SunFlowerTower(const cocos2d::Vec2& touchlocation);
 
     //炮塔攻击
     void tower_attack(const cocos2d::Vec2& targetlocation);
@@ -19,5 +19,4 @@ public:
     void towerUpgrade();
 };
 
-
-#endif // FIRETOWER_H
+#endif // SUNFLOWERTOWER_H
