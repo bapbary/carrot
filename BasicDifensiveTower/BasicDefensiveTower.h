@@ -27,30 +27,30 @@ public:
     int getTowerLevel();
 
     //图标的显示
-    void sprite_show(cocos2d::Sprite* sprite);
+    void spriteShow(cocos2d::Sprite* sprite);
     //图标的隐藏
-    void sprite_hide(cocos2d::Sprite* sprite);
+    void spriteHide(cocos2d::Sprite* sprite);
 
     //炮塔更新索敌对象（太阳塔）
-    void tower_targetupdate1(float dt);
+    void towerTargetUpdate1(float dt);
 
     //炮塔更新索敌对象（闪电瓶）
-    void tower_targetupdate2(float dt);
+    void towerTargetUpdate2(float dt);
 
     //炮塔更新索敌对象（叶子塔）
-    void tower_targetupdate3(float dt);
+    void towerTargetUpdate3(float dt);
 
     //炮塔最近距离索敌
     GameObject* findTarget();
 
     //炮塔攻击
-    virtual void tower_attack(const cocos2d::Vec2& targetlocation);
+    virtual void towerAttack(const cocos2d::Vec2& targetlocation);
 
     //炮塔转动（参数为当前攻击目标的所处的位置）
-    void tower_spin(const cocos2d::Vec2& targetlocation);
+    void towerSpin(const cocos2d::Vec2& targetlocation);
 
     //炮塔发射粒子并产生飞行特效
-    virtual void tower_bullet_shoot(cocos2d::Sprite* bullet, const cocos2d::Vec2& targetlocation);
+    virtual void towerBulletShoot(cocos2d::Sprite* bullet, const cocos2d::Vec2& targetlocation);
 
     //炮塔升级
     virtual void towerUpgrade();
@@ -63,27 +63,25 @@ protected:
     //炮塔基座精灵表示
     cocos2d::Sprite* base;
     //炮塔目前攻击对象(自动/怪物)
-    GameObject* currenttarget = nullptr;
+    GameObject* currentTarget = nullptr;
     //炮塔位置坐标
-    cocos2d::Vec2 towerlocation;
+    cocos2d::Vec2 towerLocation;
     //当前攻击对象位置坐标
-    cocos2d::Vec2 currenttargetlocation;
+    cocos2d::Vec2 currentTargetLocation;
     //炮塔名字
-    std::string towername;
+    std::string towerName;
     //炮塔种类代号
-    int category_code;
+    int categoryCode;
     //炮塔等级
-    int tower_level;
+    int towerLevel;
     //炮塔攻击数量
-    int tower_attack_number;
+    int towerAttackNumber;
     //炮塔攻击范围
-    int tower_attack_range;
+    int towerAttackRange;
     //炮塔攻击伤害
-    int tower_attack_power;
+    int towerAttackPower;
     //炮塔攻击速度
-    float tower_attack_speed;
-    //炮塔持续攻击时间（针对火焰瓶是否加攻）
-    int tower_sustained_attack_time;
+    float towerAttackSpeed;
 };
 
 #endif // BASICDEFENSIVETOWER_H

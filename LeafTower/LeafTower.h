@@ -10,10 +10,10 @@ public:
     LeafTower(const cocos2d::Vec2& touchlocation);
 
     //炮塔攻击
-    void tower_attack(const cocos2d::Vec2& targetlocation);
+    void towerAttack(const cocos2d::Vec2& targetlocation);
 
     //炮塔发射粒子并产生飞行特效
-    void tower_bullet_shoot(cocos2d::Sprite* bullet, const cocos2d::Vec2& targetlocation);
+    void towerBulletShoot(cocos2d::Sprite* bullet, const cocos2d::Vec2& targetlocation);
 
     //炮塔升级
     void towerUpgrade();
