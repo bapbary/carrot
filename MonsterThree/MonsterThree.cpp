@@ -61,4 +61,3 @@ MonsterThree* MonsterThree::create(Carrot* carrotLayer, int mapCatalog)
     }
 }
 
-

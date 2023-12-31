@@ -19,7 +19,7 @@ bool MonsterOne::init(Carrot* _carrotLayer, int mapCatalog)
     auto framesMonsterOne = getAnimation("monster1/%04d.png", 2);
     objectSprite = Sprite::createWithSpriteFrame(framesMonsterOne.front());
     //设置速度
-    this->speed =MonsterOneSpeed;
+    this->speed = MonsterOneSpeed;
     //物理引擎
     setMonsterPhysicsBody();
 
@@ -27,7 +27,7 @@ bool MonsterOne::init(Carrot* _carrotLayer, int mapCatalog)
     //缩放
     objectSprite->setScale(1.8, 1.8);
     objectSprite->setOpacity(0);
-    objectPosition = Origin[mapCatalog-1];
+    objectPosition = Origin[mapCatalog - 1];
     objectSprite->setPosition(objectPosition);
 
     //设置血条
@@ -42,7 +42,7 @@ bool MonsterOne::init(Carrot* _carrotLayer, int mapCatalog)
         moveAction = MoveWayInMapTwo(this);
     objectSprite->runAction(moveAction);
 
-     //调用 scheduleUpdate()，使得 update 函数被调用,每一帧更新位置
+    //调用 scheduleUpdate()，使得 update 函数被调用,每一帧更新位置
     this->scheduleUpdate();
     return true;
 }
