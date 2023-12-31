@@ -9,6 +9,7 @@ class Obstacles;
 USING_NS_CC;
 extern int goldCoin;
 static int count;//全局计数器
+cocos2d::Label* goldCoinDisplay;
 
 class mapChoose : public cocos2d::Layer
 {
@@ -26,7 +27,6 @@ public:
     bool sunFlowerClicked = false;
     std::string towerName;//若点击位置有炮塔即可接收其名字，若没有则为空串
     cocos2d::Vec2 towerPos;//炮塔位置
-    cocos2d::Label* goldCoinDisplay;
     Sprite* priorAttackLogo = nullptr;
     Sprite* lastPrior = nullptr;
     static cocos2d::Scene* createScene();
