@@ -11,12 +11,11 @@ public:
     void addMonster(GameObject* monster);
     void removeMonster(GameObject*& monster);
     const std::vector<cocos2d::Vec2>& getMonsterPositions();
-    void updateMonsterPositions(); 
     void clearMonster();
     bool IsEmpty();
     static int  round;
     std::vector<GameObject*> monsters;
-    int monsterNum;
+    int monsterNum=0;
 private:
     std::vector<cocos2d::Vec2> monsterPositions;
 };

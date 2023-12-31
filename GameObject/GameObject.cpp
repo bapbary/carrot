@@ -308,13 +308,13 @@ void GameObject::addMonsterThree(float dt)
 void GameObject::setHealthBar(Sprite* monster)
 {
     healthBarBG = Sprite::create("loadingBar.png");
-    healthBarBG->setScale(0.7);
+    healthBarBG->setScale(0.7f);
     healthBarBG->setPosition(Vec2(monster->getContentSize().width / 2, monster->getContentSize().height));  // 设置血条底座的位置
     monster->addChild(healthBarBG, 1);
     healthBarBG->setVisible(false);
     healthBar = ProgressTimer::create(Sprite::create("loadingBarBlood.png"));
     healthBar->setType(ProgressTimer::Type::BAR);
-    healthBar->setScale(0.7);
+    healthBar->setScale(0.7f);
     healthBar->setMidpoint(Vec2(0, 0.5));
     healthBar->setBarChangeRate(Vec2(1, 0));
     healthBar->setVisible(false);
@@ -743,7 +743,7 @@ void GameObject::removeObstacle(GameObject* obstacle)
     if (it != obstacles.end())
     {
         obstacles.erase(it);
-        obstacle = nullptr;
+        obstacle->currentHealth=-100;
     }
 }
 

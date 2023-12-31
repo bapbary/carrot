@@ -20,7 +20,7 @@ void MonsterManager::removeMonster(GameObject*&monster)
     if (it != monsters.end())
     {
         monsters.erase(it);
-        monster = nullptr;
+        monster->currentHealth = -100;
     }
 }
 
@@ -31,16 +31,6 @@ const std::vector<cocos2d::Vec2>& MonsterManager::getMonsterPositions()
 void MonsterManager::clearMonster()
 {
     monsters.clear();
-}
-void MonsterManager::updateMonsterPositions() {
-    // 更新怪物位置
-    monsterPositions.clear();
-    for (const auto& monster : monsters) {
-        if(auto sprite = dynamic_cast<cocos2d::Sprite*>(monster)) {
-            monsterPositions.push_back(sprite->getPosition());
-            CCLOG("guQ");
-        }
-    }
 }
 
 bool MonsterManager::IsEmpty()
