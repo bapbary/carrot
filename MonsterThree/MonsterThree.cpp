@@ -19,14 +19,9 @@ bool MonsterThree::init(Carrot* _carrotLayer, int mapCatalog)
     auto framesMonsterOne = getAnimation("monster3/%04d.png", 2);
     objectSprite = Sprite::createWithSpriteFrame(framesMonsterOne.front());
     //设置速度
-    this->speed = 200.0f;
-    auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
-    physicsBody->setDynamic(false);
-    physicsBody->setCategoryBitmask(0x01);    // 0001
-    physicsBody->setContactTestBitmask(0x04); // 0100
-    physicsBody->setCollisionBitmask(0x03);   // 0011
-    objectSprite->setTag(MONSTER);
-    objectSprite->setPhysicsBody(physicsBody);
+    this->speed = MonsterThreeSpeed;
+    //物理引擎
+    setMonsterPhysicsBody();
 
     this->addChild(objectSprite, 2);
     //缩放

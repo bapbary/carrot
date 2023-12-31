@@ -6,6 +6,8 @@
 #include"MonsterThree.h"
 #include"Obstacles.h"
 #include "mapChoose.h"
+#include "D:\carrot\cocos2d\cocos\editor-support\cocostudio\SimpleAudioEngine.h"
+using namespace CocosDenshion;
 USING_NS_CC;
 GameObject* GameObject::create(int mapCatalog)
 {
@@ -21,6 +23,8 @@ GameObject* GameObject::create(int mapCatalog)
         return nullptr;
     }
 }
+int MonsterManager::round = 0;
+
 bool GameObject::init(int mapCatalog)
 {
     if (!Node::init())
@@ -70,14 +74,30 @@ static void problemLoading(const char* filename)
 //获取当前位置
 cocos2d::Vec2 GameObject::getCurrentPosition()
 {
-    objectPosition = objectSprite->getPosition();
-    return objectPosition;
+    if (this != nullptr && objectSprite !=nullptr)
+    {
+        objectPosition = objectSprite->getPosition();
+        return objectPosition;
+    }
+    else
+        return nullptr;
 }
 //每帧更新位置、血量
 void GameObject::update(float dt)
 {
     getCurrentPosition();
     updateHealthBar(healthBar, initialHealth, currentHealth);
+}
+//提醒波数
+void GameObject::setLabel(char* str,Vec2 origin,Size visibleSize)
+{
+    //标签
+    auto label = Label::createWithTTF(str, "fonts/Marker Felt.ttf", 36);
+    label->setTextColor(Color4B::YELLOW);
+    label->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - 2 * label->getContentSize().height));
+    this->addChild(label, 2);
+    //延迟三秒后删除
+    label->runAction(Sequence::create(DelayTime::create(2.0f), RemoveSelf::create(), nullptr));
 }
 //添加怪物
 //地图一轮次三
@@ -86,54 +106,81 @@ void GameObject::addMonsterInMapOne()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     //第一波
-    auto sequenceMonster1 = Sequence::create(CallFunc::create([=]() {
-    //第一波标签
-    auto label1 = Label::createWithTTF("The First Wave", "fonts/Marker Felt.ttf", 36);
-    label1->setTextColor(Color4B::YELLOW);
-    label1->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - 2 * label1->getContentSize().height));
-    this->addChild(label1, 2);
-    //延迟两秒后删除
-    label1->runAction(Sequence::create(DelayTime::create(2.0f), RemoveSelf::create(), nullptr));
-    //怪物加入
-    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 10, 0);
-    }), DelayTime::create(2.0f), CallFunc::create([this]() {
-        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2, 10, 0);
-        }), DelayTime::create(1.5f), CallFunc::create([this]() {
-            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 2, 5, 0);
-            }), DelayTime::create(38.0f), nullptr);
-    //第二波
-    auto sequenceMonster2 = Sequence::create(CallFunc::create([=]() {
-        // 标签
-    auto label2 = Label::createWithTTF("The Second Wave", "fonts/Marker Felt.ttf", 36); 
-    label2->setTextColor(Color4B::YELLOW);
-    label2->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - 2 * label2->getContentSize().height));
-    this->addChild(label2, 2); 
-    // 延迟两秒后删除
-    label2->runAction(Sequence::create(DelayTime::create(2.0f), RemoveSelf::create(), nullptr));
-    // 怪物 5一+10二+5三
-    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 5, 0);
-    }), DelayTime::create(5.0f), CallFunc::create([this]() {
-        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 2, 5, 0);
-        }), DelayTime::create(2.0f), CallFunc::create([this]() {
-        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2, 10, 0);
-        }), DelayTime::create(25.0f), nullptr);
-    //第三波
-    auto sequenceMonster3 = Sequence::create( CallFunc::create([=]() {
-        // 标签
-        auto label3 = Label::createWithTTF("The Third Wave", "fonts/Marker Felt.ttf", 36);
-        label3->setTextColor(Color4B::YELLOW);
-        label3->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - 2 * label3->getContentSize().height));
-        this->addChild(label3, 2);
-        // 延迟两秒后删除
-        label3->runAction(Sequence::create(DelayTime::create(2.0f), RemoveSelf::create(), nullptr));
-        // 怪物 10一+10二+10三
-        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 10, 0);
-        }), DelayTime::create(1.0f), CallFunc::create([this]() {
-            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2, 10, 0);
-            }), DelayTime::create(1.0f), CallFunc::create([this]() {
-                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 2, 10, 0);
-                }), DelayTime::create(25.0f), nullptr);
-    this->runAction(Sequence::create(sequenceMonster1, sequenceMonster2, sequenceMonster3,nullptr));
+    auto sequenceMonster1 = Sequence::create(
+        CallFunc::create([=]()
+            {
+                SimpleAudioEngine::getInstance()->playEffect("start.MP3", false, 1.0f, 1.0f, 1.0f); }),
+                DelayTime::create(3.0f),
+            CallFunc::create([=](){
+            setLabel("The First Wave",origin,visibleSize);
+            //怪物加入
+            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 4, 0);
+        }), 
+        DelayTime::create(10.0f),
+        CallFunc::create([this]()
+            {
+                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 5, 1, 0);
+            }),
+        // 在定时器回调中检查MonsterManager是否为空
+        CallFunc::create([=]() 
+            {
+                this->schedule([=](float dt) 
+                    {
+                    if (MonsterManager::getInstance()->IsEmpty()&&MonsterManager::getInstance()->monsterNum==7) 
+                    {
+                        // 如果为空，5秒开始下一轮
+                        MonsterManager::getInstance()->monsterNum = 0;
+                        //第二轮
+                        auto sequenceMonster2 = Sequence::create(
+                            DelayTime::create(5.0f), 
+                            CallFunc::create([=]() 
+                                {
+                            this->unschedule("sequenceMonster2");
+                            // 标签
+                            setLabel("The Second Wave",origin,visibleSize);
+                            // 怪物 5一+10二+5三
+                            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 4, 0);
+                            }), 
+                            DelayTime::create(10.0f), 
+                            CallFunc::create([this]() 
+                                {
+                                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 5, 3, 0);
+                                }), 
+                            DelayTime::create(20.0f), 
+                            CallFunc::create([this]() 
+                                {
+                                    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 2, 0, 0);
+                                 }), 
+                            // 在定时器回调中检查MonsterManager是否为空
+                            CallFunc::create([=]() 
+                                {
+                                        this->schedule([=](float dt) {
+                                            if (MonsterManager::getInstance()->IsEmpty() && MonsterManager::getInstance()->monsterNum == 10) {
+                                                // 如果为空，开始下一轮
+                                                MonsterManager::getInstance()->monsterNum = 0;
+                                                auto sequenceMonster3 = Sequence::create(DelayTime::create(5.0f),
+                                                    CallFunc::create([=]() {
+                                                    this->unschedule("sequenceMonster3");
+                                                    setLabel("The Third Wave", origin, visibleSize);
+                                                    // 怪物 10一+10二+10三
+                                                    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 9, 0);
+                                                    }), DelayTime::create(10.0f), CallFunc::create([this]() {
+                                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 3, 9, 0);
+                                                        }), DelayTime::create(20.0f), CallFunc::create([this]() {
+                                                            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 3, 4, 0); }),
+                                                            CallFunc::create([=]()
+                                                                {
+                                                                    this->schedule([=](float dt) {
+                                                                        if (MonsterManager::getInstance()->IsEmpty() && MonsterManager::getInstance()->monsterNum == 25)
+                                                                        {
+                                                                            MonsterManager::getInstance()->monsterNum = 0;
+                                                                            this->unschedule("GameOver");
+                                                                        }}, 0.5f, "GameOver"); }), nullptr);
+                                                this->runAction(sequenceMonster3);
+                                            }}, 0.5f, "sequenceMonster3"); }), nullptr);
+                        this->runAction(sequenceMonster2);
+                    }}, 0.5f, "sequenceMonster2"); }), nullptr);
+    this->runAction(sequenceMonster1);
 }
 //地图二轮次四
 void GameObject::addMonsterInMapTwo()
@@ -141,88 +188,116 @@ void GameObject::addMonsterInMapTwo()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     //第一波
-    auto sequenceMonster1 = Sequence::create(CallFunc::create([=]() {
-        //第一波标签
-        auto label1 = Label::createWithTTF("The First Wave", "fonts/Marker Felt.ttf", 36);
-        label1->setTextColor(Color4B::YELLOW);
-        label1->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - 2 * label1->getContentSize().height));
-        this->addChild(label1, 2);
-        //延迟两秒后删除
-        label1->runAction(Sequence::create(DelayTime::create(2.0f), RemoveSelf::create(), nullptr));
-        //怪物加入
-        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2, 10, 0);
-        }), DelayTime::create(5.0f), CallFunc::create([this]() {
-            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 10, 0);
-            }), DelayTime::create(10.0f), CallFunc::create([this]() {
-                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 2, 5, 0);
-                }), DelayTime::create(40.0f), nullptr);
-    //第二波
-    auto sequenceMonster2 = Sequence::create(CallFunc::create([=]() {
-        // 标签
-        auto label2 = Label::createWithTTF("The Second Wave", "fonts/Marker Felt.ttf", 36);
-        label2->setTextColor(Color4B::YELLOW);
-        label2->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - 2 * label2->getContentSize().height));
-        this->addChild(label2, 2);
-        // 延迟两秒后删除
-        label2->runAction(Sequence::create(DelayTime::create(2.0f), RemoveSelf::create(), nullptr));
-        // 怪物 5一+10二+10三
-        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 5, 0);
-        }), DelayTime::create(5.0f), CallFunc::create([this]() {
-            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2, 10, 0);
-            }), DelayTime::create(2.0f), CallFunc::create([this]() {
-                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 2, 10, 0);
-                }), DelayTime::create(45.0f), nullptr);
-    //第三波
-    auto sequenceMonster3 = Sequence::create(CallFunc::create([=]() {
-        // 标签
-        auto label3 = Label::createWithTTF("The Third Wave", "fonts/Marker Felt.ttf", 36);
-        label3->setTextColor(Color4B::YELLOW);
-        label3->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - 2 * label3->getContentSize().height));
-        this->addChild(label3, 2);
-        // 延迟两秒后删除
-        label3->runAction(Sequence::create(DelayTime::create(2.0f), RemoveSelf::create(), nullptr));
-        // 怪物 15一+10二+10三
-        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 15, 0);
-        }), DelayTime::create(1.0f), CallFunc::create([this]() {
-            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 2, 10, 0);
-            }), DelayTime::create(1.0f), CallFunc::create([this]() {
-                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2, 10, 0);
-                }), DelayTime::create(45.0f), nullptr);
-    //第四波
-    auto sequenceMonster4 = Sequence::create(CallFunc::create([=]() {
-        // 标签
-        auto label4 = Label::createWithTTF("The Third Wave", "fonts/Marker Felt.ttf", 36);
-        label4->setTextColor(Color4B::YELLOW);
-        label4->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - 2 * label4->getContentSize().height));
-        this->addChild(label4, 2);
-        // 延迟两秒后删除
-        label4->runAction(Sequence::create(DelayTime::create(2.0f), RemoveSelf::create(), nullptr));
-        // 怪物 15一+10二+10三
-        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 10, 0);
-        }), DelayTime::create(2.0f), CallFunc::create([this]() {
-            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2, 10, 0);
-            }), DelayTime::create(1.0f), CallFunc::create([this]() {
-                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 2, 15, 0);
-                }), DelayTime::create(45.0f), nullptr);
-    this->runAction(Sequence::create(sequenceMonster1, sequenceMonster2, sequenceMonster3, sequenceMonster4,nullptr));
+    auto sequenceMonster1 = Sequence::create(
+        CallFunc::create([=]()
+            {
+                SimpleAudioEngine::getInstance()->playEffect("start.MP3", false, 1.0f, 1.0f, 1.0f); }),
+                DelayTime::create(3.0f),
+                CallFunc::create([=]() {
+            setLabel("The First Wave", origin, visibleSize);
+            //怪物加入
+            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 4, 0);
+                    }),
+        DelayTime::create(10.0f),
+        CallFunc::create([this]()
+            {
+                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 5, 4, 0);
+            }),
+        // 在定时器回调中检查MonsterManager是否为空
+        CallFunc::create([=]()
+            {
+                this->schedule([=](float dt)
+                    {
+                        if (MonsterManager::getInstance()->IsEmpty() && MonsterManager::getInstance()->monsterNum == 10)
+                        {
+                            // 如果为空，5秒开始下一轮
+                            MonsterManager::getInstance()->monsterNum = 0;
+                            //第二轮
+                            auto sequenceMonster2 = Sequence::create(
+                                DelayTime::create(5.0f),
+                                CallFunc::create([=]()
+                                    {
+                                        this->unschedule("sequenceMonster2");
+                                        // 标签
+                                        setLabel("The Second Wave", origin, visibleSize);
+                                        // 怪物 5一+10二+5三
+                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2, 9, 0);
+                                    }),
+                                DelayTime::create(20.0f),
+                                CallFunc::create([this]()
+                                    {
+                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 3, 4, 0);
+                                    }),
+                                // 在定时器回调中检查MonsterManager是否为空
+                                CallFunc::create([=]()
+                                    {
+                                        this->schedule([=](float dt) {
+                                            if (MonsterManager::getInstance()->IsEmpty() && MonsterManager::getInstance()->monsterNum == 15) {
+                                                // 如果为空，开始下一轮
+                                                MonsterManager::getInstance()->monsterNum = 0;
+                                                auto sequenceMonster3 = Sequence::create(DelayTime::create(5.0f),
+                                                    CallFunc::create([=]() {
+                                                        this->unschedule("sequenceMonster3");
+                                                        setLabel("The Third Wave", origin, visibleSize);
+                                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 4, 0);
+                                                        }), DelayTime::create(10.0f),
+                                                            CallFunc::create([this]() {
+                                                            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 3, 4, 0);
+                                                            }), DelayTime::create(15.0f), CallFunc::create([this]() {
+                                                                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 3, 4, 0); }),
+                                                                CallFunc::create([=]()
+                                                                    {
+                                                                        this->schedule([=](float dt) {
+                                                                            if (MonsterManager::getInstance()->IsEmpty() && MonsterManager::getInstance()->monsterNum == 15)
+                                                                            {
+                                                                                MonsterManager::getInstance()->monsterNum = 0;
+                                                                                this->unschedule("sequenceMonster4");
+                                                                                auto sequenceMonster4 = Sequence::create(DelayTime::create(5.0f),
+                                                                                    CallFunc::create([=]() {
+                                                                                        this->unschedule("sequenceMonster4");
+                                                                                        setLabel("The Third Wave", origin, visibleSize);
+                                                                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 4, 0);
+                                                                                        }), DelayTime::create(10.0f),
+                                                                                            CallFunc::create([this]() {
+                                                                                            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2, 9, 0);
+                                                                                                }), DelayTime::create(20.0f), CallFunc::create([this]() {
+                                                                                                    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 3, 9, 0); }),
+                                                                                                    CallFunc::create([=]()
+                                                                                                        {
+                                                                                                            this->schedule([=](float dt) {
+                                                                                                                if (MonsterManager::getInstance()->IsEmpty() && MonsterManager::getInstance()->monsterNum == 25)
+                                                                                                                {
+                                                                                                                    MonsterManager::getInstance()->monsterNum = 0;
+                                                                                                                    this->unschedule("GameOver");
+                                                                                                                }}, 0.5f, "GameOver"); }), nullptr);
+                                                                                this->runAction(sequenceMonster4);
+                                                                            }}, 0.5f, "sequenceMonster4"); }), nullptr);
+                                                this->runAction(sequenceMonster3);
+                                            }}, 0.5f, "sequenceMonster3"); }), nullptr);
+                            this->runAction(sequenceMonster2);
+                        }}, 0.5f, "sequenceMonster2"); }), nullptr);
+    this->runAction(sequenceMonster1);
 }
 
 void GameObject::addMonsterOne(float dt)
 {
     MonsterOne* MonsterOneLayer = MonsterOne::create(carrotLayer, mapChoose);
     this->addChild(MonsterOneLayer, 2);
+    SimpleAudioEngine::getInstance()->playEffect("addmonster.MP3", false, 1.0f, 1.0f, 1.0f);
     MonsterManager::getInstance()->addMonster(MonsterOneLayer);
 }
 void GameObject::addMonsterTwo(float dt)
 {
     MonsterTwo* MonsterTwoLayer = MonsterTwo::create(carrotLayer, mapChoose);
     this->addChild(MonsterTwoLayer, 2);
+    SimpleAudioEngine::getInstance()->playEffect("addmonster.MP3", false, 1.0f, 1.0f, 1.0f);
     MonsterManager::getInstance()->addMonster(MonsterTwoLayer);
 }
 void GameObject::addMonsterThree(float dt)
 {
     MonsterThree* MonsterThreeLayer = MonsterThree::create(carrotLayer, mapChoose);
     this->addChild(MonsterThreeLayer, 2);
+    SimpleAudioEngine::getInstance()->playEffect("addmonster.MP3", false, 1.0f, 1.0f, 1.0f);
     MonsterManager::getInstance()->addMonster(MonsterThreeLayer);
 }
 void GameObject::setHealthBar(Sprite* monster)
@@ -291,6 +366,7 @@ Sequence* GameObject::MoveWayInMapOne(GameObject* monster)
     auto seq = Sequence::create(fadeIn, moveTo1, moveTo2, scaleXAction, moveTo3, moveTo4, scaleXAction, moveTo5, fadeOut, nullptr);
     return seq;
 }
+//第二个地图路径
 Sequence* GameObject::MoveWayInMapTwo(GameObject* monster)
 {
     float v = monster->speed;
@@ -314,8 +390,8 @@ Sequence* GameObject::MoveWayInMapTwo(GameObject* monster)
     auto moveTo8 = MoveTo::create(time8, Vec2(760,437));
     float time9 = (Vec2(875, 437) - Vec2(760, 437)).getLength() / v;
     auto moveTo9 = MoveTo::create(time9, Vec2(875, 437));
-    float time10 = (Vec2(875, 325) - Vec2(875, 437)).getLength() / v;
-    auto moveTo10 = MoveTo::create(time10, Vec2(875, 325));
+    float time10 = (Vec2(875, 270) - Vec2(875, 437)).getLength() / v;
+    auto moveTo10 = MoveTo::create(time10, Vec2(875, 270));
     auto fadeOut = FadeOut::create(0.1f);
     //auto arrive = CallFunc::create([=]() {
     //    carrotLayer->decreaseHealth();
@@ -369,6 +445,7 @@ void  GameObject::hitMonster(Node*node, float num, float scale,char* filename)
     hit->runAction(Sequence::create(DelayTime::create(0.1f), RemoveSelf::create(), nullptr));
     if (monster->currentHealth <= 0)
     {
+        SimpleAudioEngine::getInstance()->playEffect("monsterdie.MP3", false, 1.0f, 1.0f, 1.0f);
         goldCoin += monster->coinValue;
         monster->unscheduleUpdate();
         monster->runAction(RemoveSelf::create());
@@ -386,8 +463,10 @@ void GameObject::hitObstacle(Node* node, float num, float scale, char* filename)
     hit->runAction(Sequence::create(DelayTime::create(0.5f), RemoveSelf::create(), nullptr));
     if (obstacle->currentHealth <= 0)
     {
+        SimpleAudioEngine::getInstance()->playEffect("obstacledie.MP3", false, 1.0f, 1.0f, 1.0f);
         goldCoin += obstacle->coinValue;
         obstacle->unscheduleUpdate();
+        removeObstacle(obstacle);
         obstacle->runAction(RemoveSelf::create());
     }
 
@@ -471,26 +550,26 @@ bool GameObject::onContactBegin(PhysicsContact& contact)
                     hitMonster(nodeB, FIREBULLET3, 1.5, "Fire_Hit.png");
             }
             //风扇
-            if (tagA == MONSTER && tagB == LEAF1 || tagA == LEAF1 && tagB == MONSTER)
+            if (tagA == MONSTER && tagB == LEAFBULLET1 || tagA == LEAFBULLET1 && tagB == MONSTER)
             {
                 if (tagA == MONSTER)
-                    hitMonster(nodeA, LEAF1, 0.5,"Leaf_Hit.png");
+                    hitMonster(nodeA, LEAFBULLET1, 0.5,"Leaf_Hit.png");
                 else
-                    hitMonster(nodeB, LEAF1, 0.5,"Leaf_Hit.png");
+                    hitMonster(nodeB, LEAFBULLET1, 0.5,"Leaf_Hit.png");
             }
-            if (tagA == MONSTER && tagB == LEAF2 || tagA == LEAF2 && tagB == MONSTER)
+            if (tagA == MONSTER && tagB == LEAFBULLET2 || tagA == LEAFBULLET2 && tagB == MONSTER)
             {
                 if (tagA == MONSTER)
-                    hitMonster(nodeA, LEAF2, 1, "Leaf_Hit.png");
+                    hitMonster(nodeA, LEAFBULLET2, 1, "Leaf_Hit.png");
                 else
-                    hitMonster(nodeB, LEAF2, 1, "Leaf_Hit.png");
+                    hitMonster(nodeB, LEAFBULLET2, 1, "Leaf_Hit.png");
             }
-            if (tagA == MONSTER && tagB == LEAF3 || tagA == LEAF3 && tagB == MONSTER)
+            if (tagA == MONSTER && tagB == LEAFBULLET3 || tagA == LEAFBULLET3 && tagB == MONSTER)
             {
                 if (tagA == MONSTER)
-                    hitMonster(nodeA, LEAF3, 1.5, "Leaf_Hit.png");
+                    hitMonster(nodeA, LEAFBULLET3, 1.5, "Leaf_Hit.png");
                 else
-                    hitMonster(nodeB, LEAF3, 1.5, "Leaf_Hit.png");
+                    hitMonster(nodeB, LEAFBULLET3, 1.5, "Leaf_Hit.png");
             }
 
             //子弹和障碍物
@@ -538,26 +617,26 @@ bool GameObject::onContactBegin(PhysicsContact& contact)
                     hitObstacle(nodeB, FIREBULLET3, 1.5, "Fire_Hit.png");
             }
             //风扇
-            if (tagA == OBSTACLE && tagB == LEAF1 || tagA == LEAF1 && tagB == OBSTACLE)
+            if (tagA == OBSTACLE && tagB == LEAFBULLET1 || tagA == LEAFBULLET1 && tagB == OBSTACLE)
             {
                 if (tagA == OBSTACLE)
-                    hitObstacle(nodeA, LEAF1, 0.5, "Leaf_Hit.png");
+                    hitObstacle(nodeA, LEAFBULLET1, 0.5, "Leaf_Hit.png");
                 else
-                    hitObstacle(nodeB, LEAF1, 0.5, "Leaf_Hit.png");
+                    hitObstacle(nodeB, LEAFBULLET1, 0.5, "Leaf_Hit.png");
             }
-            if (tagA == OBSTACLE && tagB == LEAF2 || tagA == LEAF2 && tagB == OBSTACLE)
+            if (tagA == OBSTACLE && tagB == LEAFBULLET2 || tagA == LEAFBULLET2 && tagB == OBSTACLE)
             {
                 if (tagA == OBSTACLE)
-                    hitObstacle(nodeA, LEAF2, 1, "Leaf_Hit.png");
+                    hitObstacle(nodeA, LEAFBULLET2, 1, "Leaf_Hit.png");
                 else
-                    hitObstacle(nodeB, LEAF2, 1, "Leaf_Hit.png");
+                    hitObstacle(nodeB, LEAFBULLET2, 1, "Leaf_Hit.png");
             }
-            if (tagA == OBSTACLE && tagB == LEAF3 || tagA == LEAF3 && tagB == OBSTACLE)
+            if (tagA == OBSTACLE && tagB == LEAFBULLET3 || tagA == LEAFBULLET3 && tagB == OBSTACLE)
             {
                 if (tagA == OBSTACLE)
-                    hitObstacle(nodeA, LEAF3, 1.5, "Leaf_Hit.png");
+                    hitObstacle(nodeA, LEAFBULLET3, 1.5, "Leaf_Hit.png");
                 else
-                    hitObstacle(nodeB, LEAF3, 1.5, "Leaf_Hit.png");
+                    hitObstacle(nodeB, LEAFBULLET3, 1.5, "Leaf_Hit.png");
             }
 
         }
@@ -635,4 +714,23 @@ std::vector<Obstacles*> GameObject::getObstacles()
 void GameObject::clear()
 {
     delete instance;
+}
+void GameObject::removeObstacle(GameObject* obstacle)
+{
+    auto it = std::find(obstacles.begin(), obstacles.end(), obstacle);
+    if (it != obstacles.end())
+    {
+        obstacles.erase(it);
+    }
+}
+
+void GameObject::setMonsterPhysicsBody()
+{
+    cocos2d::Size smallerSize(objectSprite->getContentSize().width * 0.1f, objectSprite->getContentSize().height * 0.1f);
+    auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
+    physicsBody->setDynamic(false);
+    physicsBody->setCategoryBitmask(0x01);    // 0001
+    physicsBody->setContactTestBitmask(0x04); // 0100
+    objectSprite->setTag(MONSTER);
+    objectSprite->setPhysicsBody(physicsBody);
 }
