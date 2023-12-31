@@ -177,11 +177,7 @@ void GameObject::addMonsterInMapOne()
                                                                             MonsterManager::getInstance()->monsterNum = 0;
                                                                             this->unschedule("GameOver");
                                                                             CCLOG("gameover");
-                                                                            if (mapChoose == 1)
-                                                                                gameWinOne();
-                                                                            else
-                                                                                gameWinTwo();
-
+                                                                            gameWinOne();
                                                                         }}, 0.5f, "GameOver"); }), nullptr);
                                                 this->runAction(sequenceMonster3);
                                             }}, 0.5f, "sequenceMonster3"); }), nullptr);
@@ -277,11 +273,7 @@ void GameObject::addMonsterInMapTwo()
                                                                                                                     MonsterManager::getInstance()->monsterNum = 0;
                                                                                                                     this->unschedule("GameOver");
                                                                                                                     CCLOG("gameover");
-                                                                                                                    if (mapChoose == 1)
-                                                                                                                        gameWinOne();
-                                                                                                                    else
-                                                                                                                        gameWinTwo();
-
+                                                                                                                    gameWinTwo();
                                                                                                                 }}, 0.5f, "GameOver"); }), nullptr);
                                                                                 this->runAction(sequenceMonster4);
                                                                             }}, 0.5f, "sequenceMonster4"); }), nullptr);
