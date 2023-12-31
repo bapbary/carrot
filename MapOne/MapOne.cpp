@@ -1,7 +1,6 @@
 #include"MapOne.h"
 #include"TowerManager.h"
 #include"MonsterManager.h"
-#include"FireTower.h"
 #include"LeafTower.h"
 #include"LightingTower.h"
 #include<string>
@@ -31,9 +30,9 @@ bool mapOne::init()//第一张地图的初始化
     visibleSize = Director::getInstance()->getVisibleSize();//视图的可见大小
     origin = Director::getInstance()->getVisibleOrigin();//视图初始化时的可见大小
     //炮塔攻击更新调度器启用，三种不同炮塔分开调用
-    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::tower_targetupdate1), 1.5, CC_REPEAT_FOREVER, 0);
-    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::tower_targetupdate2), 0.2, CC_REPEAT_FOREVER, 0);
-    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::tower_targetupdate3), 0.8, CC_REPEAT_FOREVER, 0);
+    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::towerTargetUpdate1), 1.5, CC_REPEAT_FOREVER, 0);
+    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::towerTargetUpdate2), 0.2, CC_REPEAT_FOREVER, 0);
+    schedule(CC_SCHEDULE_SELECTOR(BasicDefensiveTower::towerTargetUpdate3), 0.8, CC_REPEAT_FOREVER, 0);
 
     //地图背景图设置
     auto background = Sprite::create("mapBackground.png");
