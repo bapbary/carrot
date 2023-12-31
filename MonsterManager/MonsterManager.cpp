@@ -10,6 +10,7 @@ std::vector<GameObject*>& MonsterManager::getMonsters() {
 }
 void MonsterManager::addMonster(GameObject* monster)
 {
+    monsterNum++;
     monsters.push_back(monster);
 }
 void MonsterManager::removeMonster(GameObject*&monster)
@@ -40,4 +41,12 @@ void MonsterManager::updateMonsterPositions() {
             CCLOG("guQ");
         }
     }
+}
+
+bool MonsterManager::IsEmpty()
+{
+    if (monsters.size() == 0)
+        return true;
+    else
+        return false;
 }
