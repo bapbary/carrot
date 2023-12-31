@@ -48,3 +48,4 @@ bool Obstacles::init(Vec2 position, float scale, char* filename, float health,fl
     this->scheduleUpdate();
     return true;
 }
+

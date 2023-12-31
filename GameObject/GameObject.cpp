@@ -6,13 +6,13 @@
 #include"MonsterThree.h"
 #include"Obstacles.h"
 #include "mapChoose.h"
-#include "D:\carrot\cocos2d\cocos\editor-support\cocostudio\SimpleAudioEngine.h"
+#include "SimpleAudioEngine.h"
 using namespace CocosDenshion;
 USING_NS_CC;
-GameObject* GameObject::create(int mapCatalog)
+GameObject* GameObject::create(int mapCatalog,cocos2d::Label* _goldCoinDisplay)
 {
     GameObject* gameobject = new GameObject();
-    if (gameobject && gameobject->init(mapCatalog))
+    if (gameobject && gameobject->init(mapCatalog,_goldCoinDisplay))
     {
         gameobject->autorelease();
         return gameobject;
@@ -25,7 +25,7 @@ GameObject* GameObject::create(int mapCatalog)
 }
 int MonsterManager::round = 0;
 
-bool GameObject::init(int mapCatalog)
+bool GameObject::init(int mapCatalog,cocos2d::Label* _goldCoinDisplay)
 {
     if (!Node::init())
     {
@@ -33,6 +33,7 @@ bool GameObject::init(int mapCatalog)
     }
     instance = this;
     mapChoose = mapCatalog;
+    goldCoinDisplay = _goldCoinDisplay;
     //鼠标监听，最后要删
     auto listener = EventListenerMouse::create();
     listener->onMouseMove = CC_CALLBACK_1(GameObject::onMouseMove, this);
@@ -114,9 +115,9 @@ void GameObject::addMonsterInMapOne()
             CallFunc::create([=](){
             setLabel("The First Wave",origin,visibleSize);
             //怪物加入
-            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 4, 0);
+            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2.5, 4, 0);
         }), 
-        DelayTime::create(10.0f),
+        DelayTime::create(12.5f),
         CallFunc::create([this]()
             {
                 this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 5, 1, 0);
@@ -139,9 +140,9 @@ void GameObject::addMonsterInMapOne()
                             // 标签
                             setLabel("The Second Wave",origin,visibleSize);
                             // 怪物 5一+10二+5三
-                            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 4, 0);
+                            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2.5, 4, 0);
                             }), 
-                            DelayTime::create(10.0f), 
+                            DelayTime::create(12.5f), 
                             CallFunc::create([this]() 
                                 {
                                 this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 5, 3, 0);
@@ -163,8 +164,8 @@ void GameObject::addMonsterInMapOne()
                                                     this->unschedule("sequenceMonster3");
                                                     setLabel("The Third Wave", origin, visibleSize);
                                                     // 怪物 10一+10二+10三
-                                                    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 9, 0);
-                                                    }), DelayTime::create(10.0f), CallFunc::create([this]() {
+                                                    this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2.5, 9, 0);
+                                                    }), DelayTime::create(25.0f), CallFunc::create([this]() {
                                                         this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 3, 9, 0);
                                                         }), DelayTime::create(20.0f), CallFunc::create([this]() {
                                                             this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 3, 4, 0); }),
@@ -196,9 +197,9 @@ void GameObject::addMonsterInMapTwo()
                 CallFunc::create([=]() {
             setLabel("The First Wave", origin, visibleSize);
             //怪物加入
-            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 4, 0);
+            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2.5, 4, 0);
                     }),
-        DelayTime::create(10.0f),
+        DelayTime::create(12.5f),
         CallFunc::create([this]()
             {
                 this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 5, 4, 0);
@@ -239,8 +240,8 @@ void GameObject::addMonsterInMapTwo()
                                                     CallFunc::create([=]() {
                                                         this->unschedule("sequenceMonster3");
                                                         setLabel("The Third Wave", origin, visibleSize);
-                                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 4, 0);
-                                                        }), DelayTime::create(10.0f),
+                                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2.5, 4, 0);
+                                                        }), DelayTime::create(12.5f),
                                                             CallFunc::create([this]() {
                                                             this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 3, 4, 0);
                                                             }), DelayTime::create(15.0f), CallFunc::create([this]() {
@@ -256,8 +257,8 @@ void GameObject::addMonsterInMapTwo()
                                                                                     CallFunc::create([=]() {
                                                                                         this->unschedule("sequenceMonster4");
                                                                                         setLabel("The Third Wave", origin, visibleSize);
-                                                                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 4, 0);
-                                                                                        }), DelayTime::create(10.0f),
+                                                                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2.5, 4, 0);
+                                                                                        }), DelayTime::create(12.5f),
                                                                                             CallFunc::create([this]() {
                                                                                             this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2, 9, 0);
                                                                                                 }), DelayTime::create(20.0f), CallFunc::create([this]() {
@@ -447,6 +448,7 @@ void  GameObject::hitMonster(Node*node, float num, float scale,char* filename)
     {
         SimpleAudioEngine::getInstance()->playEffect("monsterdie.MP3", false, 1.0f, 1.0f, 1.0f);
         goldCoin += monster->coinValue;
+        goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
         monster->unscheduleUpdate();
         monster->runAction(RemoveSelf::create());
         MonsterManager::getInstance()->removeMonster(monster);
@@ -465,6 +467,7 @@ void GameObject::hitObstacle(Node* node, float num, float scale, char* filename)
     {
         SimpleAudioEngine::getInstance()->playEffect("obstacledie.MP3", false, 1.0f, 1.0f, 1.0f);
         goldCoin += obstacle->coinValue;
+        goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
         obstacle->unscheduleUpdate();
         removeObstacle(obstacle);
         obstacle->runAction(RemoveSelf::create());
@@ -638,36 +641,34 @@ bool GameObject::onContactBegin(PhysicsContact& contact)
                 else
                     hitObstacle(nodeB, LEAFBULLET3, 1.5, "Leaf_Hit.png");
             }
-
         }
     }
     return true;
 }
+
 void GameObject::addObstaclesInMapOne()
 {
     obstacles.clear();
-    Obstacles* obstacle1 = Obstacles::create(Vec2(560, 434), 2.0, "obstacle/obstacle1.png", 100.0f, 200.0f);
+    Obstacles* obstacle1 = Obstacles::create(Vec2(538, 434), 2.0, "obstacle/obstacle1.png", 100.0f, 200.0f);
+    obstacle1->setScale(1.05);
     this->addChild(obstacle1, 2);
     obstacles.push_back(obstacle1);
-    Obstacles* obstacle2 = Obstacles::create(Vec2(687, 600), 1.5, "obstacle/obstacle2.png", 100.0f, 200.0f);
+    Obstacles* obstacle2 = Obstacles::create(Vec2(637, 600), 1.5, "obstacle/obstacle2.png", 100.0f, 200.0f);
+    obstacle2->setScale(1.05);
     this->addChild(obstacle2, 2);
     obstacles.push_back(obstacle2);
-    Obstacles* obstacle3 = Obstacles::create(Vec2(739, 434), 2.0, "obstacle/obstacle3.png", 100.0f, 200.0f);
+    Obstacles* obstacle3 = Obstacles::create(Vec2(714, 434), 2.0, "obstacle/obstacle3.png", 100.0f, 200.0f);
     this->addChild(obstacle3, 2);
     obstacles.push_back(obstacle3);
-    Obstacles* obstacle4 = Obstacles::create(Vec2(228, 434), 2.0, "obstacle/obstacle4.png", 100.0f, 200.0f);
+    Obstacles* obstacle4 = Obstacles::create(Vec2(233, 419), 2.0, "obstacle/obstacle4.png", 100.0f, 200.0f);
+    obstacle4->setScale(1.05);
     this->addChild(obstacle4, 2);
     obstacles.push_back(obstacle4);
-    Obstacles* obstacle5 = Obstacles::create(Vec2(525, 69), 2.5, "obstacle/obstacle5.png", 100.0f, 200.0f);
+    Obstacles* obstacle5 = Obstacles::create(Vec2(530, 69), 2.5, "obstacle/obstacle5.png", 100.0f, 200.0f);
     this->addChild(obstacle5, 2);
     obstacles.push_back(obstacle5);
-    Obstacles* obstacle6 = Obstacles::create(Vec2(345, 245), 3.0, "obstacle/obstacle6.png", 100.0f, 200.0f);
-    this->addChild(obstacle6, 2);
-    obstacles.push_back(obstacle6);
-    Obstacles* obstacle7 = Obstacles::create(Vec2(840, 236), 3.0, "obstacle/obstacle7.png", 100.0f, 200.0f);
-    this->addChild(obstacle7, 2);
-    obstacles.push_back(obstacle7);
 }
+
 void GameObject::addObstaclesInMapTwo()
 {
     obstacles.clear();

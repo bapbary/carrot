@@ -1,5 +1,5 @@
 #include "Carrot.h"
-#include "D:\carrot\cocos2d\cocos\editor-support\cocostudio\SimpleAudioEngine.h"
+#include "SimpleAudioEngine.h"
 using namespace CocosDenshion;
 USING_NS_CC;
 Carrot* Carrot::create(int mapCatalog)

@@ -10,4 +10,3 @@ public:
 };
 
 #endif // __OBSTACALES_H__
-
