@@ -1,4 +1,6 @@
 #include "LightingTower.h"
+#include "SimpleAudioEngine.h"
+
 //构造函数：炮塔参数的初始化并显示
 LightingTower::LightingTower(const cocos2d::Vec2& touchlocation) {
     tower = cocos2d::Sprite::create("LightingTower_small.png");
@@ -7,7 +9,7 @@ LightingTower::LightingTower(const cocos2d::Vec2& touchlocation) {
     tower_level = 1;
     //初始化炮塔的其他数值
     tower_attack_number = 1;
-    tower_attack_range = 300;
+    tower_attack_range = 130;
     tower_attack_power = 50;
     tower_attack_speed = 0.1;
     tower_sustained_attack_time;
@@ -76,6 +78,11 @@ void LightingTower::tower_bullet_shoot(cocos2d::Sprite* bullet, const cocos2d::V
     float angleInDegrees = CC_RADIANS_TO_DEGREES(angle);
     //旋转子弹
     bullet->setRotation(-angleInDegrees);
+
+    //播放音效
+    auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
+    audio->playEffect("LeafTowerAttackSound.MP3", false, 1.0f, 1.0f, 1.0f);
+
     //【让子弹飞】
     //建立飞行动作
     auto moveTo = cocos2d::MoveTo::create(0.4, targetlocation);
@@ -99,7 +106,7 @@ void LightingTower::tower_bullet_shoot(cocos2d::Sprite* bullet, const cocos2d::V
 void LightingTower::towerUpgrade() {
     if (tower_level == 1) {
         tower_level++;
-        tower_attack_range = 350;
+        tower_attack_range = 150;
         tower_attack_power = 70;
         tower_attack_speed = 0.1;
 
@@ -108,7 +115,7 @@ void LightingTower::towerUpgrade() {
     }
     else if (tower_level == 2) {
         tower_level++;
-        tower_attack_range = 400;
+        tower_attack_range = 170;
         tower_attack_power = 100;
         tower_attack_speed = 0.1;
 

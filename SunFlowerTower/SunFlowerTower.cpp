@@ -1,5 +1,5 @@
-#include"TowerManager.h"
 #include "SunFLowerTower.h"
+#include "SimpleAudioEngine.h"
 
 //构造函数：炮塔参数的初始化并显示
 SunFlowerTower::SunFlowerTower(const cocos2d::Vec2& touchlocation) {
@@ -9,7 +9,7 @@ SunFlowerTower::SunFlowerTower(const cocos2d::Vec2& touchlocation) {
     tower_level = 1;
     //初始化炮塔的其他数值
     tower_attack_number = 1;
-    tower_attack_range = 300;
+    tower_attack_range = 120;
     tower_attack_power = 50;
     tower_attack_speed = 1;
     tower_sustained_attack_time;
@@ -67,6 +67,10 @@ void SunFlowerTower::tower_attack(const cocos2d::Vec2& targetlocation) {
 
 //炮塔发射粒子并产生飞行特效
 void SunFlowerTower::tower_bullet_shoot(cocos2d::Sprite* bullet, const cocos2d::Vec2& targetlocation) {
+    //播放音效
+    auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
+    audio->playEffect("LeafTowerAttackSound.MP3", false, 1.0f, 1.0f, 1.0f);
+
     //缩放因子
     float targetScaleFactor = 1.5f;   
     //创建放大动作
@@ -89,7 +93,7 @@ void SunFlowerTower::tower_bullet_shoot(cocos2d::Sprite* bullet, const cocos2d::
 void SunFlowerTower::towerUpgrade() {
     if (tower_level == 1) {
         tower_level++;
-        tower_attack_range = 350;
+        tower_attack_range = 140;
         tower_attack_power = 70;
         tower_attack_speed = 0.1;
 
@@ -98,7 +102,7 @@ void SunFlowerTower::towerUpgrade() {
     }
     else if (tower_level == 2) {
         tower_level++;
-        tower_attack_range = 400;
+        tower_attack_range = 160;
         tower_attack_power = 100;
         tower_attack_speed = 0.1;
 

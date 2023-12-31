@@ -60,8 +60,8 @@ void BasicDefensiveTower::tower_targetupdate1(float dt){
                     currentTower->currenttarget = currentTower->findTarget();
                 }
                 if (currentTower->currenttarget != nullptr) {
-                    //目标选择完成之后进行攻击操作
-                    currentTower->tower_spin(currentTower->currenttarget->objectPosition);
+                    //目标选择完成之后进行攻击操作（太阳塔不旋转！）
+                    //currentTower->tower_spin(currentTower->currenttarget->objectPosition);
                     currentTower->tower_attack(currentTower->currenttarget->objectPosition);
                 }
             }
@@ -116,8 +116,8 @@ void BasicDefensiveTower::tower_targetupdate3(float dt) {
                     currentTower->currenttarget = currentTower->findTarget();
                 }
                 if (currentTower->currenttarget != nullptr) {
-                    //目标选择完成之后进行攻击操作
-                    currentTower->tower_spin(currentTower->currenttarget->objectPosition);
+                    //目标选择完成之后进行攻击操作（其实你也不该转的）
+                    //currentTower->tower_spin(currentTower->currenttarget->objectPosition);
                     currentTower->tower_attack(currentTower->currenttarget->objectPosition);
                 }
             }
