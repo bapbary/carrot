@@ -1,4 +1,6 @@
 #include "Carrot.h"
+#include "D:\carrot\cocos2d\cocos\editor-support\cocostudio\SimpleAudioEngine.h"
+using namespace CocosDenshion;
 USING_NS_CC;
 Carrot* Carrot::create(int mapCatalog)
 {
@@ -43,17 +45,16 @@ bool Carrot::init(int mapCatalog)
     physicsBody->setContactTestBitmask(0x01); // 0001
     spriteCarrot->setTag(CARROT);
     spriteCarrot->setPhysicsBody(physicsBody);
-
     //帧速率
     auto animationCarrot = Animation::createWithSpriteFrames(framesCarrot, 1.0f / 3);
     spriteCarrot->runAction(RepeatForever::create(Animate::create(animationCarrot)));
-
     carrotLayer = this;
     return true;
 }
 //萝卜减少血量
 void Carrot::decreaseHealth()
 {
+    SimpleAudioEngine::getInstance()->playEffect("carrotbite.MP3", false, 1.0f, 1.0f, 1.0f);
     carrotLayer->currentHealth -= 1;
     if (carrotLayer->currentHealth == 9.0f)
     {
@@ -122,7 +123,10 @@ void Carrot::decreaseHealth()
         spriteCarrot->setSpriteFrame("carrot3/carrot1.png");
     }
     else
+    {
+        SimpleAudioEngine::getInstance()->playEffect("fail.MP3", false, 1.0f, 1.0f, 1.0f);
         CCLOG("gameover");
+    }
 }
 
 Carrot::Carrot() : spriteNum(nullptr)
