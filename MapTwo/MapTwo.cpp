@@ -46,6 +46,10 @@ bool mapTwo::init()//第一张地图的初始化
     auto monsterEnter = Sprite::create("monsterEnter.png");
     monsterEnter->setPosition(Vec2(995, 525));
     this->addChild(monsterEnter, 2);
+    //金币放置
+    goldCoinDisplay = cocos2d::Label::createWithTTF(std::to_string(goldCoin), "fonts/Marker Felt.ttf", 24);
+    goldCoinDisplay->setPosition(Vec2(245, 690));
+    this->addChild(goldCoinDisplay, 2);
     //怪物加入
     GameObject* monster = GameObject::create(2,goldCoinDisplay);
     this->addChild(monster, 2);
@@ -59,10 +63,6 @@ bool mapTwo::init()//第一张地图的初始化
         "suspendItem.png",
         CC_CALLBACK_1(mapChoose::suspend, this));
     suspend->setPosition(Vec2(325, 325));
-    //金币放置
-    goldCoinDisplay = cocos2d::Label::createWithTTF(std::to_string(goldCoin), "fonts/Marker Felt.ttf", 24);
-    goldCoinDisplay->setPosition(Vec2(245, 690));
-    this->addChild(goldCoinDisplay, 2);
 
     auto menu = Menu::create(suspend, NULL);//创建菜单，将按键加入
     this->addChild(menu, 2);
