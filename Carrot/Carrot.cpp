@@ -135,7 +135,7 @@ void Carrot::decreaseHealth()
 
 Carrot::Carrot() : spriteNum(nullptr)
 {
-    currentHealth = 10.0f;
+    currentHealth = 10;
     //SpriteFrameCache::getInstance()->addSpriteFramesWithFile("item.plist");
     //auto framesCarrot = getAnimation("carrot/%04d.png", 3);
     //spriteCarrot = Sprite::createWithSpriteFrame(framesCarrot.front());

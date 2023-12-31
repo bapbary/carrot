@@ -63,10 +63,10 @@ public:
     //object位置
     cocos2d::Vec2 objectPosition;
     //生命值
-    float currentHealth;//当前
-    float initialHealth;//原始
+    int currentHealth;//当前
+    int initialHealth;//原始
     //金币值
-    float coinValue;
+    int coinValue;
     //血条
     cocos2d::ProgressTimer* healthBar;
     cocos2d::Sprite* healthBarBG;
@@ -75,7 +75,7 @@ public:
     cocos2d::Vec2 getCurrentPosition();
     //更新位置函数
     void update(float dt);
-    float speed;
+    int speed;
     MonsterManager* monstermanager;
     void hitMonster(cocos2d::Node* node, int num, float scale, char* filename);
     void hitObstacle(cocos2d::Node* node, int num, float scale, char* filename);
