@@ -13,8 +13,11 @@ public:
     const std::vector<cocos2d::Vec2>& getMonsterPositions();
     void updateMonsterPositions(); 
     void clearMonster();
-private:
+    bool IsEmpty();
+    static int  round;
     std::vector<GameObject*> monsters;
+    int monsterNum;
+private:
     std::vector<cocos2d::Vec2> monsterPositions;
 };
 
