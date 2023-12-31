@@ -528,26 +528,26 @@ bool GameObject::onContactBegin(PhysicsContact& contact)
                     hitMonster(nodeB, LIGHTINGBULLET3, 1.5, "Lighting_Hit.png");
             }
             //ª∆ø
-            if (tagA == MONSTER && tagB == FIREBULLET1 || tagA == FIREBULLET1 && tagB == MONSTER)
+            if (tagA == MONSTER && tagB == SUNFLOWERBULLET1 || tagA == SUNFLOWERBULLET1 && tagB == MONSTER)
             {
                 if (tagA == MONSTER)
-                    hitMonster(nodeA, FIREBULLET1, 0.5, "Fire_Hit.png");
+                    hitMonster(nodeA, SUNFLOWERBULLET1, 0.5, "SunFlower_Hit.png");
                 else
-                    hitMonster(nodeB, FIREBULLET1, 0.5, "Fire_Hit.png");
+                    hitMonster(nodeB, SUNFLOWERBULLET1, 0.5, "SunFlower_Hit.png");
             }
-            if (tagA == MONSTER && tagB == FIREBULLET2 || tagA == FIREBULLET2 && tagB == MONSTER)
+            if (tagA == MONSTER && tagB == SUNFLOWERBULLET2 || tagA == SUNFLOWERBULLET2 && tagB == MONSTER)
             {
                 if (tagA == MONSTER)
-                    hitMonster(nodeA, FIREBULLET2, 1, "Fire_Hit.png");
+                    hitMonster(nodeA, SUNFLOWERBULLET2, 1, "SunFlower_Hit.png");
                 else
-                    hitMonster(nodeB, FIREBULLET2, 1, "Fire_Hit.png");
+                    hitMonster(nodeB, SUNFLOWERBULLET2, 1, "SunFlower_Hit.png");
             }
-            if (tagA == MONSTER && tagB == FIREBULLET3 || tagA == FIREBULLET3 && tagB == MONSTER)
+            if (tagA == MONSTER && tagB == SUNFLOWERBULLET3 || tagA == SUNFLOWERBULLET3 && tagB == MONSTER)
             {
                 if (tagA == MONSTER)
-                    hitMonster(nodeA, FIREBULLET3, 1.5, "Fire_Hit.png");
+                    hitMonster(nodeA, SUNFLOWERBULLET3, 1.5, "SunFlower_Hit.png");
                 else
-                    hitMonster(nodeB, FIREBULLET3, 1.5, "Fire_Hit.png");
+                    hitMonster(nodeB, SUNFLOWERBULLET3, 1.5, "SunFlower_Hit.png");
             }
             //∑Á…»
             if (tagA == MONSTER && tagB == LEAFBULLET1 || tagA == LEAFBULLET1 && tagB == MONSTER)
@@ -595,26 +595,26 @@ bool GameObject::onContactBegin(PhysicsContact& contact)
                     hitObstacle(nodeB, LIGHTINGBULLET3, 1.5, "Lighting_Hit.png");
             }
             //ª∆ø
-            if (tagA == OBSTACLE && tagB == FIREBULLET1 || tagA == FIREBULLET1 && tagB == OBSTACLE)
+            if (tagA == OBSTACLE && tagB == SUNFLOWERBULLET1 || tagA == SUNFLOWERBULLET1 && tagB == OBSTACLE)
             {
                 if (tagA == OBSTACLE)
-                    hitObstacle(nodeA, FIREBULLET1, 0.5, "Fire_Hit.png");
+                    hitObstacle(nodeA, SUNFLOWERBULLET1, 0.5, "SunFlower_Hit.png");
                 else
-                    hitObstacle(nodeB, FIREBULLET1, 0.5, "Fire_Hit.png");
+                    hitObstacle(nodeB, SUNFLOWERBULLET1, 0.5, "SunFlower_Hit.png");
             }
-            if (tagA == OBSTACLE && tagB == FIREBULLET2 || tagA == FIREBULLET2 && tagB == OBSTACLE)
+            if (tagA == OBSTACLE && tagB == SUNFLOWERBULLET2 || tagA == SUNFLOWERBULLET2 && tagB == OBSTACLE)
             {
                 if (tagA == OBSTACLE)
-                    hitObstacle(nodeA, FIREBULLET2, 1, "Fire_Hit.png");
+                    hitObstacle(nodeA, SUNFLOWERBULLET2, 1, "SunFlower_Hit.png");
                 else
-                    hitObstacle(nodeB, FIREBULLET2, 1, "Fire_Hit.png");
+                    hitObstacle(nodeB, SUNFLOWERBULLET2, 1, "SunFlower_Hit.png");
             }
-            if (tagA == OBSTACLE && tagB == FIREBULLET3 || tagA == FIREBULLET3 && tagB == OBSTACLE)
+            if (tagA == OBSTACLE && tagB == SUNFLOWERBULLET3 || tagA == SUNFLOWERBULLET3 && tagB == OBSTACLE)
             {
                 if (tagA == OBSTACLE)
-                    hitObstacle(nodeA, FIREBULLET3, 1.5, "Fire_Hit.png");
+                    hitObstacle(nodeA, SUNFLOWERBULLET3, 1.5, "SunFlower_Hit.png");
                 else
-                    hitObstacle(nodeB, FIREBULLET3, 1.5, "Fire_Hit.png");
+                    hitObstacle(nodeB, SUNFLOWERBULLET3, 1.5, "SunFlower_Hit.png");
             }
             //∑Á…»
             if (tagA == OBSTACLE && tagB == LEAFBULLET1 || tagA == LEAFBULLET1 && tagB == OBSTACLE)

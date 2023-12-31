@@ -11,12 +11,12 @@ const cocos2d::Vec2 Origin[2] = { cocos2d::Vec2(383, 532),cocos2d::Vec2(994,531)
 #define LIGHTINGBULLET1 3
 #define LIGHTINGBULLET2 6
 #define LIGHTINGBULLET3 9
-#define FIREBULLET1 41
-#define FIREBULLET2 52
-#define FIREBULLET3 63
-#define LEAFBULLET1 20
-#define LEAFBULLET2 25
-#define LEAFBULLET3 45
+#define SUNFLOWERBULLET1 4
+#define SUNFLOWERBULLET2 6
+#define SUNFLOWERBULLET3 8
+#define LEAFBULLET1 3
+#define LEAFBULLET2 5
+#define LEAFBULLET3 7
 #define OBSTACLE 300
 const float MonsterOneHealth = 100.f;
 const float MonsterTwoHealth = 200.f;
@@ -24,7 +24,7 @@ const float MonsterThreeHealth = 500.0f;
 const float MonsterOneValue = 100.0f;
 const float MonsterTwoValue = 200.0f;
 const float MonsterThreeValue = 500.0f;
-const float MonsterOneSpeed = 500.0f;
+const float MonsterOneSpeed = 50.0f;
 const float MonsterTwoSpeed = 80.0f;
 const float MonsterThreeSpeed = 55.f;
 class Carrot;
