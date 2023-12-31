@@ -11,7 +11,7 @@ public:
     static TowerManager* getInstance();
 
     //确定所选择炮塔对象（返回炮塔名字）
-    std::string towerSelected(const cocos2d::Vec2& towerlocation);
+    std::string towerSelected(const cocos2d::Vec2& towerLocation);
 
     //从管理器中添加炮塔
     void addTower(const std::string& towerName, BasicDefensiveTower* tower);
@@ -29,10 +29,10 @@ public:
     std::vector<BasicDefensiveTower*> towers;
 
     //确定优先攻击目标
-    void SetFirstTarget(GameObject* Target);
+    void setFirstTarget(GameObject* target);
 
     //取消优先攻击目标
-    void CancelFirstTarget();
+    void cancelFirstTarget();
 
     //获取优先攻击目标指针
     GameObject *getFirstTarget();
@@ -42,7 +42,7 @@ private:
     static TowerManager* instance;
 
     //所有炮塔的优先攻击对象指针
-    GameObject* FirstTarget = nullptr;
+    GameObject* firstTarget = nullptr;
 };
 
 #endif // TOWERMANAGER_H
