@@ -584,7 +584,7 @@
                 <key>aliases</key>
                 <array/>
                 <key>anchor</key>
-                <string>{0.5,0.5}</string>
+                <string>{0.509091,0.5}</string>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
@@ -676,7 +676,7 @@
                 <key>aliases</key>
                 <array/>
                 <key>anchor</key>
-                <string>{0.5,0.5}</string>
+                <string>{0.428571,0.490909}</string>
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
@@ -754,7 +754,7 @@
             <key>size</key>
             <string>{122,136}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:bc50e8aecf5cdd1de3abccab316e1c4c:70103e3b57aad6110d12df4bc4a8503b:70e3e61986ddcca6f02c0883f93c83fd$</string>
+            <string>$TexturePacker:SmartUpdate:d8be585e3a5ca73d21890dba51fcc9c4:70103e3b57aad6110d12df4bc4a8503b:70e3e61986ddcca6f02c0883f93c83fd$</string>
             <key>textureFileName</key>
             <string>item.png</string>
         </dict>
