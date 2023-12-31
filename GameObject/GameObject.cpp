@@ -434,7 +434,7 @@ void GameObject::updateHealthBar(ProgressTimer* healthBar, int initialHealthValu
         healthBarBG->setVisible(true);
         healthBar->setVisible(true);
     }
-    float healthPercentage = (currentHealth / initialHealthValue) * 100.0f;
+    float healthPercentage = (static_cast<float>(currentHealth) / initialHealthValue) * 100.0f;
     healthBar->setPercentage(healthPercentage);
 }
 void  GameObject::hitMonster(Node*node, int num, float scale,char* filename)
