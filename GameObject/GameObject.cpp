@@ -176,6 +176,12 @@ void GameObject::addMonsterInMapOne()
                                                                         {
                                                                             MonsterManager::getInstance()->monsterNum = 0;
                                                                             this->unschedule("GameOver");
+                                                                            CCLOG("gameover");
+                                                                            if (mapChoose == 1)
+                                                                                gameWinOne();
+                                                                            else
+                                                                                gameWinTwo();
+
                                                                         }}, 0.5f, "GameOver"); }), nullptr);
                                                 this->runAction(sequenceMonster3);
                                             }}, 0.5f, "sequenceMonster3"); }), nullptr);
@@ -270,6 +276,12 @@ void GameObject::addMonsterInMapTwo()
                                                                                                                 {
                                                                                                                     MonsterManager::getInstance()->monsterNum = 0;
                                                                                                                     this->unschedule("GameOver");
+                                                                                                                    CCLOG("gameover");
+                                                                                                                    if (mapChoose == 1)
+                                                                                                                        gameWinOne();
+                                                                                                                    else
+                                                                                                                        gameWinTwo();
+
                                                                                                                 }}, 0.5f, "GameOver"); }), nullptr);
                                                                                 this->runAction(sequenceMonster4);
                                                                             }}, 0.5f, "sequenceMonster4"); }), nullptr);
@@ -346,7 +358,7 @@ Vector<SpriteFrame*> GameObject::getAnimation(const char* format, int count)
 //第一个地图的路径
 Sequence* GameObject::MoveWayInMapOne(GameObject* monster)
 {
-    float v = monster->speed;
+    int v = monster->speed;
     auto fadeIn = FadeIn::create(0.1f);
     float time1 = (Vec2(885, 532) - monster->objectPosition).getLength() / v;
     auto moveTo1 = MoveTo::create(time1, Vec2(885, 532));
@@ -370,7 +382,7 @@ Sequence* GameObject::MoveWayInMapOne(GameObject* monster)
 //第二个地图路径
 Sequence* GameObject::MoveWayInMapTwo(GameObject* monster)
 {
-    float v = monster->speed;
+    int v = monster->speed;
     auto fadeIn = FadeIn::create(0.1f);
     float time1 = (Vec2(116,531) - monster->objectPosition).getLength() / v;
     auto moveTo1 = MoveTo::create(time1, Vec2(116, 531));
@@ -423,7 +435,7 @@ void GameObject::onMouseMove(Event* event)
     }
 }
 //生命值
-void GameObject::updateHealthBar(ProgressTimer* healthBar, float initialHealthValue, float currentHealth)
+void GameObject::updateHealthBar(ProgressTimer* healthBar, int initialHealthValue, int currentHealth)
 {
     if (currentHealth < initialHealthValue)
     {
@@ -433,11 +445,11 @@ void GameObject::updateHealthBar(ProgressTimer* healthBar, float initialHealthVa
     float healthPercentage = (currentHealth / initialHealthValue) * 100.0f;
     healthBar->setPercentage(healthPercentage);
 }
-void  GameObject::hitMonster(Node*node, float num, float scale,char* filename)
+void  GameObject::hitMonster(Node*node, int num, float scale,char* filename)
 {
     Sprite* sprite = dynamic_cast<Sprite*>(node);
     GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
-    monster->currentHealth -= float(num);
+    monster->currentHealth -= num;
     auto hit = Sprite::create(filename);
     //击打特效
     hit->setScale(scale);
@@ -454,11 +466,11 @@ void  GameObject::hitMonster(Node*node, float num, float scale,char* filename)
         MonsterManager::getInstance()->removeMonster(monster);
     }
 }
-void GameObject::hitObstacle(Node* node, float num, float scale, char* filename)
+void GameObject::hitObstacle(Node* node, int num, float scale, char* filename)
 {
     Sprite* sprite = dynamic_cast<Sprite*>(node);
     GameObject* obstacle = dynamic_cast<GameObject*>(sprite->getParent());
-    obstacle->currentHealth -= float(num);
+    obstacle->currentHealth -= num;
     auto hit = Sprite::create(filename);
     sprite->addChild(hit, 2);
     hit->setPosition(Vec2(sprite->getContentSize().width / 2, sprite->getContentSize().height / 2));
@@ -472,7 +484,6 @@ void GameObject::hitObstacle(Node* node, float num, float scale, char* filename)
         removeObstacle(obstacle);
         obstacle->runAction(RemoveSelf::create());
     }
-
 }
 //接触
 bool GameObject::onContactBegin(PhysicsContact& contact)
@@ -669,6 +680,34 @@ void GameObject::addObstaclesInMapOne()
     obstacles.push_back(obstacle5);
 }
 
+//void GameObject::addObstaclesInMapTwo()
+//{
+//    obstacles.clear();
+//    Obstacles* obstacle1 = Obstacles::create(Vec2(648, 424), 2.0, "obstacle/1.png", 100.0f, 200.0f);
+//    this->addChild(obstacle1, 2);
+//    obstacles.push_back(obstacle1);
+//    Obstacles* obstacle2 = Obstacles::create(Vec2(811, 617), 1.5, "obstacle/2.png", 100.0f, 200.0f);
+//    this->addChild(obstacle2, 2);
+//    obstacles.push_back(obstacle2);
+//    Obstacles* obstacle3 = Obstacles::create(Vec2(215, 433), 2.0, "obstacle/3.png", 100.0f, 200.0f);
+//    this->addChild(obstacle3, 2);
+//    obstacles.push_back(obstacle3);
+//    Obstacles* obstacle4 = Obstacles::create(Vec2(592, 333), 2.0, "obstacle/4.png", 100.0f, 200.0f);
+//    this->addChild(obstacle4, 2);
+//    obstacles.push_back(obstacle4);
+//    Obstacles* obstacle5 = Obstacles::create(Vec2(872, 151), 2.5, "obstacle/5.png", 100.0f, 200.0f);
+//    this->addChild(obstacle5, 2);
+//    obstacles.push_back(obstacle5);
+//    Obstacles* obstacle6 = Obstacles::create(Vec2(142, 613), 3.0, "obstacle/6.png", 100.0f, 200.0f);
+//    this->addChild(obstacle6, 2);
+//    obstacles.push_back(obstacle6);
+//    Obstacles* obstacle7 = Obstacles::create(Vec2(676, 235), 3.0, "obstacle/7.png", 100.0f, 200.0f);
+//    this->addChild(obstacle7, 2);
+//    obstacles.push_back(obstacle7);
+//    Obstacles* obstacle8 = Obstacles::create(Vec2(517, 70), 3.0, "obstacle/8.png", 100.0f, 200.0f);
+//    this->addChild(obstacle8, 2);
+//    obstacles.push_back(obstacle8);
+//}
 void GameObject::addObstaclesInMapTwo()
 {
     obstacles.clear();
@@ -678,26 +717,16 @@ void GameObject::addObstaclesInMapTwo()
     Obstacles* obstacle2 = Obstacles::create(Vec2(811, 617), 1.5, "obstacle/2.png", 100.0f, 200.0f);
     this->addChild(obstacle2, 2);
     obstacles.push_back(obstacle2);
-    Obstacles* obstacle3 = Obstacles::create(Vec2(215, 433), 2.0, "obstacle/3.png", 100.0f, 200.0f);
+    Obstacles* obstacle3 = Obstacles::create(Vec2(232, 433), 2.0, "obstacle/3.png", 100.0f, 200.0f);
     this->addChild(obstacle3, 2);
     obstacles.push_back(obstacle3);
-    Obstacles* obstacle4 = Obstacles::create(Vec2(592, 333), 2.0, "obstacle/4.png", 100.0f, 200.0f);
+    Obstacles* obstacle4 = Obstacles::create(Vec2(596, 355), 2.0, "obstacle/4.png", 100.0f, 200.0f);
     this->addChild(obstacle4, 2);
     obstacles.push_back(obstacle4);
-    Obstacles* obstacle5 = Obstacles::create(Vec2(872, 151), 2.5, "obstacle/5.png", 100.0f, 200.0f);
+    Obstacles* obstacle5 = Obstacles::create(Vec2(887, 151), 2.5, "obstacle/5.png", 100.0f, 200.0f);
     this->addChild(obstacle5, 2);
     obstacles.push_back(obstacle5);
-    Obstacles* obstacle6 = Obstacles::create(Vec2(142, 613), 3.0, "obstacle/6.png", 100.0f, 200.0f);
-    this->addChild(obstacle6, 2);
-    obstacles.push_back(obstacle6);
-    Obstacles* obstacle7 = Obstacles::create(Vec2(676, 235), 3.0, "obstacle/7.png", 100.0f, 200.0f);
-    this->addChild(obstacle7, 2);
-    obstacles.push_back(obstacle7);
-    Obstacles* obstacle8 = Obstacles::create(Vec2(517, 70), 3.0, "obstacle/8.png", 100.0f, 200.0f);
-    this->addChild(obstacle8, 2);
-    obstacles.push_back(obstacle8);
 }
-
 // 定义静态成员变量
 GameObject* GameObject::instance = nullptr;
 // 获取单例实例的静态成员函数的实现
@@ -722,6 +751,7 @@ void GameObject::removeObstacle(GameObject* obstacle)
     if (it != obstacles.end())
     {
         obstacles.erase(it);
+        obstacle = nullptr;
     }
 }
 

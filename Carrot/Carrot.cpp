@@ -56,7 +56,7 @@ void Carrot::decreaseHealth()
 {
     SimpleAudioEngine::getInstance()->playEffect("carrotbite.MP3", false, 1.0f, 1.0f, 1.0f);
     carrotLayer->currentHealth -= 1;
-    if (carrotLayer->currentHealth == 9.0f)
+    if (carrotLayer->currentHealth == 9)
     {
         //ÉúÃüÊý×Ö
         spriteNum = Sprite::create("icon_num(9).png");
@@ -70,12 +70,12 @@ void Carrot::decreaseHealth()
         spriteCarrot->setSpriteFrame(framesCarrot.front());
         spriteCarrot->runAction(RepeatForever::create(Animate::create(animationCarrot)));
     }
-    else if (carrotLayer->currentHealth == 8.0f)
+    else if (carrotLayer->currentHealth == 8)
     {
         spriteNum->setTexture("icon_num(8).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
     }
-    else if (carrotLayer->currentHealth == 7.0f)
+    else if (carrotLayer->currentHealth == 7)
     {
         spriteNum->setTexture("icon_num(7).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
@@ -88,35 +88,35 @@ void Carrot::decreaseHealth()
         spriteCarrot->stopAllActions();
         spriteCarrot->setSpriteFrame("carrot3/carrot7.png");
     }
-    else if (carrotLayer->currentHealth == 6.0f)
+    else if (carrotLayer->currentHealth == 6)
     {
         spriteNum->setTexture("icon_num(6).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
     }
-    else if (carrotLayer->currentHealth == 5.0f)
+    else if (carrotLayer->currentHealth == 5)
     {
         spriteNum->setTexture("icon_num(5).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
         spriteCarrot->setSpriteFrame("carrot3/carrot5.png");
     }
-    else if (carrotLayer->currentHealth == 4.0f)
+    else if (carrotLayer->currentHealth == 4)
     {
         spriteNum->setTexture("icon_num(4).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
         spriteCarrot->setSpriteFrame("carrot3/carrot4.png");
     }
-    else if (carrotLayer->currentHealth == 3.0f)
+    else if (carrotLayer->currentHealth == 3)
     {
         spriteNum->setTexture("icon_num(3).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
     }
-    else if (carrotLayer->currentHealth == 2.0f)
+    else if (carrotLayer->currentHealth == 2)
     {
         spriteNum->setTexture("icon_num(2).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
         spriteCarrot->setSpriteFrame("carrot3/carrot2.png");
     }
-    else if (carrotLayer->currentHealth == 1.0f)
+    else if (carrotLayer->currentHealth == 1)
     {
         spriteNum->setTexture("icon_num(1).png");
         spriteNum->setTextureRect(Rect(Vec2::ZERO, spriteNum->getContentSize()));
@@ -126,6 +126,10 @@ void Carrot::decreaseHealth()
     {
         SimpleAudioEngine::getInstance()->playEffect("fail.MP3", false, 1.0f, 1.0f, 1.0f);
         CCLOG("gameover");
+        if (mapChoose == 1)
+            gameOverOne();
+        else
+            gameOverTwo();
     }
 }
 
