@@ -220,12 +220,10 @@ void mapChoose::onTouchEnded(Touch* touch, Event* event)
     std::vector<GameObject*> monsters = MonsterManager::getInstance()->getMonsters();
     //存储障碍物坐标
     std::vector<Obstacles*> obstacles = GameObject::getInstance()->getObstacles();
-    ////遍历判断是否点击到怪物
-    //GameObject* attackMonster = ifClickedMonster(monsters, mousePos);
-    ////遍历判断是否点击到障碍物
-    //Obstacles* attackObstacle = ifClickedObstacle(obstacles, mousePos);
-    GameObject* attackMonster = nullptr;
-    Obstacles* attackObstacle = nullptr;
+    //遍历判断是否点击到怪物
+    GameObject* attackMonster = ifClickedMonster(monsters, mousePos);
+    //遍历判断是否点击到障碍物
+    Obstacles* attackObstacle = ifClickedObstacle(obstacles, mousePos);
     //判断
     if (sunFlower == nullptr && towerName == "" && towerMenu == nullptr && attackMonster == nullptr && attackObstacle == nullptr)//点击空白处
     {
@@ -410,8 +408,8 @@ void mapChoose::onTouchEnded(Touch* touch, Event* event)
             //sunFlowerClicked = true;//防止点击sunFlower图标时进入onMouseEnded函数
         }
     }
-    //else if (attackMonster != nullptr || attackObstacle != nullptr)
-    //{
+    else if (attackMonster != nullptr || attackObstacle != nullptr)
+    {
     //    //优先攻击传递
     //    if (priorAttackLogo != nullptr)
     //    {
@@ -452,13 +450,12 @@ void mapChoose::onTouchEnded(Touch* touch, Event* event)
     //            //传给炮塔
     //            TowerManager::getInstance()->setFirstTarget(attackObstacle);
     //        }
-    //        //播放音效
-    //        auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
-    //        audio->playEffect("pointObstacle.MP3", false, 1.0f, 1.0f, 1.0f);
-
+    //播放音效
+    auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
+    audio->playEffect("pointObstacle.MP3", false, 1.0f, 1.0f, 1.0f);
     //        priorAttackLogo->setScale(0.25);
     //    }
-    //}
+    }
     else
     {
         this->removeChild(sunFlower->getParent());//移除选择图标所在菜单
