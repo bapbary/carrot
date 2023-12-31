@@ -1,6 +1,6 @@
 #include "Obstacles.h"
 USING_NS_CC;
-Obstacles* Obstacles::create(cocos2d::Vec2 position, float scale, char* filename, float health,float coin)
+Obstacles* Obstacles::create(cocos2d::Vec2 position, float scale, char* filename, int health,int coin)
 {
     Obstacles* obstacle = new Obstacles();
     if (obstacle && obstacle->init(position, scale, filename, health,coin))
@@ -14,7 +14,7 @@ Obstacles* Obstacles::create(cocos2d::Vec2 position, float scale, char* filename
         return nullptr;
     }
 }
-bool Obstacles::init(Vec2 position, float scale, char* filename, float health,float coin)
+bool Obstacles::init(Vec2 position, float scale, char* filename, int health,int coin)
 {
     if (!Node::init())
     {

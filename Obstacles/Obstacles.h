@@ -5,8 +5,8 @@
 class Obstacles :public GameObject
 {
 public:
-    virtual bool init(cocos2d::Vec2 position,float scale, char* filename,float health,float coin);
-    static Obstacles* create(cocos2d::Vec2 position, float scale, char* filename, float health,float coin);
+    virtual bool init(cocos2d::Vec2 position,float scale, char* filename,int health,int coin);
+    static Obstacles* create(cocos2d::Vec2 position, float scale, char* filename, int health,int coin);
 };
 
 #endif // __OBSTACALES_H__
