@@ -42,11 +42,11 @@ void BasicDefensiveTower::spriteHide(cocos2d::Sprite* sprite) {
 }
 
 //炮塔更新索敌对象
-void BasicDefensiveTower::towerTargetUpdate1(float dt){
+void BasicDefensiveTower::towerTargetUpdate1(float dt) {
     // 如果当前没有目标或者目标超出索敌范围，重新选择目标
     for (BasicDefensiveTower* currentTower : TowerManager::getInstance()->towers)
     {
-        if (currentTower->towerName.compare(0, 14, "SunFlowerTower") == 0){
+        if (currentTower->towerName.compare(0, 14, "SunFlowerTower") == 0) {
             //判断当前炮塔优先攻击目标是否 不为空且在当前炮塔的攻击范围内
             if (TowerManager::getInstance()->getFirstTarget() != nullptr) {
                 if ((TowerManager::getInstance()->getFirstTarget()->objectPosition - currentTower->getTowerLocation()).length() <= currentTower->towerAttackRange) {
@@ -76,18 +76,18 @@ void BasicDefensiveTower::towerTargetUpdate2(float dt) {
     // 如果当前没有目标或者目标超出索敌范围，重新选择目标
     for (BasicDefensiveTower* currentTower : TowerManager::getInstance()->towers)
     {
-        if(currentTower->towerName.compare(0, 13, "LightingTower") == 0){
+        if (currentTower->towerName.compare(0, 13, "LightingTower") == 0) {
             //判断当前炮塔优先攻击目标是否 不为空且在当前炮塔的攻击范围内
             if (TowerManager::getInstance()->getFirstTarget() != nullptr) {
                 if ((TowerManager::getInstance()->getFirstTarget()->objectPosition - currentTower->getTowerLocation()).length() <= currentTower->towerAttackRange) {
-                  currentTower->towerSpin(TowerManager::getInstance()->getFirstTarget()->objectPosition);
-                  currentTower->towerAttack(TowerManager::getInstance()->getFirstTarget()->objectPosition);
+                    currentTower->towerSpin(TowerManager::getInstance()->getFirstTarget()->objectPosition);
+                    currentTower->towerAttack(TowerManager::getInstance()->getFirstTarget()->objectPosition);
                 }
             }
             else {
                 //手动置空优先攻击目标
                 TowerManager::getInstance()->cancelFirstTarget();
-                if (currentTower->currentTarget== nullptr|| currentTower->currentTarget->currentHealth <= 0) {
+                if (currentTower->currentTarget == nullptr || currentTower->currentTarget->currentHealth <= 0) {
                     currentTower->currentTarget = currentTower->findTarget();
                 }
                 else if ((currentTower->currentTarget->getCurrentPosition() - currentTower->getPosition()).length() > currentTower->towerAttackRange) {
@@ -108,7 +108,7 @@ void BasicDefensiveTower::towerTargetUpdate3(float dt) {
     // 如果当前没有目标或者目标超出索敌范围，重新选择目标
     for (BasicDefensiveTower* currentTower : TowerManager::getInstance()->towers)
     {
-        if (currentTower->towerName.compare(0, 9, "LeafTower") == 0){
+        if (currentTower->towerName.compare(0, 9, "LeafTower") == 0) {
             //判断当前炮塔优先攻击目标是否 不为空且在当前炮塔的攻击范围内
             if (TowerManager::getInstance()->getFirstTarget() != nullptr) {
                 if ((TowerManager::getInstance()->getFirstTarget()->objectPosition - currentTower->getTowerLocation()).length() <= currentTower->towerAttackRange) {
@@ -188,9 +188,20 @@ void BasicDefensiveTower::towerUpgrade() {
 void BasicDefensiveTower::setPhysicsBody(cocos2d::Sprite* Bullet, float value)
 {
     //物理引擎
-    cocos2d::Size smallerSize(Bullet->getContentSize().width * 0.5f, Bullet->getContentSize().height * 0.5f);
+    cocos2d::Size smallerSize(Bullet->getContentSize().width * 0.1f, Bullet->getContentSize().height * 0.1f);
     auto physicsBody = cocos2d::PhysicsBody::createBox(smallerSize, cocos2d::PhysicsMaterial(0.1f, 1.0f, 0.0f));
     physicsBody->setPositionOffset(cocos2d::Vec2(smallerSize.width * 0.5f, smallerSize.height * 0.5f));//偏移量
+    physicsBody->setDynamic(false);
+    physicsBody->setCategoryBitmask(0x05);    // 0101
+    physicsBody->setContactTestBitmask(0x09); // 1001
+    Bullet->setTag(value);
+    Bullet->setPhysicsBody(physicsBody);
+
+}
+void BasicDefensiveTower::setSunFlowerPhysicsBody(cocos2d::Sprite* Bullet, float value)
+{
+    //物理引擎
+    auto physicsBody = cocos2d::PhysicsBody::createBox(Bullet->getContentSize(), cocos2d::PhysicsMaterial(0.1f, 1.0f, 0.0f));
     physicsBody->setDynamic(false);
     physicsBody->setCategoryBitmask(0x05);    // 0101
     physicsBody->setContactTestBitmask(0x09); // 1001

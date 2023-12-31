@@ -39,17 +39,17 @@ void SunFlowerTower::towerAttack(const cocos2d::Vec2& targetLocation) {
     if (towerLevel == 1) {
         Bullet = cocos2d::Sprite::create("sunFlowerTowerBulletSmall.png");
         //物理引擎
-        setPhysicsBody(Bullet, SUNFLOWERBULLET1);
+        setSunFlowerPhysicsBody(Bullet, SUNFLOWERBULLET1);
     }
     else if (towerLevel == 2) {
         Bullet = cocos2d::Sprite::create("sunFlowerTowerBulletMiddle.png");
         //物理引擎
-        setPhysicsBody(Bullet, SUNFLOWERBULLET2);
+        setSunFlowerPhysicsBody(Bullet, SUNFLOWERBULLET2);
     }
     else if (towerLevel == 3) {
         Bullet = cocos2d::Sprite::create("sunFlowerTowerBulletBig.png");
         //物理引擎
-        setPhysicsBody(Bullet, SUNFLOWERBULLET3);
+        setSunFlowerPhysicsBody(Bullet, SUNFLOWERBULLET3);
     }
 
     //放置粒子并设置大小
@@ -71,12 +71,12 @@ void SunFlowerTower::towerBulletShoot(cocos2d::Sprite* bullet, const cocos2d::Ve
     audio->playEffect("leafTowerAttackSound.MP3", false, 1.0f, 1.0f, 1.0f);
 
     //缩放因子
-    float targetScaleFactor = 1.05f;   
+    float targetScaleFactor = 1.05f;
     //创建放大动作
     auto scaleUp = ScaleTo::create(1.0, targetScaleFactor);
     //创建一个序列动作，按照顺序执行上述动作
     auto sequence = Sequence::create(
-        scaleUp, 
+        scaleUp,
         // 创建一个回调动作，在飞行动作完成后执行
         cocos2d::CallFunc::create([=]() {
             //移除精灵
