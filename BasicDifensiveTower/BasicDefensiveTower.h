@@ -57,6 +57,7 @@ public:
 
     //设置物体函数
     void BasicDefensiveTower::setPhysicsBody(cocos2d::Sprite* Bullet, float value);
+    void BasicDefensiveTower::setSunFlowerPhysicsBody(cocos2d::Sprite* Bullet, float value);
 protected:
     //炮塔本身的精灵表示
     cocos2d::Sprite* tower;

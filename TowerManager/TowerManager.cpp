@@ -73,5 +73,3 @@ void TowerManager::cancelFirstTarget() {
 GameObject* TowerManager::getFirstTarget() {
     return firstTarget;
 }
-
-

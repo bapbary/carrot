@@ -35,7 +35,7 @@ public:
     void cancelFirstTarget();
 
     //获取优先攻击目标指针
-    GameObject *getFirstTarget();
+    GameObject* getFirstTarget();
 private:
     TowerManager() {}
     //炮塔管理器自身单例指针
