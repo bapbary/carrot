@@ -213,7 +213,7 @@ void mapChoose::onTouchEnded(Touch* touch, Event* event)
     Vec2 mousePos = touch->getLocation();
     float mouseLocX = mousePos.x;
     float mouseLocY = mousePos.y;
-    label->setString("Mouse Coordinates: " + std::to_string(mouseLocX) + ", " + std::to_string(mouseLocY));
+    //label->setString("Mouse Coordinates: " + std::to_string(mouseLocX) + ", " + std::to_string(mouseLocY));
     //获取当前点击有无炮塔
     towerName = TowerManager::getInstance()->towerSelected(mousePos);
     //获取现存怪物的信息
@@ -410,51 +410,99 @@ void mapChoose::onTouchEnded(Touch* touch, Event* event)
     }
     else if (attackMonster != nullptr || attackObstacle != nullptr)
     {
-    //    //优先攻击传递
-    //    if (priorAttackLogo != nullptr)
-    //    {
-    //        //if (priorAttackLogo != nullptr && dynamic_cast<GameObject*>(dynamic_cast<Sprite*>(priorAttackLogo)->getParent())->currentHealth <= 0)
-    //        //    priorAttackLogo = nullptr;
+        //优先攻击传递
+        if (priorAttack != nullptr)
+        {
+            if (priorAttack != nullptr && priorAttack->currentHealth <= 0)
+            {
+                priorAttackLogo = nullptr;
+                priorAttack = nullptr;
+                TowerManager::getInstance()->cancelFirstTarget();
+            }
+            else
+            {
+                if (attackMonster != nullptr && priorAttack == attackMonster)
+                {
+                    attackMonster->getSprite()->removeChild(priorAttackLogo, true);//从 attackMonster 的子节点中移除
+                    priorAttackLogo = nullptr;
+                    priorAttack == nullptr;
+                    //取消优先攻击
+                    TowerManager::getInstance()->cancelFirstTarget();
+                }
+                else if (attackObstacle != nullptr && priorAttack == attackObstacle)
+                {
+                    attackObstacle->getSprite()->removeChild(priorAttackLogo, true); //从 attackObstacle 的子节点中移除
+                    priorAttackLogo = nullptr;
+                    priorAttack == nullptr;
+                    //取消优先攻击
+                    TowerManager::getInstance()->cancelFirstTarget();
+                }
+                else if (attackMonster != nullptr && priorAttack != attackMonster)
+                {
+                    priorAttack->getSprite()->removeChild(priorAttackLogo, true);
+                    priorAttackLogo = Sprite::create("priorAttackLogo.png");
+                    priorAttack = attackMonster;
+                    lastPrior = attackMonster->getSprite();
+                    attackMonster->getSprite()->addChild(priorAttackLogo, 1);
+                    priorAttackLogo->setPosition(Vec2(attackMonster->getSprite()->getContentSize().width / 2, attackMonster->getSprite()->getContentSize().height + 10));
+                    //传给炮塔
+                    this->scheduleUpdate();
+                    TowerManager::getInstance()->setFirstTarget(attackMonster);
+                    //播放音效
+                    auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
+                    audio->playEffect("pointObstacle.MP3", false, 1.0f, 1.0f, 1.0f);
 
-    //        if (attackMonster != nullptr && priorAttackLogo->getParent() == attackMonster->getSprite())
-    //        {
-    //            attackMonster->getSprite()->removeChild(priorAttackLogo, true);//从 attackMonster 的子节点中移除
-    //            priorAttackLogo = nullptr;
-    //            //取消优先攻击
-    //            TowerManager::getInstance()->cancelFirstTarget();
-    //        }
-    //        else if(attackObstacle != nullptr && priorAttackLogo->getParent() == attackObstacle->getSprite())
-    //        {
-    //            attackObstacle->getSprite()->removeChild(priorAttackLogo, true); //从 attackObstacle 的子节点中移除
-    //            priorAttackLogo = nullptr;
-    //            //取消优先攻击
-    //            TowerManager::getInstance()->cancelFirstTarget();
-    //        }
-    //    }
-    //    else
-    //    {
-    //        priorAttackLogo = Sprite::create("priorAttackLogo.png");
-    //        if (attackMonster != nullptr)
-    //        {
-    //            lastPrior = attackMonster->getSprite();
-    //            attackMonster->getSprite()->addChild(priorAttackLogo, 1);
-    //            priorAttackLogo->setPosition(Vec2(attackMonster->getSprite()->getContentSize().width / 2, attackMonster->getSprite()->getContentSize().height));
-    //            //传给炮塔
-    //            TowerManager::getInstance()->setFirstTarget(attackMonster);
-    //        }
-    //        else
-    //        {
-    //            lastPrior = attackObstacle->getSprite();
-    //            attackObstacle->getSprite()->addChild(priorAttackLogo, 1);
-    //            priorAttackLogo->setPosition(Vec2(attackObstacle->getSprite()->getContentSize().width / 2, attackObstacle->getSprite()->getContentSize().height));
-    //            //传给炮塔
-    //            TowerManager::getInstance()->setFirstTarget(attackObstacle);
-    //        }
-    //播放音效
-    auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
-    audio->playEffect("pointObstacle.MP3", false, 1.0f, 1.0f, 1.0f);
-    //        priorAttackLogo->setScale(0.25);
-    //    }
+                    priorAttackLogo->setScale(0.25);
+
+                }
+                else if (attackObstacle != nullptr && priorAttack != attackObstacle)
+                {
+                    priorAttack->getSprite()->removeChild(priorAttackLogo, true);
+                    priorAttackLogo = Sprite::create("priorAttackLogo.png");
+                    priorAttack = attackObstacle;
+                    lastPrior = attackObstacle->getSprite();
+                    attackObstacle->getSprite()->addChild(priorAttackLogo, 1);
+                    priorAttackLogo->setPosition(Vec2(attackObstacle->getSprite()->getContentSize().width / 2, attackObstacle->getSprite()->getContentSize().height + 10));
+                    //传给炮塔
+                    this->scheduleUpdate();
+                    TowerManager::getInstance()->setFirstTarget(attackObstacle);
+                    //播放音效
+                    auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
+                    audio->playEffect("pointObstacle.MP3", false, 1.0f, 1.0f, 1.0f);
+                    priorAttackLogo->setScale(0.25);
+
+                }
+            }
+        }
+        else
+        {
+            priorAttackLogo = Sprite::create("priorAttackLogo.png");
+            if (attackMonster != nullptr)
+            {
+                priorAttack = attackMonster;
+                lastPrior = attackMonster->getSprite();
+                attackMonster->getSprite()->addChild(priorAttackLogo, 1);
+                priorAttackLogo->setPosition(Vec2(attackMonster->getSprite()->getContentSize().width / 2, attackMonster->getSprite()->getContentSize().height+10));
+                //传给炮塔
+                this->scheduleUpdate();
+                TowerManager::getInstance()->setFirstTarget(attackMonster);
+            }
+            else
+            {
+                priorAttack = attackObstacle;
+                lastPrior = attackObstacle->getSprite();
+                attackObstacle->getSprite()->addChild(priorAttackLogo, 1);
+                priorAttackLogo->setPosition(Vec2(attackObstacle->getSprite()->getContentSize().width / 2, attackObstacle->getSprite()->getContentSize().height+10));
+                //传给炮塔
+                this->scheduleUpdate();
+                TowerManager::getInstance()->setFirstTarget(attackObstacle);
+            }
+            //播放音效
+            auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
+            audio->playEffect("pointObstacle.MP3", false, 1.0f, 1.0f, 1.0f);
+
+            priorAttackLogo->setScale(0.25);
+        }
     }
     else
     {
@@ -741,10 +789,7 @@ void mapChoose::gameWinTwo()
     //播放音效
     auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
     audio->playEffect("success.MP3", false, 1.0f, 1.0f, 1.0f);
-
-
     Director::getInstance()->pushScene(winScene);//进入获胜界面
-
 }
 
 void mapChoose::tryAgainOne(cocos2d::Ref*)
@@ -836,8 +881,18 @@ void mapChoose::gameOverTwo()
     //播放音效
     auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
     audio->playEffect("fail.MP3", false, 1.0f, 1.0f, 1.0f);
-
-
     Director::getInstance()->pushScene(gameOverScene);//进入失败界面
 
+}
+
+
+void mapChoose::update(float dt)
+{
+    if (priorAttack != nullptr && priorAttack->currentHealth <= 0)
+    {
+        priorAttackLogo = nullptr;
+        priorAttack = nullptr;
+        TowerManager::getInstance()->cancelFirstTarget();
+        this->unscheduleUpdate();
+    }
 }

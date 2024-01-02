@@ -33,7 +33,7 @@ bool sceneCover::init()
     Vec2 origin = Director::getInstance()->getVisibleOrigin();//视图的初始化时的可见大小
     //播放音效
     auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
-    audio->playEffect("background.MP3", false, 1.0f, 1.0f, 1.0f);
+    audio->playEffect("background.MP3", true, 1.0f, 1.0f, 1.0f);
 
     auto startItem = MenuItemImage::create(
         "startbutton.png",

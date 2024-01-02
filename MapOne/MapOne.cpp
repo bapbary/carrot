@@ -68,9 +68,9 @@ bool mapOne::init()//第一张地图的初始化
     this->addChild(menu, 2);
 
 
-    label = cocos2d::Label::createWithTTF("Mouse Coordinates: ", "fonts/arial.ttf", 24);
-    label->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y + 40));
-    this->addChild(label, 3);
+    //label = cocos2d::Label::createWithTTF("Mouse Coordinates: ", "fonts/arial.ttf", 24);
+    //label->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y + 40));
+    //this->addChild(label, 3);
 
     sunFlower = nullptr;
     //触摸监听创建

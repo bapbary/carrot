@@ -28,6 +28,7 @@ public:
     cocos2d::Vec2 towerPos;//炮塔位置
     cocos2d::Label* goldCoinDisplay;
     Sprite* priorAttackLogo = nullptr;
+    GameObject* priorAttack = nullptr;
     Sprite* lastPrior = nullptr;
     static cocos2d::Scene* createScene();
     virtual bool init();//第一个地图选择场景初始化
@@ -62,6 +63,7 @@ public:
     void gameOverTwo();
     void gameWinOne();
     void gameWinTwo();
+    void update(float dt);
     CREATE_FUNC(mapChoose);
 };
 #endif // MAP_CHOOSE_H
