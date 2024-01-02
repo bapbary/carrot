@@ -35,9 +35,9 @@ bool GameObject::init(int mapCatalog,cocos2d::Label* _goldCoinDisplay)
     mapChoose = mapCatalog;
     goldCoinDisplay = _goldCoinDisplay;
     //鼠标监听，最后要删
-    auto listener = EventListenerMouse::create();
-    listener->onMouseMove = CC_CALLBACK_1(GameObject::onMouseMove, this);
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+    //auto listener = EventListenerMouse::create();
+    //listener->onMouseMove = CC_CALLBACK_1(GameObject::onMouseMove, this);
+    //_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
     //初始化
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -120,7 +120,7 @@ void GameObject::addMonsterInMapOne()
         DelayTime::create(12.5f),
         CallFunc::create([this]()
             {
-                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 5, 1, 0);
+                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 5,1, 0);
             }),
         // 在定时器回调中检查MonsterManager是否为空
         CallFunc::create([=]() 
@@ -199,12 +199,12 @@ void GameObject::addMonsterInMapTwo()
                 CallFunc::create([=]() {
             setLabel("The First Wave", origin, visibleSize);
             //怪物加入
-            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2.5, 4, 0);
+            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2.5, 4, 0);
                     }),
         DelayTime::create(12.5f),
         CallFunc::create([this]()
             {
-                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 5, 4, 0);
+                this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 5, 4, 0);
             }),
         // 在定时器回调中检查MonsterManager是否为空
         CallFunc::create([=]()
@@ -224,7 +224,7 @@ void GameObject::addMonsterInMapTwo()
                                         // 标签
                                         setLabel("The Second Wave", origin, visibleSize);
                                         // 怪物 5一+10二+5三
-                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2, 9, 0);
+                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2, 9, 0);
                                     }),
                                 DelayTime::create(20.0f),
                                 CallFunc::create([this]()
@@ -242,10 +242,10 @@ void GameObject::addMonsterInMapTwo()
                                                     CallFunc::create([=]() {
                                                         this->unschedule("sequenceMonster3");
                                                         setLabel("The Third Wave", origin, visibleSize);
-                                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 2.5, 4, 0);
+                                                        this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 2.5, 4, 0);
                                                         }), DelayTime::create(12.5f),
                                                             CallFunc::create([this]() {
-                                                            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterTwo), 3, 4, 0);
+                                                            this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterOne), 3, 4, 0);
                                                             }), DelayTime::create(15.0f), CallFunc::create([this]() {
                                                                 this->schedule(CC_SCHEDULE_SELECTOR(GameObject::addMonsterThree), 3, 4, 0); }),
                                                                 CallFunc::create([=]()
@@ -362,13 +362,13 @@ Sequence* GameObject::MoveWayInMapOne(GameObject* monster)
     float time4 = (Vec2(210, 345) - Vec2(210, 153)).getLength() / v;
     auto moveTo4 = MoveTo::create(time4, Vec2(210, 153));
     float time5 = (Vec2(210, 153) - Vec2(702, 153)).getLength() / v;
-    auto moveTo5 = MoveTo::create(time5, Vec2(702, 153));
+    auto moveTo5 = MoveTo::create(time5, Vec2(752, 153));
     auto fadeOut = FadeOut::create(0.1f);
     //auto arrive = CallFunc::create([=]() {
     //    monster->unscheduleUpdate();
     //    });
-    //auto actionRemove = RemoveSelf::create();
-    auto seq = Sequence::create(fadeIn, moveTo1, moveTo2, scaleXAction, moveTo3, moveTo4, scaleXAction, moveTo5, fadeOut, nullptr);
+    auto actionRemove = RemoveSelf::create();
+    auto seq = Sequence::create(fadeIn, moveTo1, moveTo2, scaleXAction, moveTo3, moveTo4, scaleXAction, moveTo5, fadeOut,  nullptr);
     return seq;
 }
 //第二个地图路径
@@ -396,13 +396,13 @@ Sequence* GameObject::MoveWayInMapTwo(GameObject* monster)
     float time9 = (Vec2(875, 437) - Vec2(760, 437)).getLength() / v;
     auto moveTo9 = MoveTo::create(time9, Vec2(875, 437));
     float time10 = (Vec2(875, 270) - Vec2(875, 437)).getLength() / v;
-    auto moveTo10 = MoveTo::create(time10, Vec2(875, 270));
+    auto moveTo10 = MoveTo::create(time10, Vec2(895, 270));
     auto fadeOut = FadeOut::create(0.1f);
     //auto arrive = CallFunc::create([=]() {
     //    carrotLayer->decreaseHealth();
     //    monster->unscheduleUpdate();
     //    });
-    //auto actionRemove = RemoveSelf::create();
+    auto actionRemove = RemoveSelf::create();
     auto seq = Sequence::create(fadeIn, scaleXAction, moveTo1, scaleXAction, moveTo2,  moveTo3, scaleXAction, moveTo4, moveTo5, scaleXAction, moveTo6,moveTo7,moveTo8, moveTo9, moveTo10, fadeOut, nullptr);
     return seq;
 }
@@ -454,7 +454,8 @@ void  GameObject::hitMonster(Node*node, int num, float scale,char* filename)
         goldCoin += monster->coinValue;
         goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
         monster->unscheduleUpdate();
-        monster->runAction(RemoveSelf::create());
+        monster->objectSprite->setVisible(false);
+        monster->objectSprite->setTag(MONSTERDIE);
         MonsterManager::getInstance()->removeMonster(monster);
     }
 }
@@ -473,8 +474,9 @@ void GameObject::hitObstacle(Node* node, int num, float scale, char* filename)
         goldCoin += obstacle->coinValue;
         goldCoinDisplay->setString(std::to_string(goldCoin));//更改金币标签
         obstacle->unscheduleUpdate();
+        obstacle->objectSprite->setVisible(false);
+        obstacle->objectSprite->setTag(OBSTACLEDIE);
         removeObstacle(obstacle);
-        obstacle->runAction(RemoveSelf::create());
     }
 }
 //接触
@@ -510,6 +512,26 @@ bool GameObject::onContactBegin(PhysicsContact& contact)
                     MonsterManager::getInstance()->removeMonster(monster);
                 }
             }
+            if (tagA == CARROT && tagB == MONSTERDIE || tagA == MONSTERDIE && tagB == CARROT)
+            {
+                if (tagA == MONSTERDIE)
+                {
+                    Sprite* sprite = dynamic_cast<Sprite*>(nodeA);
+                    GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
+                    monster->unscheduleUpdate();
+                    monster->runAction(RemoveSelf::create());
+                    MonsterManager::getInstance()->removeMonster(monster);
+                }
+                else
+                {
+                    Sprite* sprite = dynamic_cast<Sprite*>(nodeB);
+                    GameObject* monster = dynamic_cast<GameObject*>(sprite->getParent());
+                    monster->unscheduleUpdate();
+                    monster->runAction(RemoveSelf::create());
+                    MonsterManager::getInstance()->removeMonster(monster);
+                }
+            }
+
             //怪物和子弹接触
             //闪电瓶
             if (tagA == MONSTER && tagB == LIGHTINGBULLET1 || tagA == LIGHTINGBULLET1 && tagB == MONSTER)
@@ -749,8 +771,9 @@ void GameObject::removeObstacle(GameObject* obstacle)
 
 void GameObject::setMonsterPhysicsBody()
 {
-    cocos2d::Size smallerSize(objectSprite->getContentSize().width * 0.1f, objectSprite->getContentSize().height * 0.1f);
-    auto physicsBody = PhysicsBody::createBox(objectSprite->getContentSize(), PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
+    cocos2d::Size smallerSize(objectSprite->getContentSize().width * 0.4f, objectSprite->getContentSize().height * 0.4f);
+    auto physicsBody = PhysicsBody::createBox(smallerSize, PhysicsMaterial(0.1f, 1.0f, 0.0f));// 密度，修复，摩擦
+    physicsBody->setPositionOffset(cocos2d::Vec2(smallerSize * 0.5f, smallerSize * 0.5f));//偏移量
     physicsBody->setDynamic(false);
     physicsBody->setCategoryBitmask(0x01);    // 0001
     physicsBody->setContactTestBitmask(0x04); // 0100
