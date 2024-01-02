@@ -53,6 +53,17 @@ void BasicDefensiveTower::towerTargetUpdate1(float dt) {
                     currentTower->towerSpin(TowerManager::getInstance()->getFirstTarget()->objectPosition);
                     currentTower->towerAttack(TowerManager::getInstance()->getFirstTarget()->objectPosition);
                 }
+                else
+                {
+                    currentTower->currentTarget = currentTower->findTarget();
+                    if (currentTower->currentTarget != nullptr)
+
+                    {
+                        currentTower->towerSpin(currentTower->currentTarget->objectPosition);
+                        currentTower->towerAttack(currentTower->currentTarget->objectPosition);
+                    }
+                }
+
             }
             else {
                 if (currentTower->currentTarget == nullptr || currentTower->currentTarget->currentHealth <= 0) {
@@ -83,6 +94,17 @@ void BasicDefensiveTower::towerTargetUpdate2(float dt) {
                     currentTower->towerSpin(TowerManager::getInstance()->getFirstTarget()->objectPosition);
                     currentTower->towerAttack(TowerManager::getInstance()->getFirstTarget()->objectPosition);
                 }
+                else
+                {
+                    currentTower->currentTarget = currentTower->findTarget();
+                    if (currentTower->currentTarget != nullptr)
+
+                    {
+                        currentTower->towerSpin(currentTower->currentTarget->objectPosition);
+                        currentTower->towerAttack(currentTower->currentTarget->objectPosition);
+                    }
+                }
+
             }
             else {
                 //手动置空优先攻击目标
@@ -114,6 +136,16 @@ void BasicDefensiveTower::towerTargetUpdate3(float dt) {
                 if ((TowerManager::getInstance()->getFirstTarget()->objectPosition - currentTower->getTowerLocation()).length() <= currentTower->towerAttackRange) {
                     currentTower->towerSpin(TowerManager::getInstance()->getFirstTarget()->objectPosition);
                     currentTower->towerAttack(TowerManager::getInstance()->getFirstTarget()->objectPosition);
+                }
+                else
+                {
+                    currentTower->currentTarget = currentTower->findTarget();
+                    if (currentTower->currentTarget != nullptr)
+
+                    {
+                        currentTower->towerSpin(currentTower->currentTarget->objectPosition);
+                        currentTower->towerAttack(currentTower->currentTarget->objectPosition);
+                    }
                 }
             }
             else {
@@ -188,7 +220,7 @@ void BasicDefensiveTower::towerUpgrade() {
 void BasicDefensiveTower::setPhysicsBody(cocos2d::Sprite* Bullet, float value)
 {
     //物理引擎
-    cocos2d::Size smallerSize(Bullet->getContentSize().width * 0.1f, Bullet->getContentSize().height * 0.1f);
+    cocos2d::Size smallerSize(Bullet->getContentSize().width * 0.4f, Bullet->getContentSize().height * 0.4f);
     auto physicsBody = cocos2d::PhysicsBody::createBox(smallerSize, cocos2d::PhysicsMaterial(0.1f, 1.0f, 0.0f));
     physicsBody->setPositionOffset(cocos2d::Vec2(smallerSize.width * 0.5f, smallerSize.height * 0.5f));//偏移量
     physicsBody->setDynamic(false);
