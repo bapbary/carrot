@@ -36,7 +36,7 @@ bool Obstacles::init(Vec2 position, float scale, char* filename, int health,int 
     objectSprite->setScale(scale);
     objectPosition = position;
     objectSprite->setPosition(objectPosition);
-    cocos2d::Size smallerSize(objectSprite->getContentSize().width * 0.2f, objectSprite->getContentSize().height * 0.2f);
+    cocos2d::Size smallerSize(objectSprite->getContentSize().width * 0.8f, objectSprite->getContentSize().height * 0.8f);
     auto physicsBody = PhysicsBody::createBox(smallerSize, PhysicsMaterial(0.1f, 1.0f, 0.0f));// ÃÜ¶È£¬ÐÞ¸´£¬Ä¦²Á
     physicsBody->setDynamic(false);
     physicsBody->setCategoryBitmask(0x01);    // 0001
@@ -48,4 +48,3 @@ bool Obstacles::init(Vec2 position, float scale, char* filename, int health,int 
     this->scheduleUpdate();
     return true;
 }
-
